@@ -2,7 +2,7 @@ const ROUTER = "";
 
 export const ROUTER_NAME = {
   // auth
-  LOGIN: "login",
+  LOGIN: "",
   DASHBOARD: "dashboard",
   BOOKINGS: "bookings",
 };
