@@ -1,14 +1,14 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import StatCards from '../../components/StatCards';
-import RevenueChart from '../../components/RevenueChart';
-import BookingStatusChart from '../../components/BookingStatusChart';
-import WeeklyBookingChart from '../../components/WeeklyBookingChart';
-import VehicleTypeChart from '../../components/VehicleTypeChart';
-import TopProviders from '../../components/TopProviders';
-import RecentActivity from '../../components/RecentActivity';
-import BookingTable from '../../components/BookingTable';
+import RevenueChart from '../../components/Page1/RevenueChart';
+import BookingStatusChart from '../../components/Page1/BookingStatusChart';
+import WeeklyBookingChart from '../../components/Page1/WeeklyBookingChart';
+import TopProviders from '../../components/Page1/TopProviders';
+import RecentActivity from '../../components/Page1/RecentActivity';
+import BookingTable from '../../components/Page1/BookingTable';
 import "./style.scss";
+import VehicleTypeChart from '../../components/Page1/VehicleTypeChart';
+import StatCards from '../../components/Page1/StatCards';
 const DashboardPage = () => {
   const today = new Intl.DateTimeFormat('vi-VN', {
     weekday: 'long',

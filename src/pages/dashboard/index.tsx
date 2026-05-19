@@ -8,12 +8,12 @@ import { ROUTER_PATH } from '@/routers/Route';
 
 const MENU_PATHS: Record<string, string> = {
   dashboard: ROUTER_PATH.DASHBOARD,
-  page1: ROUTER_PATH.PAGE1,
+  bookings: ROUTER_PATH.BOOKINGS,
 };
 
 const getActiveKeyFromPath = (pathname: string): string => {
-  if (pathname === ROUTER_PATH.PAGE1 || pathname.endsWith('/page1')) {
-    return 'page1';
+  if (pathname === ROUTER_PATH.BOOKINGS || pathname.endsWith('/bookings')) {
+    return 'bookings';
   }
   return 'dashboard';
 };

@@ -2,8 +2,7 @@
 import React from 'react';
 import { Row, Col } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import { statCards } from '../../share';
-
+import { statCards } from '../../../share';
 const StatCards = () => {
   return (
     <Row gutter={[16, 16]} className="stat-cards-row">

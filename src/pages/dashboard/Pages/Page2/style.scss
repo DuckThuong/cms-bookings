@@ -1,0 +1,767 @@
+@use "sass:color";
+@use "../../../../color.scss" as *;
+@use "../../../../common.scss" as *;
+
+.bm-page {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    background-color: #fff !important;
+    animation: fadeUp 0.35s ease forwards;
+  }
+  
+  // ── Left: Vehicle Sidebar
+  .bm-vehicle-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: $sidebar-bg;
+    border-right: 1px solid $border-color;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  
+    &__header {
+      padding: 20px 16px 12px;
+      border-bottom: 1px solid $border-color;
+  
+      .title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: $text-muted;
+      }
+    }
+  
+    &__list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+  }
+  
+  .vehicle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: $transition-fast;
+    border-left: 3px solid transparent;
+    position: relative;
+  
+    &:hover {
+      background: $sidebar-hover;
+      border-left-color: rgba(249, 115, 22, 0.3);
+    }
+  
+    &--active {
+      background: $sidebar-active !important;
+      border-left-color: $accent-orange !important;
+  
+      .vehicle-item__label { color: $text-primary; }
+      .vehicle-item__type  { color: $text-secondary; }
+    }
+  
+    &--maintenance {
+      opacity: 0.55;
+    }
+  
+    &__icon {
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+  
+    &__body { flex: 1; min-width: 0; }
+  
+    &__label {
+      font-size: 12px;
+      font-weight: 600;
+      color: $text-secondary;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    &__type {
+      font-size: 10px;
+      color: $text-muted;
+      margin-top: 1px;
+    }
+  
+    &__badge {
+      min-width: 20px;
+      height: 18px;
+      border-radius: 99px;
+      background: rgba(249, 115, 22, 0.15);
+      color: $accent-orange;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+  
+    &__maintenance {
+      font-size: 9px;
+      color: $status-warning;
+      background: rgba(234,179,8,0.12);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+  }
+  
+  // ── Right: Main Content
+  .bm-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  // ── Top Toolbar
+  .bm-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid $border-color;
+    background: $primary-navy;
+    gap: 12px;
+    flex-wrap: wrap;
+  
+    &__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+  
+    &__right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    &__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: $text-primary;
+      white-space: nowrap;
+    }
+  
+    &__count {
+      font-size: 12px;
+      color: $text-muted;
+      padding-left: 12px;
+      border-left: 1px solid $border-color;
+    }
+  }
+  
+  // Status Filter Tabs
+  .status-tabs {
+    display: flex;
+    gap: 4px;
+    background: $primary-dark;
+    border-radius: 10px;
+    padding: 4px;
+  
+    &__tab {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: $text-muted;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition-fast;
+      white-space: nowrap;
+  
+      &:hover { color: $text-secondary; background: rgba(255,255,255,0.04); }
+  
+      &--active {
+        color: $text-primary !important;
+        font-weight: 600;
+      }
+  
+      &__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+  
+      &__count {
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: 99px;
+        background: rgba(255,255,255,0.07);
+        color: $text-muted;
+      }
+    }
+  }
+  
+  // ── Summary Strip
+  .bm-summary-strip {
+    display: flex;
+    align-items: center;
+    padding: 10px 24px;
+    background: $primary-navy;
+    border-bottom: 1px solid $border-color;
+    gap: 0;
+    overflow-x: auto;
+  
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      border-right: 1px solid $border-color;
+  
+      &:first-child { padding-left: 0; }
+      &:last-child  { border-right: none; }
+    }
+  
+    &__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  
+    &__label {
+      font-size: 11px;
+      color: $text-muted;
+      white-space: nowrap;
+    }
+  
+    &__value {
+      font-size: 14px;
+      font-weight: 700;
+      color: $text-primary;
+    }
+  }
+  
+  // ── Content area
+  .bm-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+  
+  // ── Booking Table (main)
+  .bm-table-wrap {
+    background: $primary-navy;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    overflow: hidden;
+  }
+  
+  // Ant Design Table overrides for booking table
+  .bm-table {
+    .ant-table { background: transparent !important; }
+  
+    .ant-table-thead > tr > th {
+      background: rgba(255,255,255,0.03) !important;
+      border-bottom: 1px solid $border-color !important;
+      color: $text-muted !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 14px !important;
+  
+      &::before { display: none !important; }
+    }
+  
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+      color: $text-secondary !important;
+      padding: 14px 14px !important;
+      background: transparent !important;
+      vertical-align: middle;
+    }
+  
+    .ant-table-tbody > tr:hover > td {
+      background: rgba(255,255,255,0.025) !important;
+      cursor: pointer;
+    }
+  
+    .ant-table-tbody > tr.row-selected > td {
+      background: rgba(249,115,22,0.06) !important;
+    }
+  
+    .ant-table-row-expand-icon {
+      background: transparent;
+      border-color: $border-color;
+      color: $text-muted;
+    }
+  
+    .ant-pagination {
+      padding: 14px 20px;
+      margin: 0 !important;
+      border-top: 1px solid $border-color;
+  
+      .ant-pagination-item {
+        background: transparent;
+        border-color: $border-color;
+        a { color: $text-secondary; }
+        &-active {
+          background: $accent-orange !important;
+          border-color: $accent-orange !important;
+          a { color: #fff; }
+        }
+      }
+      .ant-pagination-prev button,
+      .ant-pagination-next button {
+        background: transparent;
+        border-color: $border-color;
+        color: $text-secondary;
+      }
+      .ant-select-selector {
+        background: transparent !important;
+        border-color: $border-color !important;
+        color: $text-secondary !important;
+      }
+    }
+  }
+  
+  // ── Customer cell
+  .cust-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  
+    &__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: rgba(249,115,22,0.15);
+      color: $accent-orange;
+    }
+  
+    &__name  { font-size: 13px; font-weight: 600; color: $text-primary; }
+    &__phone { font-size: 11px; color: $text-muted; margin-top: 1px; }
+  }
+  
+  // ── Route cell
+  .route-cell {
+    &__line {
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+  
+      .arrow {
+        color: $accent-orange;
+        font-size: 10px;
+      }
+    }
+  
+    &__time {
+      font-size: 11px;
+      color: $text-muted;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+  
+  // ── Seat badges
+  .seat-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .seat-badge {
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.07);
+    color: $text-secondary;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-family: $font-mono;
+  }
+  
+  // ── Status badge
+  .booking-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+  
+    &__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+  }
+  
+  // ── Amount cell
+  .amount-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: $status-success;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  // ── Action buttons
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  
+    button {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: 1px solid $border-color;
+      background: transparent;
+      color: $text-muted;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition-fast;
+      font-size: 12px;
+  
+      &:hover {
+        border-color: $border-active;
+        color: $accent-orange;
+        background: $accent-orange-light;
+      }
+  
+      &.danger:hover {
+        border-color: rgba(239,68,68,0.4);
+        color: $status-error;
+        background: rgba(239,68,68,0.1);
+      }
+    }
+  }
+  
+  // ── Detail Drawer
+  .booking-drawer {
+    .ant-drawer-content {
+      background: $primary-navy !important;
+      border-left: 1px solid $border-color;
+    }
+  
+    .ant-drawer-header {
+      background: $primary-navy !important;
+      border-bottom: 1px solid $border-color !important;
+      padding: 16px 20px !important;
+    }
+  
+    .ant-drawer-title {
+      color: $text-primary !important;
+      font-weight: 700 !important;
+      font-family: $font-primary !important;
+    }
+  
+    .ant-drawer-close {
+      color: $text-muted !important;
+    }
+  
+    .ant-drawer-body {
+      background: $primary-navy !important;
+      padding: 0 !important;
+    }
+  }
+  
+  .drawer-body {
+    padding: 20px;
+  
+    &__section {
+      margin-bottom: 24px;
+    }
+  
+    &__section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: $text-muted;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid $border-color;
+    }
+  
+    &__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+  
+      &:last-child { border-bottom: none; }
+    }
+  
+    &__key {
+      font-size: 12px;
+      color: $text-muted;
+    }
+  
+    &__val {
+      font-size: 13px;
+      color: $text-primary;
+      font-weight: 500;
+      text-align: right;
+      max-width: 60%;
+    }
+  }
+  
+  // ── Journey Timeline in drawer
+  .journey-timeline {
+    position: relative;
+    padding: 12px 0;
+  
+    &__line {
+      position: absolute;
+      left: 11px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      background: linear-gradient(to bottom, $accent-orange, rgba(249,115,22,0.2));
+      border-radius: 99px;
+    }
+  
+    &__point {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+  
+      &:last-child { margin-bottom: 0; }
+    }
+  
+    &__dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid $accent-orange;
+      background: $primary-navy;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+  
+    &__info {
+      flex: 1;
+      padding-top: 2px;
+    }
+  
+    &__label {
+      font-size: 12px;
+      color: $text-muted;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 10px;
+    }
+  
+    &__place {
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  
+    &__time {
+      font-size: 12px;
+      color: $accent-orange;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+  }
+  
+  // ── Seat Map Preview
+  .seat-map-mini {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+  
+    &__seat {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      font-size: 8px;
+      color: $text-muted;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      transition: $transition-fast;
+  
+      &--booked {
+        background: rgba(249,115,22,0.15);
+        border-color: rgba(249,115,22,0.3);
+        color: $accent-orange;
+      }
+  
+      &--selected {
+        background: $accent-orange;
+        border-color: $accent-orange;
+        color: #fff;
+      }
+    }
+  }
+  
+  // ── Confirm/Cancel modal override
+  .bm-modal {
+    .ant-modal-content {
+      background: $primary-navy-2 !important;
+      border: 1px solid $border-color;
+      border-radius: $radius-md !important;
+      box-shadow: $shadow-lg;
+    }
+  
+    .ant-modal-header {
+      background: transparent !important;
+      border-bottom: 1px solid $border-color !important;
+      padding: 16px 20px !important;
+    }
+  
+    .ant-modal-title {
+      color: $text-primary !important;
+      font-family: $font-primary !important;
+      font-weight: 700 !important;
+    }
+  
+    .ant-modal-close { color: $text-muted !important; }
+  
+    .ant-modal-body {
+      background: transparent !important;
+      color: $text-secondary !important;
+      font-size: 14px;
+      padding: 20px !important;
+    }
+  
+    .ant-modal-footer {
+      background: transparent !important;
+      border-top: 1px solid $border-color !important;
+      padding: 12px 20px !important;
+    }
+  }
+  
+  // Input overrides
+  .bm-search.ant-input-affix-wrapper {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid $border-color !important;
+    border-radius: 8px !important;
+  
+    input {
+      background: transparent !important;
+      color: $text-primary !important;
+      font-size: 13px;
+  
+      &::placeholder { color: $text-muted; }
+    }
+  
+    .ant-input-prefix { color: $text-muted; }
+  
+    &:focus-within {
+      border-color: $border-active !important;
+      box-shadow: none !important;
+    }
+  }
+  
+  // Date picker override
+  .bm-date-picker.ant-picker {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid $border-color !important;
+    border-radius: 8px !important;
+  
+    input {
+      color: $text-primary !important;
+      font-size: 13px;
+      &::placeholder { color: $text-muted; }
+    }
+  
+    .ant-picker-suffix { color: $text-muted; }
+    .ant-picker-clear  { background: $primary-navy; }
+  
+    &:hover, &.ant-picker-focused {
+      border-color: $border-active !important;
+      box-shadow: none !important;
+    }
+  }
+  
+  // Select override
+  .bm-select {
+    .ant-select-selector {
+      background: rgba(255,255,255,0.05) !important;
+      border: 1px solid $border-color !important;
+      border-radius: 8px !important;
+      color: $text-primary !important;
+      font-size: 13px;
+    }
+  
+    .ant-select-arrow { color: $text-muted; }
+  
+    &.ant-select-focused .ant-select-selector {
+      border-color: $border-active !important;
+      box-shadow: none !important;
+    }
+  }
+  
+  // Btn overrides
+  .btn-primary {
+    background: $accent-orange !important;
+    border-color: $accent-orange !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    height: 34px !important;
+  
+    &:hover {
+      background: $accent-orange-2 !important;
+      border-color: $accent-orange-2 !important;
+    }
+  }
+  
+  .btn-ghost {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid $border-color !important;
+    color: $text-secondary !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    height: 34px !important;
+  
+    &:hover {
+      border-color: rgba(255,255,255,0.15) !important;
+      color: $text-primary !important;
+    }
+  }
