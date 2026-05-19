@@ -1,6 +1,6 @@
 
 interface SummaryStripProps {
-  items: { key: string; label: string; color: string; value: number }[]
+  items: { key: string; label: string; color: string; value: number | string }[]
 }
 
 const SummaryStrip = ({ items }: SummaryStripProps) => (

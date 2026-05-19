@@ -1,15 +1,27 @@
 const ROUTER = "";
 
 export const ROUTER_NAME = {
-  // auth
   LOGIN: "",
   DASHBOARD: "dashboard",
   BOOKINGS: "bookings",
+  TRIPS: "trips",
+  ROUTES: "routes",
+  VEHICLES: "vehicles",
+  CUSTOMERS: "customers",
+  DRIVERS: "drivers",
+  REVENUE: "revenue",
+  REPORTS: "reports",
 };
 
 export const ROUTER_PATH = {
-  // auth
   LOGIN: `${ROUTER}/${ROUTER_NAME.LOGIN}`,
   DASHBOARD: `${ROUTER}/${ROUTER_NAME.DASHBOARD}`,
   BOOKINGS: `${ROUTER}/${ROUTER_NAME.BOOKINGS}`,
+  TRIPS: `${ROUTER}/${ROUTER_NAME.TRIPS}`,
+  ROUTES: `${ROUTER}/${ROUTER_NAME.ROUTES}`,
+  VEHICLES: `${ROUTER}/${ROUTER_NAME.VEHICLES}`,
+  CUSTOMERS: `${ROUTER}/${ROUTER_NAME.CUSTOMERS}`,
+  DRIVERS: `${ROUTER}/${ROUTER_NAME.DRIVERS}`,
+  REVENUE: `${ROUTER}/${ROUTER_NAME.REVENUE}`,
+  REPORTS: `${ROUTER}/${ROUTER_NAME.REPORTS}`,
 };

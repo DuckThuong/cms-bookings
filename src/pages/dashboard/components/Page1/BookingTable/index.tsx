@@ -117,7 +117,7 @@ const BookingTable = () => {
         <div>
           <div className="table-section__title">Danh sách đặt vé gần đây</div>
         </div>
-        <Space size={8}>
+        <Space size={8} wrap>
           <Input
             prefix={<SearchOutlined style={{ color: '#64748b' }} />}
             placeholder="Tìm kiếm..."
@@ -128,7 +128,8 @@ const BookingTable = () => {
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: 8,
               color: '#f1f5f9',
-              width: 220,
+              minWidth: 0,
+              width: '100%',
               fontSize: 13,
             }}
           />
@@ -169,7 +170,6 @@ const BookingTable = () => {
             </span>
           ),
         }}
-        scroll={{ x: 900 }}
       />
     </div>
   );
