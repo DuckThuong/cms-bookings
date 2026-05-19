@@ -1,20 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Tooltip } from "antd";
 import {
-  DashboardOutlined,
-  ScheduleOutlined,
-  CarOutlined,
-  TeamOutlined,
   ApartmentOutlined,
-  EnvironmentOutlined,
-  DollarOutlined,
   BarChartOutlined,
-  SettingOutlined,
-  QuestionCircleOutlined,
+  CarOutlined,
+  DashboardOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
   LeftOutlined,
-  RightOutlined,
   LogoutOutlined,
-  FileOutlined,
+  QuestionCircleOutlined,
+  RightOutlined,
+  ScheduleOutlined,
+  SettingOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import "./style.scss";
 import { Logo } from "../Logo";
@@ -22,101 +21,52 @@ import { Logo } from "../Logo";
 const MENU_GROUPS = [
   {
     label: "Tổng quan",
-    items: [
-      {
-        key: "dashboard",
-        icon: <DashboardOutlined />,
-        label: "Dashboard",
-        badge: null,
-      },
-    ],
+    items: [{ key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard", badge: null }],
   },
   {
     label: "Vận hành",
     items: [
-      {
-        key: "bookings",
-        icon: <ScheduleOutlined />,
-        label: "Đặt vé",
-        badge: { text: "24", type: "orange" },
-      },
-      {
-        key: "trips",
-        icon: <CarOutlined />,
-        label: "Chuyến xe",
-        badge: { text: "8", type: "green" },
-      },
-      {
-        key: "routes",
-        icon: <EnvironmentOutlined />,
-        label: "Tuyến đường",
-        badge: null,
-      },
-      {
-        key: "vehicles",
-        icon: <ApartmentOutlined />,
-        label: "Phương tiện",
-        badge: null,
-      },
+      { key: "bookings", icon: <ScheduleOutlined />, label: "Đặt vé", badge: { text: "24", type: "orange" } },
+      { key: "trips", icon: <CarOutlined />, label: "Chuyến xe", badge: { text: "8", type: "green" } },
+      { key: "routes", icon: <EnvironmentOutlined />, label: "Tuyến đường", badge: null },
+      { key: "vehicles", icon: <ApartmentOutlined />, label: "Phương tiện", badge: null },
     ],
   },
   {
     label: "Quản lý",
     items: [
-      {
-        key: "customers",
-        icon: <TeamOutlined />,
-        label: "Khách hàng",
-        badge: { text: "120", type: "blue" },
-      },
-      {
-        key: "drivers",
-        icon: <CarOutlined />,
-        label: "Tài xế",
-        badge: null,
-      },
-      {
-        key: "revenue",
-        icon: <DollarOutlined />,
-        label: "Doanh thu",
-        badge: null,
-      },
-      {
-        key: "reports",
-        icon: <BarChartOutlined />,
-        label: "Báo cáo",
-        badge: null,
-      },
+      { key: "customers", icon: <TeamOutlined />, label: "Khách hàng", badge: { text: "120", type: "blue" } },
+      { key: "drivers", icon: <CarOutlined />, label: "Tài xế", badge: null },
+      { key: "revenue", icon: <DollarOutlined />, label: "Doanh thu", badge: null },
+      { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo", badge: null },
     ],
   },
   {
     label: "Hệ thống",
     items: [
-      {
-        key: "settings",
-        icon: <SettingOutlined />,
-        label: "Cài đặt",
-        badge: null,
-      },
-      {
-        key: "help",
-        icon: <QuestionCircleOutlined />,
-        label: "Trợ giúp",
-        badge: null,
-      },
+      { key: "settings", icon: <SettingOutlined />, label: "Cài đặt", badge: null },
+      { key: "help", icon: <QuestionCircleOutlined />, label: "Trợ giúp", badge: null },
     ],
   },
 ];
 
 type MenuItemProps = {
-  item: any;
+  item: {
+    key: string;
+    icon: React.ReactNode;
+    label: string;
+    badge: { text: string; type: string } | null;
+  };
   isActive: boolean;
   collapsed: boolean;
   onClick: (key: string) => void;
 };
 
 type MenuGroupProps = {
-  group: any;
+  group: {
+    label: string;
+    items: MenuItemProps["item"][];
+  };
   activeKey: string;
   collapsed: boolean;
   onSelect: (key: string) => void;
@@ -137,18 +87,12 @@ type AppSidebarProps = {
 const SidebarLogo = ({ collapsed }: { collapsed: boolean }) => (
   <div className="app-sidebar__logo">
     <a className="sidebar-logo" href="/">
-    <div className="logo-icon">
+      <div className="logo-icon">
         <svg viewBox="0 0 20 20" fill="none">
           <path d="M3 14l2-5h10l2 5H3z" fill="#f5a623" />
           <rect x="5" y="14" width="3" height="3" rx="1.5" fill="#f5a623" />
           <rect x="12" y="14" width="3" height="3" rx="1.5" fill="#f5a623" />
-          <path
-            d="M7 9l1-3h4l1 3"
-            stroke="#fff"
-            strokeWidth="1"
-            strokeLinecap="round"
-            fill="none"
-          />
+          <path d="M7 9l1-3h4l1 3" stroke="#fff" strokeWidth="1" strokeLinecap="round" fill="none" />
         </svg>
       </div>
       {!collapsed && (
@@ -166,18 +110,13 @@ const SidebarLogo = ({ collapsed }: { collapsed: boolean }) => (
 
 const MenuItem = ({ item, isActive, collapsed, onClick }: MenuItemProps) => {
   const content = (
-    <div
-      className={`menu-item ${isActive ? "active" : ""}`}
-      onClick={() => onClick(item.key)}
-    >
+    <div className={`menu-item ${isActive ? "active" : ""}`} onClick={() => onClick(item.key)}>
       <div className="menu-item__icon">{item.icon}</div>
       {!collapsed && (
         <>
           <span className="menu-item__label">{item.label}</span>
           {item.badge && (
-            <span
-              className={`menu-item__badge menu-item__badge--${item.badge.type}`}
-            >
+            <span className={`menu-item__badge menu-item__badge--${item.badge.type}`}>
               {item.badge.text}
             </span>
           )}
@@ -197,24 +136,11 @@ const MenuItem = ({ item, isActive, collapsed, onClick }: MenuItemProps) => {
   return content;
 };
 
-const MenuGroup = ({
-  group,
-  activeKey,
-  collapsed,
-  onSelect,
-}: MenuGroupProps) => (
+const MenuGroup = ({ group, activeKey, collapsed, onSelect }: MenuGroupProps) => (
   <div className="sidebar-menu__group">
-    {!collapsed && (
-      <div className="sidebar-menu__group-label">{group.label}</div>
-    )}
-    {group.items.map((item: any) => (
-      <MenuItem
-        key={item.key}
-        item={item}
-        isActive={activeKey === item.key}
-        collapsed={collapsed}
-        onClick={onSelect}
-      />
+    {!collapsed && <div className="sidebar-menu__group-label">{group.label}</div>}
+    {group.items.map((item) => (
+      <MenuItem key={item.key} item={item} isActive={activeKey === item.key} collapsed={collapsed} onClick={onSelect} />
     ))}
   </div>
 );
@@ -240,43 +166,27 @@ const SidebarFooter = ({ collapsed }: { collapsed: boolean }) => (
 
 const CollapseToggle = ({ collapsed, onToggle }: CollapseToggleProps) => (
   <Tooltip title={collapsed ? "Mở rộng" : "Thu gọn"} placement="right">
-    <div
-      className={`sidebar-toggle ${collapsed ? "collapsed" : ""}`}
-      onClick={onToggle}
-    >
+    <div className={`sidebar-toggle ${collapsed ? "collapsed" : ""}`} onClick={onToggle}>
       {collapsed ? <RightOutlined /> : <LeftOutlined />}
     </div>
   </Tooltip>
 );
 
-const AppSidebar = ({
-  collapsed,
-  onToggle,
-  activeKey,
-  onMenuSelect,
-}: AppSidebarProps) => {
+const AppSidebar = ({ collapsed, onToggle, activeKey, onMenuSelect }: AppSidebarProps) => {
   return (
     <>
       <div className={`app-sidebar ${collapsed ? "collapsed" : ""}`}>
         <SidebarLogo collapsed={collapsed} />
-
         <div className="sidebar-menu">
           {MENU_GROUPS.map((group, idx) => (
             <React.Fragment key={group.label}>
               {idx > 0 && <div className="sidebar-menu__divider" />}
-              <MenuGroup
-                group={group}
-                activeKey={activeKey}
-                collapsed={collapsed}
-                onSelect={onMenuSelect}
-              />
+              <MenuGroup group={group} activeKey={activeKey} collapsed={collapsed} onSelect={onMenuSelect} />
             </React.Fragment>
           ))}
         </div>
-
         <SidebarFooter collapsed={collapsed} />
       </div>
-
       <CollapseToggle collapsed={collapsed} onToggle={onToggle} />
     </>
   );
