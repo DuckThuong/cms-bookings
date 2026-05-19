@@ -1,0 +1,36 @@
+@use "../../common" as *;
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.5s 0.4s ease forwards;
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: $night;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .logo-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: $night;
+    letter-spacing: 0.5px;
+
+    span {
+      color: $amber;
+    }
+  }
+}

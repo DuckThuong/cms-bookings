@@ -1,0 +1,243 @@
+@use "../../../../common" as *;
+
+@mixin fadeUp($delay: 0s) {
+  opacity: 0;
+  animation: fadeUp18 0.5s #{$delay} ease forwards;
+}
+
+.auth__finish {
+  min-height: 100vh;
+  background: #f4f5f7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  font-family: "Be Vietnam Pro", sans-serif;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.finish__confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.finish__logo-fade {
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+  @include fadeUp(0.05s);
+}
+
+.finish__card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px 28px;
+  box-shadow:
+    0 4px 40px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.finish__icon-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  animation: float 3.5s 0.9s ease-in-out infinite;
+  @include fadeUp(0.2s);
+}
+
+.finish__icon-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba($green, 0.35);
+  animation: ringPulse 1.6s 0.5s ease-out forwards;
+}
+
+.finish__icon {
+  width: 72px;
+  height: 72px;
+  background: $green-pale;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popIn 0.55s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    overflow: visible;
+  }
+}
+
+.finish__check-path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: drawCheck 0.45s 0.72s ease forwards;
+}
+
+.finish__icon-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  background: $amber;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #fff;
+  font-weight: 700;
+  animation: popIn 0.4s 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  opacity: 0;
+}
+
+.finish__eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: $green;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: center;
+  @include fadeUp(0.35s);
+}
+
+.finish__title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: $night;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  text-align: center;
+  @include fadeUp(0.4s);
+}
+
+.finish__sub {
+  font-size: 13.5px;
+  color: $muted;
+  line-height: 1.65;
+  text-align: center;
+  margin-bottom: 24px;
+  @include fadeUp(0.45s);
+
+  strong {
+    color: $night;
+    font-weight: 600;
+  }
+}
+
+.finish__pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  @include fadeUp(0.5s);
+}
+
+.finish__pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f9fafb;
+  border: 0.5px solid $border;
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: $muted;
+  font-weight: 500;
+}
+
+.finish__pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--green {
+    background: $green;
+  }
+  &--amber {
+    background: $amber;
+  }
+}
+
+.finish__action {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  position: relative;
+  z-index: 1;
+  @include fadeUp(0.6s);
+}
+
+.finish__btn {
+  &.ant-btn-primary {
+    height: 50px !important;
+    border-radius: 14px !important;
+    background: $night !important;
+    border-color: $night !important;
+    font-family: "Be Vietnam Pro", sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      background: #1a2235 !important;
+      border-color: #1a2235 !important;
+      transform: translateY(-1.5px);
+      box-shadow: 0 8px 24px rgba($night, 0.22) !important;
+    }
+
+    &:active {
+      transform: translateY(0) !important;
+    }
+  }
+}
+
+.finish__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #9ca3af;
+  margin: 0;
+
+  &-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .finish__card {
+    padding: 32px 20px 24px;
+    border-radius: 20px;
+  }
+
+  .finish__title {
+    font-size: 24px;
+  }
+}
