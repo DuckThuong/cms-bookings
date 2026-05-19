@@ -26,22 +26,8 @@ const App = () => {
       <ConfigProvider
         locale={viVN}
         theme={{
-          algorithm: theme.darkAlgorithm,
           token: {
-            colorPrimary: "#f97316",
-            colorBgBase: "#0b1426",
-            colorBgContainer: "#152045",
-            colorBgElevated: "#152045",
-            borderRadius: 8,
             fontFamily: "'Be Vietnam Pro', 'Segoe UI', sans-serif",
-          },
-          components: {
-            Dropdown: {
-              colorBgElevated: "#152045",
-            },
-            Tooltip: {
-              colorBgSpotlight: "#1e3460",
-            },
           },
         }}
       >
