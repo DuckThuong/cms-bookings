@@ -19,10 +19,21 @@
   opacity: 0;
   animation: fadeUp 0.5s 0.1s ease forwards;
 
+  .logo-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: $night !important;
+    letter-spacing: 1px;
+
+    span {
+      color: $amber;
+    }
+  }
+
   &__icon {
     width: 40px;
     height: 40px;
-    background: $night;
+    background: $night !important;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -37,7 +48,7 @@
   &__name {
     font-size: 17px;
     font-weight: 700;
-    color: $night;
+    color: $night !important;
     letter-spacing: 0.5px;
 
     span {
