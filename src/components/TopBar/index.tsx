@@ -17,6 +17,10 @@ import './style.scss';
 
 const ROUTE_MAP = {
   dashboard: [{ icon: <HomeOutlined />, label: 'Dashboard' }],
+  page1: [
+    { icon: <HomeOutlined />, label: 'Tổng quan' },
+    { label: 'Page 1' },
+  ],
   bookings: [
     { icon: null as any, label: 'Đặt vé' },
     { icon: null, label: 'Đặt vé' },

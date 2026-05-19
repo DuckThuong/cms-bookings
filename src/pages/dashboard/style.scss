@@ -1,19 +1,16 @@
-// ============================================
-// LAYOUT STYLES
-// ============================================
-@import '../../styles/variables';
+@import '../../color.scss';
 
 .app-layout {
   min-height: 100vh;
   display: flex;
-  background: $primary-dark;
+  background-color: #fff !important;
 }
 
 .app-layout__content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: margin-left $transition-slow, width $transition-slow;
+  transition: margin-left 0.25s ease, width 0.25s ease;
 
   &.sidebar-expanded {
     margin-left: $sidebar-width;

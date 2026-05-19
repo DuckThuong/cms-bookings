@@ -1,27 +1,22 @@
-import { formatPhone } from "@/common/contexts/format";
-import { Logo } from "@/components/Logo";
-import { useState } from "react";
-import { InputPhoneNumber } from "../../component/InputPhoneNumber";
-import "./style.scss";
-import {
-  DEFAULT_MESSAGE,
-  InputState,
-  NOTI_ERROR,
-  NOTI_SUCCESS,
-  SUCCESS_MESSAGE,
-} from "./../../../../common/constants/constants";
-import { ROUTER_PATH } from "@/routers/Route";
-import { Button, Form, Input } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import googleIcn from "@/assets/icons/google.svg";
-import facebookIcn from "@/assets/icons/facebook.svg";
-import appleIcn from "@/assets/icons/apple.svg";
 import { signIn } from "@/api/configs/auth.config";
 import type { LoginPayloadDto } from "@/api/dtos/auth.dto";
-import { useMutation } from "@tanstack/react-query";
-import { useNotification } from "@/providers/notificationProvider";
+import { Logo } from "@/components/Logo";
 import { useLoading } from "@/providers/loadingProvider";
-import { isAxiosError, type AxiosError } from "axios";
+import { useNotification } from "@/providers/notificationProvider";
+import { ROUTER_PATH } from "@/routers/Route";
+import { useMutation } from "@tanstack/react-query";
+import { Button, Form, Input } from "antd";
+import { isAxiosError } from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { InputPhoneNumber } from "../../component/InputPhoneNumber";
+import {
+  DEFAULT_MESSAGE,
+  NOTI_ERROR,
+  NOTI_SUCCESS,
+  SUCCESS_MESSAGE
+} from "./../../../../common/constants/constants";
+import "./style.scss";
 
 export const Login = () => {
   const [form] = Form.useForm();
@@ -35,7 +30,7 @@ export const Login = () => {
     onSuccess: (data) => {
       showNotification(SUCCESS_MESSAGE, NOTI_SUCCESS);
       localStorage.setItem('token', data.accessToken);
-      navigate(ROUTER_PATH.HOME);
+      navigate(ROUTER_PATH.DASHBOARD);
     },
     onError: (error) => {
       let message = DEFAULT_MESSAGE;
@@ -144,44 +139,13 @@ export const Login = () => {
           <Button
             loading={loginMutation.isPending}
             htmlType="submit"
-            className={`signin-btn`}
+            className={`login-btn`}
           >
             Đăng nhập
             <span className="arrow"> →</span>
           </Button>
         </Form>
 
-        <div className="login-divider">
-          <span className="login-divider__line" />
-          <span className="login-divider__text">Hoặc tiếp tục với</span>
-          <span className="login-divider__line" />
-        </div>
-
-        <div className="login-social">
-          <Button className="login-social__btn" type="default">
-            <img src={googleIcn} alt="Google" className="login-social__icon" />
-            Google
-          </Button>
-          <Button className="login-social__btn" type="default">
-            <img
-              src={facebookIcn}
-              alt="Facebook"
-              className="login-social__icon"
-            />
-            Facebook
-          </Button>
-          <Button className="login-social__btn" type="default">
-            <img src={appleIcn} alt="Apple" className="login-social__icon" />
-            Apple
-          </Button>
-        </div>
-
-        <p className="login-footer">
-          Chưa có tài khoản?
-          <Link to={ROUTER_PATH.SIGNIN} className="login-footer__link">
-            Đăng ký ngay
-          </Link>
-        </p>
       </div>
 
       <div className="login-trust">

@@ -14,6 +14,7 @@ import {
   LeftOutlined,
   RightOutlined,
   LogoutOutlined,
+  FileOutlined,
 } from "@ant-design/icons";
 import "./style.scss";
 import { Logo } from "../Logo";
