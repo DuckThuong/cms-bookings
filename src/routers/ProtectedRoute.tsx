@@ -28,7 +28,7 @@ const ProtectedRoute: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <Navigate
-        to={ROUTER_PATH.SIGNIN}
+        to={ROUTER_PATH.LOGIN}
         replace
         state={{ from: currentPath }}
       />
@@ -38,7 +38,7 @@ const ProtectedRoute: React.FC = () => {
   if (!user) {
     return (
       <Navigate
-        to={ROUTER_PATH.SIGNIN}
+        to={ROUTER_PATH.LOGIN}
         replace
         state={{ from: currentPath }}
       />
