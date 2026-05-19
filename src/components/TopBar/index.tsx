@@ -1,28 +1,28 @@
-
-import React, { useState, useRef } from 'react';
-import { Badge, Tooltip, Dropdown } from 'antd';
+import React from 'react';
+import { Badge, Dropdown, Tooltip } from 'antd';
 import {
   BellOutlined,
-  SettingOutlined,
-  QuestionCircleOutlined,
   DownOutlined,
-  SearchOutlined,
+  GlobalOutlined,
   HomeOutlined,
   LogoutOutlined,
-  UserOutlined,
   ProfileOutlined,
-  GlobalOutlined,
+  QuestionCircleOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import './style.scss';
 
-const ROUTE_MAP = {
+type BreadcrumbCrumb = {
+  label: string;
+  icon?: React.ReactNode;
+};
+
+const ROUTE_MAP: Record<string, BreadcrumbCrumb[]> = {
   dashboard: [{ icon: <HomeOutlined />, label: 'Dashboard' }],
-  page1: [
-    { icon: <HomeOutlined />, label: 'Tổng quan' },
-    { label: 'Page 1' },
-  ],
   bookings: [
-    { icon: null as any, label: 'Đặt vé' },
+    { icon: null as React.ReactNode, label: 'Vận hành' },
     { icon: null, label: 'Đặt vé' },
   ],
   trips: [
@@ -64,30 +64,11 @@ const ROUTE_MAP = {
 };
 
 const USER_MENU_ITEMS = [
-  {
-    key: 'profile',
-    icon: <UserOutlined />,
-    label: 'Hồ sơ cá nhân',
-  },
-  {
-    key: 'activity',
-    icon: <ProfileOutlined />,
-    label: 'Lịch sử hoạt động',
-  },
-  {
-    key: 'language',
-    icon: <GlobalOutlined />,
-    label: 'Ngôn ngữ: Tiếng Việt',
-  },
-  {
-    type: 'divider',
-  },
-  {
-    key: 'logout',
-    icon: <LogoutOutlined />,
-    label: 'Đăng xuất',
-    danger: true,
-  },
+  { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ cá nhân' },
+  { key: 'activity', icon: <ProfileOutlined />, label: 'Lịch sử hoạt động' },
+  { key: 'language', icon: <GlobalOutlined />, label: 'Ngôn ngữ: Tiếng Việt' },
+  { type: 'divider' as const },
+  { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', danger: true },
 ];
 
 const NOTIF_ITEMS = [
@@ -123,14 +104,15 @@ const NOTIF_ITEMS = [
 ];
 
 const HeaderBreadcrumb = ({ activeKey }: { activeKey: string }) => {
-  const crumbs = ROUTE_MAP[activeKey as keyof typeof ROUTE_MAP] || ROUTE_MAP.dashboard;
+  const crumbs = ROUTE_MAP[activeKey] || ROUTE_MAP.dashboard;
+
   return (
     <div className="header-breadcrumb">
-      {crumbs.map((crumb: any, idx: number) => (
-        <React.Fragment key={idx}>
+      {crumbs.map((crumb, idx) => (
+        <React.Fragment key={`${String(crumb.label)}-${idx}`}>
           {idx > 0 && <span className="header-breadcrumb__separator">›</span>}
           <span className="header-breadcrumb__item">
-            {crumb.icon && <span className="header-breadcrumb__icon">{crumb.icon}</span>}
+            {crumb?.icon && <span className="header-breadcrumb__icon">{crumb?.icon}</span>}
             {crumb.label}
           </span>
         </React.Fragment>
@@ -140,22 +122,16 @@ const HeaderBreadcrumb = ({ activeKey }: { activeKey: string }) => {
 };
 
 const HeaderSearch = () => {
-  const inputRef = useRef(null);
-
   return (
     <div className="header-search">
-      <div
-        className="header-search__input-wrap"
-        onClick={() => inputRef.current?.focus()}
-      >
+      <label className="header-search__input-wrap">
         <SearchOutlined className="header-search__icon" />
         <input
-          ref={inputRef}
           className="header-search__field"
           placeholder="Tìm kiếm vé, chuyến xe, khách hàng..."
         />
-        <span className="header-search__shortcut">⌘K</span>
-      </div>
+        <span className="header-search__shortcut">Ctrl K</span>
+      </label>
     </div>
   );
 };
@@ -173,11 +149,13 @@ const HeaderNotification = () => (
     menu={{ items: NOTIF_ITEMS }}
     placement="bottomRight"
     trigger={['click']}
-    overlayStyle={{
-      background: '#152045',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 10,
-      padding: '4px',
+    styles={{
+      root: {
+        background: '#152045',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 10,
+        padding: '4px',
+      },
     }}
   >
     <div className="header-notif-badge">
@@ -211,14 +189,16 @@ const HeaderHelp = () => (
 
 const HeaderUser = () => (
   <Dropdown
-    menu={{ items: USER_MENU_ITEMS as any }}
+    menu={{ items: USER_MENU_ITEMS }}
     placement="bottomRight"
     trigger={['click']}
-    overlayStyle={{
-      background: '#152045',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 10,
-      minWidth: 200,
+    styles={{
+      root: {
+        background: '#152045',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 10,
+        minWidth: 200,
+      },
     }}
   >
     <div className="header-user">
@@ -229,16 +209,17 @@ const HeaderUser = () => (
   </Dropdown>
 );
 
-
-const AppHeader = ({ sidebarCollapsed, activeKey }: { sidebarCollapsed: boolean, activeKey: string }) => {
+const AppHeader = ({
+  sidebarCollapsed,
+  activeKey,
+}: {
+  sidebarCollapsed: boolean;
+  activeKey: string;
+}) => {
   return (
-    <header
-      className={`app-header ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}
-    >
+    <header className={`app-header ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
       <HeaderBreadcrumb activeKey={activeKey} />
-
       <HeaderSearch />
-
       <div className="header-actions">
         <HeaderStatus />
         <div className="header-divider" />
