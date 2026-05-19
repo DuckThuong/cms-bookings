@@ -1,421 +1,322 @@
-@use "../../common.scss" as *;
 
-// ─── Notification bell + panel ─────────────────────────────────────────────
+@import '../../styles/variables';
 
-.notif-wrap {
-  position: relative;
-}
-
-// Bell button
-.notif-bell-btn {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: $night;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
-
-  svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-  }
-
-  &:hover,
-  &.active {
-    background: $white;
-    border-color: $amber;
-    box-shadow: 0 0 0 3px rgba($amber, 0.12);
-  }
-}
-
-// Unread badge
-.notif-bell-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  background: $amber;
-  border-radius: 999px;
-  border: 2px solid $white;
-  font-size: 9px;
-  font-weight: 800;
-  color: $night;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Be Vietnam Pro", sans-serif;
-  line-height: 1;
-}
-
-// Dropdown panel
-.notif-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: -14px;
-  width: 340px;
-  background: $white;
-  border: 1px solid $border;
-  border-radius: 16px;
-  box-shadow:
-    0 16px 48px rgba($night, 0.14),
-    0 2px 8px rgba($night, 0.06);
-  z-index: 300;
-  overflow: hidden;
-  transform-origin: top right;
-  animation: notifPanelIn 0.2s ease;
-
-  @media (max-width: 480px) {
-    right: -60px;
-    width: 300px;
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid $border;
-  }
-
-  &__title {
-    font-size: 13px;
-    font-weight: 700;
-    color: $night;
-    font-family: "Be Vietnam Pro", sans-serif;
-  }
-
-  &__mark-all {
-    font-size: 11px;
-    font-weight: 600;
-    color: $amber;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    font-family: "Be Vietnam Pro", sans-serif;
-    transition: color 0.15s;
-
-    &:hover {
-      color: darken($amber, 12%);
-    }
-  }
-
-  &__list {
-    max-height: 304px;
-    overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      width: 3px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: $border;
-      border-radius: 4px;
-    }
-  }
-
-  &__footer {
-    padding: 10px 16px;
-    text-align: center;
-    border-top: 1px solid $border;
-  }
-
-  &__view-all {
-    font-size: 12px;
-    font-weight: 700;
-    color: $muted;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: "Be Vietnam Pro", sans-serif;
-    transition: color 0.15s;
-
-    &:hover {
-      color: $night;
-    }
-  }
-}
-
-@keyframes notifPanelIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-// Notification item
-.notif-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 11px 16px 11px 22px;
-  border-bottom: 1px solid rgba($border, 0.7);
-  cursor: pointer;
-  position: relative;
-  transition: background 0.15s;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: $bg;
-  }
-
-  &--unread {
-    background: mix($amber, $white, 5%);
-
-    &:hover {
-      background: mix($amber, $white, 10%);
-    }
-  }
-
-  // Unread dot (absolute, left gutter)
-  &__dot {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: $amber;
-    flex-shrink: 0;
-  }
-
-  // Icon circle
-  &__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-
-    &--ticket {
-      background: #eff6ff;
-    }
-    &--promo {
-      background: mix($amber, $white, 12%);
-    }
-    &--system {
-      background: #f0fdf4;
-    }
-    &--cancel {
-      background: #fef2f2;
-    }
-  }
-
-  &__content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__title {
-    font-size: 12px;
-    font-weight: 600;
-    color: $night;
-    line-height: 1.4;
-    font-family: "Be Vietnam Pro", sans-serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0;
-  }
-
-  &__sub {
-    font-size: 11px;
-    color: $muted;
-    margin-top: 2px;
-    line-height: 1.4;
-    font-family: "Be Vietnam Pro", sans-serif;
-    margin-bottom: 0;
-  }
-
-  &__time {
-    font-size: 10px;
-    color: $muted;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 3px;
-    font-family: "Be Vietnam Pro", sans-serif;
-  }
-}
-
-// ─── Header ────────────────────────────────────────────────────────────────
-
-.home-header {
-  background: $white;
-  border-bottom: 1px solid $border;
-  position: sticky;
+.app-header {
+  position: fixed;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
+  right: 0;
+  height: $header-height;
+  background: $header-bg;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  z-index: $z-header;
+  transition: left $transition-slow, width $transition-slow;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
-  &__inner {
-    max-width: 1160px;
-    margin: 0 auto;
-    padding: 0 20px;
-    height: 60px;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(249, 115, 22, 0.5),
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  &.sidebar-expanded {
+    left: $sidebar-width;
+    width: calc(100% - #{$sidebar-width});
+  }
+
+  &.sidebar-collapsed {
+    left: $sidebar-collapsed-width;
+    width: calc(100% - #{$sidebar-collapsed-width});
+  }
+}
+
+
+.header-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+
+  &__item {
+    font-size: 13px;
+    color: $text-muted;
+    white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 32px;
-  }
+    gap: 6px;
 
-  &__logo {
-    flex-shrink: 0;
-
-    .logo {
-      margin-bottom: 0 !important;
+    &:last-child {
+      color: $text-primary;
+      font-weight: 600;
     }
   }
 
-  &__nav {
-    display: flex;
-    gap: 24px;
-    flex: 1;
-
-    @media (max-width: 768px) {
-      display: none;
-    }
+  &__separator {
+    color: $text-muted;
+    font-size: 11px;
+    opacity: 0.5;
   }
 
-  &__nav-link {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: $muted;
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding-bottom: 2px;
-
-    &:hover {
-      color: $night;
-    }
-
-    &.active {
-      color: $night;
-      font-weight: 700;
-      border-bottom: 2px solid $amber;
-    }
+  &__icon {
+    font-size: 14px;
+    color: $accent-orange;
   }
+}
 
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
-  }
+.header-search {
+  position: relative;
+  flex-shrink: 0;
 
-  // ── Avatar button (redesigned) ──────────────────────────────────────────
-
-  &__avatar-btn {
+  &__input-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: fit-content;
-    background: $white;
-    border: 1px solid $border;
-    border-radius: 999px;
-    padding: 4px 14px 4px 4px;
-    cursor: pointer;
-    transition:
-      border-color 0.25s,
-      box-shadow 0.25s,
-      background 0.25s;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    padding: 0 14px;
+    height: 36px;
+    width: 280px;
+    transition: $transition-fast;
+    cursor: text;
 
     &:hover {
-      border-color: $amber;
-      box-shadow: 0 0 0 3px rgba($amber, 0.13);
-      background: mix($amber, $white, 4%);
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07);
+    }
+
+    &:focus-within {
+      border-color: rgba(249, 115, 22, 0.4);
+      background: rgba(249, 115, 22, 0.04);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
     }
   }
 
-  // Ring wrapper holds avatar + online dot
-  &__avatar-ring {
-    position: relative;
-    width: 34px;
-    height: 34px;
+  &__icon {
+    color: $text-muted;
+    font-size: 14px;
     flex-shrink: 0;
   }
 
-  // Avatar circle
-  &__avatar {
-    background: linear-gradient(
-      135deg,
-      $night 0%,
-      lighten($night, 8%) 100%
-    ) !important;
-    border: 2px solid $amber !important;
-    font-family: "Cormorant Garamond", serif !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    color: $amber !important;
-    // Ensure the ant Avatar respects our ring
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
+  &__field {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $text-primary;
+    font-size: 13px;
+    font-family: $font-primary;
+    width: 100%;
 
-  // Online presence dot
-  &__avatar-online {
-    position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: $green;
-    border: 2px solid $white;
-  }
-
-  // Name + role stacked
-  &__user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
-
-    @media (max-width: 480px) {
-      display: none;
+    &::placeholder {
+      color: $text-muted;
     }
   }
 
-  &__username {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: $night;
-    line-height: 1;
-    font-family: "Be Vietnam Pro", sans-serif;
-  }
-
-  &__user-role {
+  &__shortcut {
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    color: $text-muted;
     font-size: 10px;
-    color: $muted;
-    line-height: 1;
-    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 600;
+    padding: 1px 5px;
+    letter-spacing: 0.3px;
+  }
+}
+
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.header-action-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-secondary;
+  font-size: 16px;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $sidebar-hover;
+    border-color: rgba(255,255,255,0.1);
+    color: $text-primary;
   }
 
-  &__chevron {
-    color: $muted;
+  &.active {
+    background: $accent-orange-light;
+    border-color: rgba(249,115,22,0.3);
+    color: $accent-orange;
+  }
+
+  &__dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $accent-orange;
+    border: 1.5px solid $header-bg;
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.3); opacity: 0.7; }
+  }
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: 0 12px;
+  height: 36px;
+  flex-shrink: 0;
+
+  &__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $status-success;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    animation: pulse-green 2.5s infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+  }
+
+  &__text {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+    white-space: nowrap;
+  }
+
+  &__value {
+    font-size: 12px;
+    font-weight: 700;
+    color: $status-success;
+  }
+}
+
+.header-divider {
+  width: 1px;
+  height: 20px;
+  background: $border-color;
+  flex-shrink: 0;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $sidebar-hover;
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  &__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
     flex-shrink: 0;
-    opacity: 0.7;
+    border: 1.5px solid rgba(59,130,246,0.4);
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+  }
+
+  &__caret {
+    color: $text-muted;
+    font-size: 11px;
+    transition: $transition-fast;
+  }
+
+  &:hover &__caret {
+    color: $text-primary;
+  }
+}
+
+.header-notif-badge {
+  .ant-badge-count {
+    background: $accent-orange !important;
+    box-shadow: 0 0 0 2px $header-bg !important;
+    font-size: 10px !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    padding: 0 4px !important;
+  }
+}
+
+.header-notif-item {
+  padding: 4px 0;
+  max-width: 260px;
+
+  &__title {
+    font-weight: 600;
+    font-size: 13px;
+    color: $text-primary;
+  }
+
+  &__subtitle {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-top: 2px;
+
+    &--success {
+      color: $status-success;
+    }
   }
 }

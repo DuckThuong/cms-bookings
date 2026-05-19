@@ -1,284 +1,251 @@
-import { useState, useRef, useEffect } from "react";
-import { Avatar, Button, Dropdown, Menu } from "antd";
-import type { MenuProps } from "antd";
-import { Logo } from "@/components/Logo";
-import chevronDownIcn from "@/assets/icons/chevron-down.svg";
-import { ROUTER_PATH } from "@/routers/Route";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useUser } from "@/common/contexts/UserContext";
-import { MENU_ITEMS } from "@/pages/profile/components/ProfileSideBar";
-import "./style.scss";
-// ─── Types ──────────────────────────────────────────────────────────────────
 
-type NotifType = "ticket" | "promo" | "system" | "cancel";
+import React, { useState, useRef } from 'react';
+import { Badge, Tooltip, Dropdown } from 'antd';
+import {
+  BellOutlined,
+  SettingOutlined,
+  QuestionCircleOutlined,
+  DownOutlined,
+  SearchOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+  UserOutlined,
+  ProfileOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons';
+import './style.scss';
 
-interface Notification {
-  id: string;
-  type: NotifType;
-  title: string;
-  sub: string;
-  time: string;
-  read: boolean;
-}
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-const NAV_ITEMS = [
-  { label: "Trang chủ", href: ROUTER_PATH.HOME },
-  { label: "Đặt vé", href: ROUTER_PATH.TRIP },
-  { label: "Khuyến mãi", href: ROUTER_PATH.PROMOS },
-  { label: "Hỗ trợ", href: ROUTER_PATH.SUPPORT },
-];
-
-const NOTIF_ICON: Record<NotifType, string> = {
-  ticket: "🎫",
-  promo: "🏷️",
-  system: "✅",
-  cancel: "❌",
+const ROUTE_MAP = {
+  dashboard: [{ icon: <HomeOutlined />, label: 'Dashboard' }],
+  bookings: [
+    { icon: null as any, label: 'Đặt vé' },
+    { icon: null, label: 'Đặt vé' },
+  ],
+  trips: [
+    { label: 'Vận hành' },
+    { label: 'Chuyến xe' },
+  ],
+  routes: [
+    { label: 'Vận hành' },
+    { label: 'Tuyến đường' },
+  ],
+  vehicles: [
+    { label: 'Vận hành' },
+    { label: 'Phương tiện' },
+  ],
+  customers: [
+    { label: 'Quản lý' },
+    { label: 'Khách hàng' },
+  ],
+  drivers: [
+    { label: 'Quản lý' },
+    { label: 'Tài xế' },
+  ],
+  revenue: [
+    { label: 'Quản lý' },
+    { label: 'Doanh thu' },
+  ],
+  reports: [
+    { label: 'Quản lý' },
+    { label: 'Báo cáo' },
+  ],
+  settings: [
+    { label: 'Hệ thống' },
+    { label: 'Cài đặt' },
+  ],
+  help: [
+    { label: 'Hệ thống' },
+    { label: 'Trợ giúp' },
+  ],
 };
 
-const INITIAL_NOTIFS: Notification[] = [
+const USER_MENU_ITEMS = [
   {
-    id: "1",
-    type: "ticket",
-    title: "Vé xác nhận – HN → ĐN",
-    sub: "Chuyến 14:30 ngày 18/05 đã được xác nhận",
-    time: "2 ph",
-    read: false,
+    key: 'profile',
+    icon: <UserOutlined />,
+    label: 'Hồ sơ cá nhân',
   },
   {
-    id: "2",
-    type: "promo",
-    title: "Giảm 30% cho chuyến cuối tuần",
-    sub: "Dùng mã WEEKEND30 trước 23:59 hôm nay",
-    time: "1 giờ",
-    read: false,
+    key: 'activity',
+    icon: <ProfileOutlined />,
+    label: 'Lịch sử hoạt động',
   },
   {
-    id: "3",
-    type: "system",
-    title: "Thanh toán thành công",
-    sub: "Đơn #BG-20480 · 320.000 VNĐ",
-    time: "3 giờ",
-    read: false,
+    key: 'language',
+    icon: <GlobalOutlined />,
+    label: 'Ngôn ngữ: Tiếng Việt',
   },
   {
-    id: "4",
-    type: "cancel",
-    title: "Chuyến bị huỷ – Hoàn tiền",
-    sub: "180.000 VNĐ sẽ về ví trong 3–5 ngày",
-    time: "Hôm qua",
-    read: true,
+    type: 'divider',
+  },
+  {
+    key: 'logout',
+    icon: <LogoutOutlined />,
+    label: 'Đăng xuất',
+    danger: true,
   },
 ];
 
-// ─── NotificationPanel ───────────────────────────────────────────────────────
-
-const NotificationPanel = () => {
-  const [open, setOpen] = useState(false);
-  const [notifs, setNotifs] = useState<Notification[]>(INITIAL_NOTIFS);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const unreadCount = notifs.filter((n) => !n.read).length;
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const markAllRead = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const markRead = (id: string) =>
-    setNotifs((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
-
-  const handleViewAll = () => {
-    navigate(ROUTER_PATH.NOTIFICATION);
-  };
-
-  return (
-    <div className="notif-wrap" ref={panelRef}>
-      {/* Bell button */}
-      <button
-        className={`notif-bell-btn${open ? " active" : ""}`}
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Thông báo"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-        {unreadCount > 0 && (
-          <span className="notif-bell-badge">{unreadCount}</span>
-        )}
-      </button>
-
-      {/* Dropdown panel */}
-      {open && (
-        <div className="notif-panel">
-          <div className="notif-panel__header">
-            <span className="notif-panel__title">Thông báo</span>
-            {unreadCount > 0 && (
-              <button className="notif-panel__mark-all" onClick={markAllRead}>
-                Đánh dấu tất cả đã đọc
-              </button>
-            )}
-          </div>
-
-          <div className="notif-panel__list">
-            {notifs.map((n) => (
-              <div
-                key={n.id}
-                className={`notif-item${n.read ? "" : " notif-item--unread"}`}
-                onClick={() => markRead(n.id)}
-              >
-                {!n.read && <span className="notif-item__dot" />}
-                <div className={`notif-item__icon notif-item__icon--${n.type}`}>
-                  {NOTIF_ICON[n.type]}
-                </div>
-                <div className="notif-item__content">
-                  <p className="notif-item__title">{n.title}</p>
-                  <p className="notif-item__sub">{n.sub}</p>
-                </div>
-                <span className="notif-item__time">{n.time}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="notif-panel__footer">
-            <button className="notif-panel__view-all" onClick={handleViewAll}>
-              Xem tất cả thông báo →
-            </button>
-          </div>
+const NOTIF_ITEMS = [
+  {
+    key: 'n1',
+    label: (
+      <div className="header-notif-item">
+        <div className="header-notif-item__title">Vé mới #VX-2045</div>
+        <div className="header-notif-item__subtitle">Hà Nội → Đà Nẵng · 2 phút trước</div>
+      </div>
+    ),
+  },
+  {
+    key: 'n2',
+    label: (
+      <div className="header-notif-item">
+        <div className="header-notif-item__title">Chuyến BX-08 xuất phát</div>
+        <div className="header-notif-item__subtitle">Tài xế: Nguyễn Văn A · 15 phút trước</div>
+      </div>
+    ),
+  },
+  {
+    key: 'n3',
+    label: (
+      <div className="header-notif-item">
+        <div className="header-notif-item__title">Doanh thu vượt mục tiêu</div>
+        <div className="header-notif-item__subtitle header-notif-item__subtitle--success">
+          +12.4% so với tháng trước
         </div>
-      )}
+      </div>
+    ),
+  },
+];
+
+const HeaderBreadcrumb = ({ activeKey }: { activeKey: string }) => {
+  const crumbs = ROUTE_MAP[activeKey as keyof typeof ROUTE_MAP] || ROUTE_MAP.dashboard;
+  return (
+    <div className="header-breadcrumb">
+      {crumbs.map((crumb: any, idx: number) => (
+        <React.Fragment key={idx}>
+          {idx > 0 && <span className="header-breadcrumb__separator">›</span>}
+          <span className="header-breadcrumb__item">
+            {crumb.icon && <span className="header-breadcrumb__icon">{crumb.icon}</span>}
+            {crumb.label}
+          </span>
+        </React.Fragment>
+      ))}
     </div>
   );
 };
 
-// ─── HomeHeader ───────────────────────────────────────────────────────────────
-
-export const HomeHeader = () => {
-  const { pathname } = useLocation();
-  const { user } = useUser();
-  const { userName } = user;
-  const navigate = useNavigate();
-
-  const isNavItemActive = (href: string) => {
-    const normalize = (path: string) =>
-      path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
-    const currentPath = normalize(pathname);
-    const navPath = normalize(href);
-    if (navPath === ROUTER_PATH.HOME) return currentPath === navPath;
-    if (navPath === ROUTER_PATH.TRIP)
-      return (
-        currentPath === navPath ||
-        currentPath.startsWith(`${navPath}/`) ||
-        currentPath === ROUTER_PATH.BOOKING ||
-        currentPath.startsWith(`${ROUTER_PATH.BOOKING}/`)
-      );
-    return currentPath === navPath || currentPath.startsWith(`${navPath}/`);
-  };
-
-  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const tabMap: Record<string, string> = {
-      account: "account",
-      overview: "overview",
-      trips: "trips",
-      payment: "payment",
-      settings: "settings",
-    };
-    navigate(ROUTER_PATH.PROFILE, {
-      state: { tab: tabMap[key] ?? "overview" },
-    });
-  };
+const HeaderSearch = () => {
+  const inputRef = useRef(null);
 
   return (
-    <header className="home-header">
-      <div className="home-header__inner">
-        {/* Logo */}
-        <div className="home-header__logo">
-          <Logo />
-        </div>
+    <div className="header-search">
+      <div
+        className="header-search__input-wrap"
+        onClick={() => inputRef.current?.focus()}
+      >
+        <SearchOutlined className="header-search__icon" />
+        <input
+          ref={inputRef}
+          className="header-search__field"
+          placeholder="Tìm kiếm vé, chuyến xe, khách hàng..."
+        />
+        <span className="header-search__shortcut">⌘K</span>
+      </div>
+    </div>
+  );
+};
 
-        {/* Nav */}
-        <nav className="home-header__nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={`home-header__nav-link${isNavItemActive(item.href) ? " active" : ""}`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+const HeaderStatus = () => (
+  <div className="header-status">
+    <div className="header-status__dot" />
+    <span className="header-status__text">Trực tuyến</span>
+    <span className="header-status__value">12 xe</span>
+  </div>
+);
 
-        {/* Right actions */}
-        <div className="home-header__actions">
-          {/* Notification bell + panel */}
-          <NotificationPanel />
+const HeaderNotification = () => (
+  <Dropdown
+    menu={{ items: NOTIF_ITEMS }}
+    placement="bottomRight"
+    trigger={['click']}
+    overlayStyle={{
+      background: '#152045',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 10,
+      padding: '4px',
+    }}
+  >
+    <div className="header-notif-badge">
+      <Badge count={3} size="small">
+        <Tooltip title="Thông báo">
+          <div className="header-action-btn">
+            <BellOutlined />
+            <span className="header-action-btn__dot" />
+          </div>
+        </Tooltip>
+      </Badge>
+    </div>
+  </Dropdown>
+);
 
-          {/* Avatar dropdown */}
-          <Dropdown
-            placement="bottomRight"
-            trigger={["click"]}
-            dropdownRender={() => (
-              <Menu
-                className="home-header__user-menu"
-                items={MENU_ITEMS}
-                onClick={handleMenuClick}
-              />
-            )}
-          >
-            <button className="home-header__avatar-btn">
-              {/* Avatar with ring + online dot */}
-              <div className="home-header__avatar-ring">
-                <Avatar size={34} className="home-header__avatar">
-                  {userName?.charAt(0).toUpperCase() || "K"}
-                </Avatar>
-                <span className="home-header__avatar-online" />
-              </div>
+const HeaderSettings = () => (
+  <Tooltip title="Cài đặt nhanh">
+    <div className="header-action-btn">
+      <SettingOutlined />
+    </div>
+  </Tooltip>
+);
 
-              {/* Name + role */}
-              <div className="home-header__user-info">
-                <span className="home-header__username">
-                  {userName || "Khách"}
-                </span>
-                <span className="home-header__user-role">Tài khoản thường</span>
-              </div>
+const HeaderHelp = () => (
+  <Tooltip title="Trợ giúp">
+    <div className="header-action-btn">
+      <QuestionCircleOutlined />
+    </div>
+  </Tooltip>
+);
 
-              {/* Chevron */}
-              <img
-                src={chevronDownIcn}
-                alt=""
-                width={12}
-                height={12}
-                className="home-header__chevron"
-              />
-            </button>
-          </Dropdown>
-        </div>
+const HeaderUser = () => (
+  <Dropdown
+    menu={{ items: USER_MENU_ITEMS as any }}
+    placement="bottomRight"
+    trigger={['click']}
+    overlayStyle={{
+      background: '#152045',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 10,
+      minWidth: 200,
+    }}
+  >
+    <div className="header-user">
+      <div className="header-user__avatar">AD</div>
+      <span className="header-user__name">Admin</span>
+      <DownOutlined className="header-user__caret" />
+    </div>
+  </Dropdown>
+);
+
+
+const AppHeader = ({ sidebarCollapsed, activeKey }: { sidebarCollapsed: boolean, activeKey: string }) => {
+  return (
+    <header
+      className={`app-header ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}
+    >
+      <HeaderBreadcrumb activeKey={activeKey} />
+
+      <HeaderSearch />
+
+      <div className="header-actions">
+        <HeaderStatus />
+        <div className="header-divider" />
+        <HeaderNotification />
+        <HeaderSettings />
+        <HeaderHelp />
+        <div className="header-divider" />
+        <HeaderUser />
       </div>
     </header>
   );
 };
+
+export default AppHeader;

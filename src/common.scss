@@ -1,186 +1,115 @@
-@use "./color" as *;
 
-$night: #0a0e1a;
-$night-2: #151b2e;
-$navy: #0f1629;
+// ============================================
+// VARIABLES - CMS Quản lý Đặt Vé Xe
+// ============================================
 
-$amber: #f5a623;
-$amber-light: #fdc96a;
-$amber-pale: #fff8ec;
+// Colors - Primary Palette
+$primary-dark:     #0b1426;
+$primary-navy:     #101d38;
+$primary-navy-2:   #152045;
+$sidebar-bg:       #0d1b35;
+$sidebar-hover:    #1a2d52;
+$sidebar-active:   #1e3460;
 
-$muted: #6b7280;
-$muted-on-dark: rgba(255, 255, 255, 0.55);
+// Accent
+$accent-orange:    #f97316;
+$accent-orange-2:  #fb923c;
+$accent-orange-light: rgba(249, 115, 22, 0.12);
+$accent-glow:      rgba(249, 115, 22, 0.25);
 
-$border: #e5e7eb;
-$bg: #f4f5f7;
-$white: #ffffff;
+// Text
+$text-primary:     #f1f5f9;
+$text-secondary:   #94a3b8;
+$text-muted:       #64748b;
+$text-white:       #ffffff;
 
-$green: #16a34a;
-$green-bright: #22c55e;
-$green-pale: #f0fdf4;
-$red: #ef4444;
+// Status Colors
+$status-success:   #22c55e;
+$status-warning:   #eab308;
+$status-error:     #ef4444;
+$status-info:      #3b82f6;
 
-$radius-sm: 10px;
-$radius-md: 16px;
-$radius-lg: 24px;
+// Border
+$border-color:     rgba(255, 255, 255, 0.06);
+$border-active:    rgba(249, 115, 22, 0.4);
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+// Header
+$header-bg:        #0f1e38;
+$header-height:    64px;
+
+// Sidebar
+$sidebar-width:         240px;
+$sidebar-collapsed-width: 72px;
+
+// Shadow
+$shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.3);
+$shadow-md:        0 4px 16px rgba(0, 0, 0, 0.35);
+$shadow-lg:        0 8px 32px rgba(0, 0, 0, 0.4);
+$shadow-orange:    0 0 20px rgba(249, 115, 22, 0.15);
+
+// Border radius
+$radius-sm:        6px;
+$radius-md:        10px;
+$radius-lg:        14px;
+
+// Transitions
+$transition-fast:  all 0.18s ease;
+$transition-base:  all 0.25s ease;
+$transition-slow:  all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Z-index
+$z-sidebar:        100;
+$z-header:         200;
+$z-overlay:        150;
+$z-dropdown:       300;
+
+// Font
+$font-primary:     'Be Vietnam Pro', 'Segoe UI', sans-serif;
+$font-mono:        'JetBrains Mono', monospace;
+
+// ============================================
+// GLOBAL STYLES
+// ============================================
+@import './variables';
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: $font-primary;
+  background-color: $primary-dark;
+  color: $text-primary;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: $primary-navy;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 99px;
+
+  &:hover {
+    background: rgba(255,255,255,0.25);
   }
 }
 
-@keyframes fadeUp18 {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+// Ant Design overrides
+.ant-layout {
+  background: transparent !important;
 }
 
-@keyframes fadeUp20 {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@mixin fadeUp($delay: 0s) {
-  opacity: 0;
-  animation: fadeUp 0.5s #{$delay} ease forwards;
-}
-
-@mixin fadeUp18($delay: 0s) {
-  opacity: 0;
-  animation: fadeUp18 0.5s #{$delay} ease forwards;
-}
-
-@mixin fadeUp20($delay: 0s) {
-  opacity: 0;
-  animation: fadeUp20 0.5s #{$delay} ease forwards;
-}
-
-@mixin fadeUpSecond($delay: 0s) {
-  opacity: 0;
-  animation: fadeUp20 0.5s #{$delay} ease forwards;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-7px);
-  }
-}
-
-@keyframes float8 {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes tickerScroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes blobFloat {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(20px, -20px) scale(1.04);
-  }
-}
-
-@keyframes dashMove {
-  to {
-    stroke-dashoffset: -60;
-  }
-}
-
-@keyframes carDrive {
-  0% {
-    transform: translateY(600px);
-  }
-  100% {
-    transform: translateY(-30px);
-  }
-}
-
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 0.9;
-  }
-}
-
-@keyframes popIn {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.12);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes ringPulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.7;
-  }
-  60% {
-    transform: scale(1.35);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1.35);
-    opacity: 0;
-  }
-}
-
-@keyframes drawCheck {
-  from {
-    stroke-dashoffset: 60;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+.ant-badge-count {
+  font-family: $font-primary !important;
 }
