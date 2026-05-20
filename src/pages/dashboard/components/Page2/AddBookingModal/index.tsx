@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select } from 'antd';
 import { vehicles } from '../../../share/bookingManagement';
+import { numberFieldProps } from '../../ManagementCreate/shared';
 
 const { Option } = Select;
 
@@ -147,7 +148,7 @@ const AddBookingModal = ({ open, onClose, onSubmit, defaultVehicle }: AddBooking
               label={<span style={{ color: '#94a3b8', fontSize: 12 }}>Số ghế</span>}
               rules={[{ required: true, message: 'Nhập số ghế' }]}
             >
-              <InputNumber min={1} max={45} placeholder="2" style={{ ...fieldStyle, width: '100%' }} />
+              <InputNumber min={1} max={45} placeholder="2" style={{ ...fieldStyle, width: '100%' }} {...numberFieldProps} />
             </Form.Item>
           </Col>
         </Row>

@@ -145,10 +145,9 @@ const CustomersPage = () => {
             placeholder="Tìm tên, SĐT, mã khách..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            style={{ minWidth: 0, flex: '1 1 180px' }}
           />
-          <Select className="bm-select" value={tier} onChange={setTier} options={customerTierOptions} style={{ minWidth: 0, flex: '1 1 140px' }} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={customerStatusOptions} style={{ minWidth: 0, flex: '1 1 140px' }} />
+          <Select className="bm-select" value={tier} onChange={setTier} options={customerTierOptions} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={customerStatusOptions} />
           <Button
             className="btn-ghost"
             icon={<ReloadOutlined />}

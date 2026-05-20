@@ -133,6 +133,13 @@ export const driverStatusOptions: FilterOption[] = [
   { value: 'leave', label: 'Nghỉ phép' },
 ];
 
+export const driverShiftOptions: FilterOption[] = [
+  { value: 'Ca sáng', label: 'Ca sáng' },
+  { value: 'Ca chiều', label: 'Ca chiều' },
+  { value: 'Ca đêm', label: 'Ca đêm' },
+  { value: 'Ca linh hoạt', label: 'Ca linh hoạt' },
+];
+
 export const routeOptions: FilterOption[] = [
   { value: 'all', label: 'Tất cả tuyến' },
   { value: 'HCM → Đà Lạt', label: 'HCM → Đà Lạt' },
