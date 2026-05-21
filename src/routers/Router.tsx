@@ -4,6 +4,7 @@ import { Login } from "@/pages/auth/pages/Login";
 import AppLayout from "@/pages/dashboard";
 import DashboardPage from "@/pages/dashboard/Pages/Page1";
 import BookingManagementPage from "@/pages/dashboard/Pages/Page2";
+import ProvidersPage from "@/pages/dashboard/Pages/Providers";
 import TripsPage from "@/pages/dashboard/Pages/Trips";
 import RoutesPage from "@/pages/dashboard/Pages/Routes";
 import FleetVehiclesPage from "@/pages/dashboard/Pages/Vehicles";
@@ -23,6 +24,9 @@ export const WebRouter = () => (
       </Route>
       <Route path={ROUTER_PATH.BOOKINGS} element={<AppLayout />}>
         <Route index element={<BookingManagementPage />} />
+      </Route>
+      <Route path={ROUTER_PATH.PROVIDERS} element={<AppLayout />}>
+        <Route index element={<ProvidersPage />} />
       </Route>
       <Route path={ROUTER_PATH.TRIPS} element={<AppLayout />}>
         <Route index element={<TripsPage />} />

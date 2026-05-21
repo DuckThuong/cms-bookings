@@ -355,16 +355,13 @@ const TripsPage = () => {
       </Drawer>
 
       <AddTripModal
-        mode="create"
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         onSubmit={handleAddTrip}
       />
       <AddTripModal
-        mode="edit"
         open={editModalOpen}
         onClose={closeEditModal}
-        initialValues={editingRecord}
         onSubmit={handleEditTrip}
       />
     </div>

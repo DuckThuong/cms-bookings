@@ -45,9 +45,7 @@ export const InputPhoneNumber: React.FC<InputPhoneNumberProps> = (
     <Form.Item
       label={INPUT_PHONE_DATA.label}
       name={INPUT_PHONE_DATA.name}
-      rules={[
-        { required: true, message: INPUT_PHONE_DATA.requiredMessage },
-      ]}
+      rules={[{ required: true, message: INPUT_PHONE_DATA.requiredMessage }]}
     >
       <Input
         type="tel"
@@ -58,13 +56,6 @@ export const InputPhoneNumber: React.FC<InputPhoneNumberProps> = (
         maxLength={13}
         onChange={onInputChange}
         onBlur={onInputBlur}
-        addonBefore={
-          <Select
-            defaultValue={INPUT_PHONE_DATA.defaultRegion}
-            options={INPUT_PHONE_DATA.regions}
-            className="input-phone__region"
-          />
-        }
       />
     </Form.Item>
   );

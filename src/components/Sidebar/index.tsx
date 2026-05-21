@@ -1,72 +1,23 @@
 import React from "react";
 import { Tooltip } from "antd";
 import {
-  ApartmentOutlined,
-  BarChartOutlined,
-  CarOutlined,
-  DashboardOutlined,
-  DollarOutlined,
-  EnvironmentOutlined,
   LeftOutlined,
   LogoutOutlined,
-  QuestionCircleOutlined,
   RightOutlined,
-  ScheduleOutlined,
-  SettingOutlined,
-  TeamOutlined,
 } from "@ant-design/icons";
+import type { AppMenuGroup, AppMenuItem } from "@/routers/navigation";
 import "./style.scss";
 import { Logo } from "../Logo";
 
-const MENU_GROUPS = [
-  {
-    label: "Tổng quan",
-    items: [{ key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard", badge: null }],
-  },
-  {
-    label: "Vận hành",
-    items: [
-      { key: "bookings", icon: <ScheduleOutlined />, label: "Đặt vé", badge: { text: "24", type: "orange" } },
-      { key: "trips", icon: <CarOutlined />, label: "Chuyến xe", badge: { text: "8", type: "green" } },
-      { key: "routes", icon: <EnvironmentOutlined />, label: "Tuyến đường", badge: null },
-      { key: "vehicles", icon: <ApartmentOutlined />, label: "Phương tiện", badge: null },
-    ],
-  },
-  {
-    label: "Quản lý",
-    items: [
-      { key: "customers", icon: <TeamOutlined />, label: "Khách hàng", badge: { text: "120", type: "blue" } },
-      { key: "drivers", icon: <CarOutlined />, label: "Tài xế", badge: null },
-      { key: "revenue", icon: <DollarOutlined />, label: "Doanh thu", badge: null },
-      { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo", badge: null },
-    ],
-  },
-  {
-    label: "Hệ thống",
-    items: [
-      { key: "settings", icon: <SettingOutlined />, label: "Cài đặt", badge: null },
-      { key: "help", icon: <QuestionCircleOutlined />, label: "Trợ giúp", badge: null },
-    ],
-  },
-];
-
 type MenuItemProps = {
-  item: {
-    key: string;
-    icon: React.ReactNode;
-    label: string;
-    badge: { text: string; type: string } | null;
-  };
+  item: AppMenuItem;
   isActive: boolean;
   collapsed: boolean;
   onClick: (key: string) => void;
 };
 
 type MenuGroupProps = {
-  group: {
-    label: string;
-    items: MenuItemProps["item"][];
-  };
+  group: AppMenuGroup;
   activeKey: string;
   collapsed: boolean;
   onSelect: (key: string) => void;
@@ -81,6 +32,7 @@ type AppSidebarProps = {
   collapsed: boolean;
   onToggle: () => void;
   activeKey: string;
+  menuGroups: AppMenuGroup[];
   onMenuSelect: (key: string) => void;
 };
 
@@ -172,13 +124,13 @@ const CollapseToggle = ({ collapsed, onToggle }: CollapseToggleProps) => (
   </Tooltip>
 );
 
-const AppSidebar = ({ collapsed, onToggle, activeKey, onMenuSelect }: AppSidebarProps) => {
+const AppSidebar = ({ collapsed, onToggle, activeKey, menuGroups, onMenuSelect }: AppSidebarProps) => {
   return (
     <>
       <div className={`app-sidebar ${collapsed ? "collapsed" : ""}`}>
         <SidebarLogo collapsed={collapsed} />
         <div className="sidebar-menu">
-          {MENU_GROUPS.map((group, idx) => (
+          {menuGroups.map((group, idx) => (
             <React.Fragment key={group.label}>
               {idx > 0 && <div className="sidebar-menu__divider" />}
               <MenuGroup group={group} activeKey={activeKey} collapsed={collapsed} onSelect={onMenuSelect} />

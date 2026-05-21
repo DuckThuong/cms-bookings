@@ -2,6 +2,7 @@ export * from './types';
 export * from './bookingManagement';
 export * from './management';
 export * from './operations';
+export * from './providers';
 
 export const CHART_COLORS = {
   success: '#22c55e',
