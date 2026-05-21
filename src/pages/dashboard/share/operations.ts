@@ -359,3 +359,32 @@ export const getFleetSummary = (data: FleetVehicleRecord[]): SummaryItem[] => [
   { key: 'in_service', label: 'Đang khai thác', color: '#f97316', value: data.filter((item) => item.status === 'in_service').length },
   { key: 'utilization', label: 'Sử dụng TB', color: '#a855f7', value: `${Math.round(data.reduce((sum, item) => sum + item.utilizationRate, 0) / data.length)}%` },
 ];
+
+export type VerhicalFleetSummaryInput = {
+  verhical: { status: string };
+  seatCount: number;
+};
+
+export const getVerhicalFleetSummary = (
+  data: VerhicalFleetSummaryInput[],
+): SummaryItem[] => [
+  { key: 'vehicles', label: 'Tổng xe', color: '#3b82f6', value: data.length },
+  {
+    key: 'active',
+    label: 'Đang hoạt động',
+    color: '#22c55e',
+    value: data.filter((item) => item.verhical.status === 'ACTIVE').length,
+  },
+  {
+    key: 'maintenance',
+    label: 'Bảo dưỡng',
+    color: '#ef4444',
+    value: data.filter((item) => item.verhical.status === 'MAINTENANCE').length,
+  },
+  {
+    key: 'seats',
+    label: 'Tổng chỗ',
+    color: '#a855f7',
+    value: data.reduce((sum, item) => sum + item.seatCount, 0),
+  },
+];

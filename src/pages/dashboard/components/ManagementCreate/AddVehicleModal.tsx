@@ -1,64 +1,129 @@
-import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Select,
-} from "antd";
-import { useEffect, useState } from "react";
-import {
-  drivers,
-  fleetStatusOptions,
-  fleetTypeOptions,
-  routeOptions,
-  type FleetVehicleRecord,
-} from "../../share";
 import { numberFieldProps } from "@/common/contexts/format";
 import {
   fieldStyle,
   formLabel,
   renderModalFooter,
 } from "@/common/contexts/UserContext";
+import type { IVerhicalItem } from "@/api/dtos/vehical.dto";
+import { Col, Form, Input, InputNumber, Modal, Row, Select, TimePicker } from "antd";
+import dayjs, { type Dayjs } from "dayjs";
+import { useEffect } from "react";
 
-type AddVehicleModalProps = {
-  id?: string;
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (record: any) => void;
+export type VehicleFormValues = {
+  vehicalName: string;
+  vehicalCode: string;
+  seatType: string;
+  seatCount: number;
+  vehicalType: string;
+  vehicalStatus: string;
+  schedule: string;
+  description: string;
+  timeStart: string;
+  timeEnd: string;
+  pricePerSeat: number;
 };
 
+type AddVehicleModalProps = {
+  open: boolean;
+  initialRecord?: IVerhicalItem | null;
+  onClose: () => void;
+  onSubmit: (values: VehicleFormValues) => void;
+};
+
+const VEHICAL_STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Đang hoạt động" },
+  { value: "INACTIVE", label: "Ngừng hoạt động" },
+  { value: "MAINTENANCE", label: "Bảo dưỡng" },
+];
+
+const VEHICAL_TYPE_OPTIONS = [
+  { value: "SLEEPER", label: "Xe giường nằm" },
+  { value: "LIMOUSINE", label: "Xe limousine" },
+  { value: "COACH", label: "Xe khách" },
+];
+
+const SEAT_TYPE_OPTIONS = [
+  { value: "GIUONG", label: "Giường nằm" },
+  { value: "NGOI", label: "Ghế ngồi" },
+];
+
+type VehicleFormFields = VehicleFormValues & {
+  timeStartPicker: Dayjs;
+  timeEndPicker: Dayjs;
+};
+
+const toFormRecord = (record: IVerhicalItem): VehicleFormFields => ({
+  vehicalName: record.verhical.name,
+  vehicalCode: record.verhical.code,
+  seatType: record.seatType,
+  seatCount: record.seatCount,
+  vehicalType: record.verhical.type,
+  vehicalStatus: record.verhical.status,
+  schedule: record.verhical.schedule,
+  description: record.verhical.description ?? "",
+  timeStart: record.timeStart,
+  timeEnd: record.timeEnd,
+  pricePerSeat: 0,
+  timeStartPicker: dayjs(record.timeStart, "HH:mm"),
+  timeEndPicker: dayjs(record.timeEnd, "HH:mm"),
+});
+
+const toSubmitValues = (fields: VehicleFormFields): VehicleFormValues => ({
+  vehicalName: fields.vehicalName,
+  vehicalCode: fields.vehicalCode,
+  seatType: fields.seatType,
+  seatCount: fields.seatCount,
+  vehicalType: fields.vehicalType,
+  vehicalStatus: fields.vehicalStatus,
+  schedule: fields.schedule,
+  description: fields.description ?? "",
+  timeStart: fields.timeStartPicker.format("HH:mm"),
+  timeEnd: fields.timeEndPicker.format("HH:mm"),
+  pricePerSeat: fields.pricePerSeat ?? 0,
+});
+
 const AddVehicleModal = ({
-  id,
   open,
+  initialRecord,
   onClose,
   onSubmit,
 }: AddVehicleModalProps) => {
-  const [form] = Form.useForm();
-  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [form] = Form.useForm<VehicleFormFields>();
+  const isEdit = Boolean(initialRecord);
 
   useEffect(() => {
-    if (id || id != "") {
-      setIsEdit(true);
-    } else {
-      setIsEdit(false);
+    if (!open) {
+      return;
     }
-  }, [id]);
+
+    if (initialRecord) {
+      form.setFieldsValue(toFormRecord(initialRecord));
+      return;
+    }
+
+    form.setFieldsValue({
+      vehicalName: "",
+      vehicalCode: "",
+      seatType: "GIUONG",
+      seatCount: 34,
+      vehicalType: "SLEEPER",
+      vehicalStatus: "ACTIVE",
+      schedule: "",
+      description: "",
+      timeStart: "08:00",
+      timeEnd: "14:30",
+      pricePerSeat: 0,
+      timeStartPicker: dayjs("08:00", "HH:mm"),
+      timeEndPicker: dayjs("14:30", "HH:mm"),
+    });
+  }, [form, initialRecord, open]);
 
   const handleSubmit = async () => {
-    const submitData = {
-      name: form.getFieldValue("name"),
-      plateNumber: form.getFieldValue("plateNumber"),
-      seatType: form.getFieldValue("seatType"),
-      status: form.getFieldValue("status"),
-      type: form.getFieldValue("type"),
-      seats: form.getFieldValue("seats"),
-      assignedRoute: form.getFieldValue("assignedRoute"),
-      primaryDriver: form.getFieldValue("primaryDriver"),
-    };
-    onSubmit(submitData);
+    const values = await form.validateFields();
+    onSubmit(toSubmitValues(values));
+  };
+
+  const handleClose = () => {
     form.resetFields();
     onClose();
   };
@@ -68,72 +133,36 @@ const AddVehicleModal = ({
       className="bm-modal mgmt-modal"
       title={isEdit ? "Cập nhật phương tiện" : "Thêm phương tiện mới"}
       open={open}
-      onCancel={onClose}
+      onCancel={handleClose}
       width={620}
       footer={renderModalFooter({
         cancelText: "Hủy",
         submitText: isEdit ? "Lưu thay đổi" : "Thêm phương tiện",
-        onCancel: onClose,
+        onCancel: handleClose,
         onSubmit: handleSubmit,
       })}
     >
       <Form form={form} layout="vertical" style={{ padding: "8px 0" }}>
         <Row gutter={12}>
-          <Col xs={24} md={24}>
+          <Col xs={24} md={12}>
             <Form.Item
-              name="name"
+              name="vehicalName"
               label={formLabel("Tên xe")}
               rules={[{ required: true, message: "Nhập tên xe" }]}
             >
-              <Input
-                placeholder="Tên xe"
-                style={fieldStyle}
-                disabled={isEdit}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={12}>
-          <Col xs={24} md={24}>
-            <Form.Item
-              name="name"
-              label={formLabel("Biển số xe")}
-              rules={[{ required: true, message: "Nhập biển số xe" }]}
-            >
-              <Input
-                placeholder="Biển số xe"
-                style={fieldStyle}
-                disabled={isEdit}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="seatType"
-              label={formLabel("Loại xe")}
-              rules={[{ required: true, message: "Nhập loại xe " }]}
-            >
-              <Select
-                className="bm-select"
-                options={fleetStatusOptions.filter(
-                  (item) => item.value !== "all",
-                )}
-              />
+              <Input placeholder="Xe giường nằm 34 chỗ" style={fieldStyle} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="status"
-              label={formLabel("Trạng thái")}
-              rules={[{ required: true, message: "Chọn trạng thái" }]}
+              name="vehicalCode"
+              label={formLabel("Biển số")}
+              rules={[{ required: true, message: "Nhập biển số" }]}
             >
-              <Select
-                className="bm-select"
-                options={fleetStatusOptions.filter(
-                  (item) => item.value !== "all",
-                )}
+              <Input
+                placeholder="29B-2325"
+                style={fieldStyle}
+                disabled={isEdit}
               />
             </Form.Item>
           </Col>
@@ -142,21 +171,40 @@ const AddVehicleModal = ({
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="type"
-              label={formLabel("Loại ghế")}
-              rules={[{ required: true, message: "Chọn loại ghế" }]}
+              name="vehicalType"
+              label={formLabel("Loại xe")}
+              rules={[{ required: true, message: "Chọn loại xe" }]}
             >
-              <Select
-                className="bm-select"
-                options={fleetTypeOptions.filter(
-                  (item) => item.value !== "all",
-                )}
-              />
+              <Select className="bm-select" options={VEHICAL_TYPE_OPTIONS} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="seats"
+              name="vehicalStatus"
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
+            >
+              <Select
+                className="bm-select"
+                options={VEHICAL_STATUS_OPTIONS}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={12}>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="seatType"
+              label={formLabel("Loại ghế")}
+              rules={[{ required: true, message: "Chọn loại ghế" }]}
+            >
+              <Select className="bm-select" options={SEAT_TYPE_OPTIONS} />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="seatCount"
               label={formLabel("Số ghế")}
               rules={[{ required: true, message: "Nhập số ghế" }]}
             >
@@ -170,86 +218,59 @@ const AddVehicleModal = ({
           </Col>
         </Row>
 
+        <Form.Item
+          name="schedule"
+          label={formLabel("Lịch trình / tuyến")}
+          rules={[{ required: true, message: "Nhập lịch trình" }]}
+        >
+          <Input placeholder="Hà Nội - Đà Nẵng" style={fieldStyle} />
+        </Form.Item>
+
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="assignedRoute"
-              label={formLabel("Tuyến phụ trách")}
-              rules={[{ required: true, message: "Chọn tuyến phụ trách" }]}
+              name="timeStartPicker"
+              label={formLabel("Giờ đi")}
+              rules={[{ required: true, message: "Chọn giờ đi" }]}
             >
-              <Select
-                className="bm-select"
-                options={routeOptions.filter((item) => item.value !== "all")}
+              <TimePicker
+                className="bm-date-picker"
+                format="HH:mm"
+                style={{ width: "100%" }}
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="primaryDriver"
-              label={formLabel("Tài xế chính")}
-              rules={[{ required: true, message: "Chọn tài xế chính" }]}
+              name="timeEndPicker"
+              label={formLabel("Giờ đến")}
+              rules={[{ required: true, message: "Chọn giờ đến" }]}
             >
-              <Select
-                className="bm-select"
-                options={drivers.map((driver) => ({
-                  value: driver.name,
-                  label: driver.name,
-                }))}
+              <TimePicker
+                className="bm-date-picker"
+                format="HH:mm"
+                style={{ width: "100%" }}
               />
             </Form.Item>
           </Col>
         </Row>
 
         <Form.Item
-          name="utilizationRate"
-          label={formLabel("Tỷ lệ sử dụng")}
-          rules={[{ required: true, message: "Nhập tỷ lệ sử dụng" }]}
+          name="pricePerSeat"
+          label={formLabel("Giá mỗi ghế")}
+          rules={[{ required: true, message: "Nhập giá mỗi ghế" }]}
         >
           <InputNumber
             min={0}
-            max={100}
             style={{ ...fieldStyle, width: "100%" }}
             {...numberFieldProps}
           />
         </Form.Item>
 
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="lastMaintenance"
-              label={formLabel("Bảo dưỡng gần nhất")}
-              rules={[
-                { required: true, message: "Chọn ngày bảo dưỡng gần nhất" },
-              ]}
-            >
-              <DatePicker
-                className="bm-date-picker"
-                style={{ width: "100%" }}
-                format="DD/MM/YYYY"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="nextMaintenance"
-              label={formLabel("Bảo dưỡng kế tiếp")}
-              rules={[
-                { required: true, message: "Chọn ngày bảo dưỡng kế tiếp" },
-              ]}
-            >
-              <DatePicker
-                className="bm-date-picker"
-                style={{ width: "100%" }}
-                format="DD/MM/YYYY"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item name="note" label={formLabel("Ghi chú")}>
+        <Form.Item name="description" label={formLabel("Mô tả")}>
           <Input.TextArea
             rows={3}
-            placeholder="Ghi chú xe..."
+            placeholder="Mô tả xe..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>
