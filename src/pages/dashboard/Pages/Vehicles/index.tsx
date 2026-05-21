@@ -1,6 +1,10 @@
-import React, { useMemo, useState } from "react";
-import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import {
+  DEFAULT_MESSAGE,
+  NOTI_ERROR,
+  NOTI_SUCCESS,
+} from "@/common/constants/constants";
+import { useLoading } from "@/providers/loadingProvider";
+import { useNotification } from "@/providers/notificationProvider";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,9 +12,15 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { useMutation } from "@tanstack/react-query";
+import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { isAxiosError } from "axios";
+import { useMemo, useState } from "react";
 import { AddVehicleModal } from "../../components/ManagementCreate";
+import SummaryStrip from "../../components/Page2/SummaryStrip";
 import {
+  VEHICLE_STATUS_META,
   drivers,
   fleetStatusOptions,
   fleetTypeOptions,
@@ -19,13 +29,16 @@ import {
   operationRoutes,
   routeOptions,
   trips,
-  VEHICLE_STATUS_META,
   type FleetVehicleRecord,
 } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
+import { createVerhical } from "@/api/configs/verhical.config";
+import type { CreateVerhicalPayloadDto } from "@/api/dtos/verhical.dto";
 
 const FleetVehiclesPage = () => {
+  const { showNotification } = useNotification();
+  const { setLoading } = useLoading();
   const [vehicleData, setVehicleData] = useState(fleetVehicles);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -53,19 +66,43 @@ const FleetVehiclesPage = () => {
     });
   }, [route, search, status, type, vehicleData]);
 
-  const openEditModal = (record: FleetVehicleRecord) => {
-    setEditingRecord(record);
-    setEditModalOpen(true);
-  };
+  const createVerhicalMutation = useMutation({
+    mutationFn: (payload: CreateVerhicalPayloadDto) => createVerhical(payload),
+    onSuccess: () => {
+      showNotification("Thêm phương tiện thành công", NOTI_SUCCESS);
+    },
+    onError: (error) => {
+      let message = DEFAULT_MESSAGE;
+      if (isAxiosError(error)) {
+        const apiMessage = error.response?.data?.message;
+        if (typeof apiMessage === "string") {
+          message = apiMessage;
+        } else if (Array.isArray(apiMessage) && apiMessage[0]) {
+          message = apiMessage[0];
+        }
+      }
+      showNotification(message, NOTI_ERROR);
+    },
+    onSettled: () => {
+      setLoading(false);
+    },
+    onMutate: () => {
+      setLoading(true);
+    },
+  });
 
-  const closeEditModal = () => {
-    setEditModalOpen(false);
-    setEditingRecord(null);
-  };
-
-  const handleAddVehicle = (record: FleetVehicleRecord) => {
-    setVehicleData((prev) => [record, ...prev]);
-    message.success(`Đã thêm vehicle ${record.plateNumber}`);
+  const handleAddVehicle = (record: any) => {
+    const payload: CreateVerhicalPayloadDto = {
+      name: record.plateNumber,
+      code: record.plateNumber,
+      type: record.type,
+      seatType: record.seatType,
+      totalSeat: record.seats.toString(),
+      schedule: record.assignedRoute,
+      description: record.note,
+      status: record.status,
+    };
+    createVerhicalMutation.mutate(payload);
   };
 
   const handleEditVehicle = (record: FleetVehicleRecord) => {
@@ -74,7 +111,8 @@ const FleetVehiclesPage = () => {
     );
     setSelected((prev) => (prev?.key === record.key ? record : prev));
     message.success(`Đã cập nhật vehicle ${record.plateNumber}`);
-    closeEditModal();
+    setEditModalOpen(false);
+    setEditingRecord(null);
   };
 
   const getDeleteBlockReason = (record: FleetVehicleRecord) => {
@@ -211,7 +249,8 @@ const FleetVehiclesPage = () => {
             icon={<EditOutlined />}
             onClick={(event) => {
               event.stopPropagation();
-              openEditModal(record);
+              setEditingRecord(record);
+              setEditModalOpen(true);
             }}
           />
           <Button
@@ -370,7 +409,10 @@ const FleetVehiclesPage = () => {
                 <Button
                   className="btn-primary"
                   icon={<EditOutlined />}
-                  onClick={() => openEditModal(selected)}
+                  onClick={() => {
+                    setEditingRecord(selected);
+                    setEditModalOpen(true);
+                  }}
                 >
                   Sửa
                 </Button>
@@ -394,7 +436,10 @@ const FleetVehiclesPage = () => {
       />
       <AddVehicleModal
         open={editModalOpen}
-        onClose={closeEditModal}
+        onClose={() => {
+          setEditModalOpen(false);
+          setEditingRecord(null);
+        }}
         onSubmit={handleEditVehicle}
       />
     </div>

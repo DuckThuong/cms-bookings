@@ -27,7 +27,7 @@ type AddVehicleModalProps = {
   id?: string;
   open: boolean;
   onClose: () => void;
-  onSubmit: (record: FleetVehicleRecord) => void;
+  onSubmit: (record: any) => void;
 };
 
 const AddVehicleModal = ({
@@ -48,6 +48,18 @@ const AddVehicleModal = ({
   }, [id]);
 
   const handleSubmit = async () => {
+    const submitData = {
+      name: form.getFieldValue("name"),
+      plateNumber: form.getFieldValue("plateNumber"),
+      seatType: form.getFieldValue("seatType"),
+      status: form.getFieldValue("status"),
+      type: form.getFieldValue("type"),
+      seats: form.getFieldValue("seats"),
+      assignedRoute: form.getFieldValue("assignedRoute"),
+      primaryDriver: form.getFieldValue("primaryDriver"),
+    };
+    onSubmit(submitData);
+    form.resetFields();
     onClose();
   };
 
