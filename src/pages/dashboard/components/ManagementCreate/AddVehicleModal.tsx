@@ -79,7 +79,7 @@ const AddVehicleModal = ({
     >
       <Form form={form} layout="vertical" style={{ padding: "8px 0" }}>
         <Row gutter={12}>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={24}>
             <Form.Item
               name="name"
               label={formLabel("Tên xe")}
@@ -94,7 +94,7 @@ const AddVehicleModal = ({
           </Col>
         </Row>
         <Row gutter={12}>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={24}>
             <Form.Item
               name="name"
               label={formLabel("Biển số xe")}
@@ -112,8 +112,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="seatType"
-              label={formLabel("Loại ghế")}
-              rules={[{ required: true, message: "Nhập loại ghế " }]}
+              label={formLabel("Loại xe")}
+              rules={[{ required: true, message: "Nhập loại xe " }]}
             >
               <Select
                 className="bm-select"
@@ -143,8 +143,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="type"
-              label={formLabel("Loại xe")}
-              rules={[{ required: true, message: "Chọn loại xe" }]}
+              label={formLabel("Loại ghế")}
+              rules={[{ required: true, message: "Chọn loại ghế" }]}
             >
               <Select
                 className="bm-select"
