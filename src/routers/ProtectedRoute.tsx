@@ -1,22 +1,23 @@
-import React, { useEffect } from "react";
+import { useAuth } from "@/common/contexts/authContext";
+import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useLoading } from "../providers/loadingProvider";
 import { ROUTER_PATH } from "./Route";
 
 const ProtectedRoute: React.FC = () => {
   const location = useLocation();
-  const { setLoading } = useLoading();
+  const { isAuthenticated, isAuthResolved } = useAuth();
   const currentPath = `${location.pathname}${location.search}${location.hash}`;
-  const token = localStorage.getItem("token");
-  setLoading(true);
-  if (!token) {
-    setLoading(false);
+
+  if (!isAuthResolved) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
     return (
       <Navigate to={ROUTER_PATH.LOGIN} replace state={{ from: currentPath }} />
     );
   }
-  
-  setLoading(false);
+
   return <Outlet />;
 };
 

@@ -1,5 +1,6 @@
 import { signIn } from "@/api/configs/auth.config";
 import { Role, type LoginPayloadDto } from "@/api/dtos/auth.dto";
+import { useAuth } from "@/common/contexts/authContext";
 import { Logo } from "@/components/Logo";
 import { useLoading } from "@/providers/loadingProvider";
 import { useNotification } from "@/providers/notificationProvider";
@@ -23,15 +24,16 @@ export const Login = () => {
   const navigate = useNavigate();
   const { setLoading } = useLoading();
   const { showNotification } = useNotification();
+  const { setAuthSession } = useAuth();
   const [phone, setPhone] = useState("");
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayloadDto) => signIn(payload),
     onSuccess: (data) => {
       showNotification(SUCCESS_MESSAGE, NOTI_SUCCESS);
-      localStorage.setItem('token', data.accessToken);
-      localStorage.setItem('role', data.role.toString());
-      if(data.role === Role.ADMIN || data.role === Role.USER) {
+      setAuthSession(data);
+
+      if (data.role === Role.ADMIN || data.role === Role.USER) {
         navigate(ROUTER_PATH.DASHBOARD);
       } else {
         navigate(ROUTER_PATH.LOGIN);

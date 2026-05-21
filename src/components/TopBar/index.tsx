@@ -1,5 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge, Dropdown, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
+import { useAuth } from '@/common/contexts/authContext';
+import { ROUTER_PATH } from '@/routers/Route';
 import {
   BellOutlined,
   DownOutlined,
@@ -187,27 +191,39 @@ const HeaderHelp = () => (
   </Tooltip>
 );
 
-const HeaderUser = () => (
-  <Dropdown
-    menu={{ items: USER_MENU_ITEMS }}
-    placement="bottomRight"
-    trigger={['click']}
-    styles={{
-      root: {
-        background: '#152045',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 10,
-        minWidth: 200,
-      },
-    }}
-  >
-    <div className="header-user">
-      <div className="header-user__avatar">AD</div>
-      <span className="header-user__name">Admin</span>
-      <DownOutlined className="header-user__caret" />
-    </div>
-  </Dropdown>
-);
+const HeaderUser = () => {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'logout') {
+      signOut();
+      navigate(ROUTER_PATH.LOGIN, { replace: true });
+    }
+  };
+
+  return (
+    <Dropdown
+      menu={{ items: USER_MENU_ITEMS, onClick: handleUserMenuClick }}
+      placement="bottomRight"
+      trigger={['click']}
+      styles={{
+        root: {
+          background: '#152045',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 10,
+          minWidth: 200,
+        },
+      }}
+    >
+      <div className="header-user">
+        <div className="header-user__avatar">AD</div>
+        <span className="header-user__name">Admin</span>
+        <DownOutlined className="header-user__caret" />
+      </div>
+    </Dropdown>
+  );
+};
 
 const AppHeader = ({
   sidebarCollapsed,
