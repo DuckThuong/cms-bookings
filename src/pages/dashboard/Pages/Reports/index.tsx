@@ -83,24 +83,22 @@ const ReportsPage = () => {
       key: 'actions',
       render: (_, record) => (
         <div className="row-actions">
-          <button
-            type="button"
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
-          >
-            <EyeOutlined />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               message.success(`Đã tạo tải xuống cho ${record.id}`);
             }}
-          >
-            <DownloadOutlined />
-          </button>
+          />
         </div>
       ),
     },

@@ -110,15 +110,14 @@ const CustomersPage = () => {
       key: 'actions',
       render: (_, record) => (
         <div className="row-actions">
-          <button
-            type="button"
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
-          >
-            <EyeOutlined />
-          </button>
+          />
         </div>
       ),
     },

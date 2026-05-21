@@ -1,14 +1,19 @@
-import React, { useEffect } from 'react';
-import { Col, Form, Input, InputNumber, Modal, Row, Select } from 'antd';
+import { Col, Form, Input, InputNumber, Modal, Row, Select } from "antd";
+import { useEffect } from "react";
 import {
   demandLevelOptions,
   routeStatusOptions,
+  vehicleOptions,
   type AddRouteFormValues,
   type ManagementModalMode,
   type RouteRecord,
-  vehicleOptions,
-} from '../../share';
-import { fieldStyle, formLabel, numberFieldProps, renderModalFooter } from './shared';
+} from "../../share";
+import {
+  fieldStyle,
+  formLabel,
+  renderModalFooter,
+} from "@/common/contexts/UserContext";
+import { numberFieldProps } from "@/common/contexts/format";
 
 type AddRouteModalProps = {
   mode?: ManagementModalMode;
@@ -19,28 +24,28 @@ type AddRouteModalProps = {
 };
 
 const defaultValues: AddRouteFormValues = {
-  id: '',
-  route: '',
+  id: "",
+  route: "",
   distanceKm: 1,
-  standardDuration: '',
+  standardDuration: "",
   tripsPerDay: 1,
   averageOccupancy: 50,
   estimatedRevenue: 1,
-  status: 'active',
-  leadVehicle: '',
-  demandLevel: '',
-  note: '',
+  status: "active",
+  leadVehicle: "",
+  demandLevel: "",
+  note: "",
 };
 
 const AddRouteModal = ({
-  mode = 'create',
+  mode = "create",
   open,
   onClose,
   initialValues,
   onSubmit,
 }: AddRouteModalProps) => {
   const [form] = Form.useForm<AddRouteFormValues>();
-  const isEdit = mode === 'edit';
+  const isEdit = mode === "edit";
 
   useEffect(() => {
     if (open) {
@@ -81,10 +86,10 @@ const AddRouteModal = ({
       tripsPerDay: values.tripsPerDay,
       averageOccupancy: values.averageOccupancy,
       estimatedRevenue: values.estimatedRevenue,
-      status: values.status as RouteRecord['status'],
+      status: values.status as RouteRecord["status"],
       leadVehicle: values.leadVehicle,
       demandLevel: values.demandLevel,
-      note: values.note?.trim() ?? '',
+      note: values.note?.trim() ?? "",
     });
 
     form.resetFields();
@@ -94,13 +99,13 @@ const AddRouteModal = ({
   return (
     <Modal
       className="bm-modal mgmt-modal"
-      title={isEdit ? 'Cập nhật tuyến đường' : 'Thêm tuyến đường mới'}
+      title={isEdit ? "Cập nhật tuyến đường" : "Thêm tuyến đường mới"}
       open={open}
       onCancel={onClose}
       width={620}
       footer={renderModalFooter({
-        cancelText: 'Hủy',
-        submitText: isEdit ? 'Lưu thay đổi' : 'Thêm tuyến đường',
+        cancelText: "Hủy",
+        submitText: isEdit ? "Lưu thay đổi" : "Thêm tuyến đường",
         onCancel: onClose,
         onSubmit: handleSubmit,
       })}
@@ -108,28 +113,34 @@ const AddRouteModal = ({
       <Form<AddRouteFormValues>
         form={form}
         layout="vertical"
-        style={{ padding: '8px 0' }}
+        style={{ padding: "8px 0" }}
         initialValues={defaultValues}
       >
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
               name="id"
-              label={formLabel('Mã tuyến')}
-              rules={[{ required: true, message: 'Nhập mã tuyến' }]}
+              label={formLabel("Mã tuyến")}
+              rules={[{ required: true, message: "Nhập mã tuyến" }]}
             >
-              <Input placeholder="RT-201" style={fieldStyle} disabled={isEdit} />
+              <Input
+                placeholder="RT-201"
+                style={fieldStyle}
+                disabled={isEdit}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="status"
-              label={formLabel('Trạng thái')}
-              rules={[{ required: true, message: 'Chọn trạng thái' }]}
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
               <Select
                 className="bm-select"
-                options={routeStatusOptions.filter((item) => item.value !== 'all')}
+                options={routeStatusOptions.filter(
+                  (item) => item.value !== "all",
+                )}
               />
             </Form.Item>
           </Col>
@@ -137,8 +148,8 @@ const AddRouteModal = ({
 
         <Form.Item
           name="route"
-          label={formLabel('Tên tuyến')}
-          rules={[{ required: true, message: 'Nhập tên tuyến' }]}
+          label={formLabel("Tên tuyến")}
+          rules={[{ required: true, message: "Nhập tên tuyến" }]}
         >
           <Input placeholder="HCM → Đà Lạt" style={fieldStyle} />
         </Form.Item>
@@ -147,17 +158,21 @@ const AddRouteModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="distanceKm"
-              label={formLabel('Quãng đường (km)')}
-              rules={[{ required: true, message: 'Nhập quãng đường' }]}
+              label={formLabel("Quãng đường (km)")}
+              rules={[{ required: true, message: "Nhập quãng đường" }]}
             >
-              <InputNumber min={1} style={{ ...fieldStyle, width: '100%' }} {...numberFieldProps} />
+              <InputNumber
+                min={1}
+                style={{ ...fieldStyle, width: "100%" }}
+                {...numberFieldProps}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="standardDuration"
-              label={formLabel('Thời lượng chuẩn')}
-              rules={[{ required: true, message: 'Nhập thời lượng chuẩn' }]}
+              label={formLabel("Thời lượng chuẩn")}
+              rules={[{ required: true, message: "Nhập thời lượng chuẩn" }]}
             >
               <Input placeholder="7h30" style={fieldStyle} />
             </Form.Item>
@@ -168,19 +183,28 @@ const AddRouteModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="tripsPerDay"
-              label={formLabel('Số chuyến/ngày')}
-              rules={[{ required: true, message: 'Nhập số chuyến/ngày' }]}
+              label={formLabel("Số chuyến/ngày")}
+              rules={[{ required: true, message: "Nhập số chuyến/ngày" }]}
             >
-              <InputNumber min={1} style={{ ...fieldStyle, width: '100%' }} {...numberFieldProps} />
+              <InputNumber
+                min={1}
+                style={{ ...fieldStyle, width: "100%" }}
+                {...numberFieldProps}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="averageOccupancy"
-              label={formLabel('Tỷ lệ lấp đầy TB')}
-              rules={[{ required: true, message: 'Nhập tỷ lệ lấp đầy' }]}
+              label={formLabel("Tỷ lệ lấp đầy TB")}
+              rules={[{ required: true, message: "Nhập tỷ lệ lấp đầy" }]}
             >
-              <InputNumber min={0} max={100} style={{ ...fieldStyle, width: '100%' }} {...numberFieldProps} />
+              <InputNumber
+                min={0}
+                max={100}
+                style={{ ...fieldStyle, width: "100%" }}
+                {...numberFieldProps}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -189,20 +213,20 @@ const AddRouteModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="leadVehicle"
-              label={formLabel('Xe chủ lực')}
-              rules={[{ required: true, message: 'Chọn xe chủ lực' }]}
+              label={formLabel("Xe chủ lực")}
+              rules={[{ required: true, message: "Chọn xe chủ lực" }]}
             >
               <Select
                 className="bm-select"
-                options={vehicleOptions.filter((item) => item.value !== 'all')}
+                options={vehicleOptions.filter((item) => item.value !== "all")}
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="demandLevel"
-              label={formLabel('Mức nhu cầu')}
-              rules={[{ required: true, message: 'Chọn mức nhu cầu' }]}
+              label={formLabel("Mức nhu cầu")}
+              rules={[{ required: true, message: "Chọn mức nhu cầu" }]}
             >
               <Select className="bm-select" options={demandLevelOptions} />
             </Form.Item>
@@ -211,14 +235,22 @@ const AddRouteModal = ({
 
         <Form.Item
           name="estimatedRevenue"
-          label={formLabel('Doanh thu ước tính')}
-          rules={[{ required: true, message: 'Nhập doanh thu ước tính' }]}
+          label={formLabel("Doanh thu ước tính")}
+          rules={[{ required: true, message: "Nhập doanh thu ước tính" }]}
         >
-          <InputNumber min={1} style={{ ...fieldStyle, width: '100%' }} {...numberFieldProps} />
+          <InputNumber
+            min={1}
+            style={{ ...fieldStyle, width: "100%" }}
+            {...numberFieldProps}
+          />
         </Form.Item>
 
-        <Form.Item name="note" label={formLabel('Ghi chú')}>
-          <Input.TextArea rows={3} placeholder="Ghi chú tuyến..." style={{ ...fieldStyle, resize: 'none' }} />
+        <Form.Item name="note" label={formLabel("Ghi chú")}>
+          <Input.TextArea
+            rows={3}
+            placeholder="Ghi chú tuyến..."
+            style={{ ...fieldStyle, resize: "none" }}
+          />
         </Form.Item>
       </Form>
     </Modal>

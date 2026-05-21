@@ -87,3 +87,24 @@ export const formatPhone = (raw: string) => {
   if (digits.length > 6) result += " " + digits.slice(6, 9);
   return digits ? "0" + result : "";
 };
+
+export const numberFormatter = (value?: number | string | null) => {
+  if (value === undefined || value === null || value === "") {
+    return "";
+  }
+
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+export const numberParser = (value?: string) => {
+  if (!value) {
+    return 0;
+  }
+
+  return Number(value.replace(/\./g, "").replace(/,/g, "."));
+};
+
+export const numberFieldProps = {
+  formatter: numberFormatter,
+  parser: numberParser,
+};

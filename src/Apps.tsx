@@ -3,6 +3,7 @@ import { App as AntdApp, ConfigProvider, theme } from "antd";
 import RouterWeb from "./routers/Routers";
 import { LoadingProvider } from "./providers/loadingProvider";
 import { NotificationProvider } from "./providers/notificationProvider";
+import { AuthProvider } from "./common/contexts/authContext";
 import { UserProvider } from "./common/contexts/UserContext";
 import viVN from "antd/locale/vi_VN";
 
@@ -31,15 +32,17 @@ const App = () => {
           },
         }}
       >
-        <UserProvider initialUser={initialUser}>
-          <LoadingProvider>
-            <NotificationProvider>
-              <AntdApp>
-                <RouterWeb />
-              </AntdApp>
-            </NotificationProvider>
-          </LoadingProvider>
-        </UserProvider>
+        <AuthProvider>
+          <UserProvider initialUser={initialUser}>
+            <LoadingProvider>
+              <NotificationProvider>
+                <AntdApp>
+                  <RouterWeb />
+                </AntdApp>
+              </NotificationProvider>
+            </LoadingProvider>
+          </UserProvider>
+        </AuthProvider>
       </ConfigProvider>
     </QueryClientProvider>
   );

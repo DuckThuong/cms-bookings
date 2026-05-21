@@ -1,3 +1,4 @@
+import { getStoredToken } from "@/common/utils/authStorage";
 import { ROUTER_PATH } from "@/routers/Route";
 import axios from "axios";
 
@@ -13,7 +14,7 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = getStoredToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
