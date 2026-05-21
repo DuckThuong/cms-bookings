@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Button, DatePicker, Select, Table } from "antd";
+import { Button, DatePicker, Select, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   ArrowDownOutlined,
@@ -8,6 +8,7 @@ import {
   CreditCardOutlined,
   DollarCircleOutlined,
   DownloadOutlined,
+  PlusOutlined,
   ReloadOutlined,
   RiseOutlined,
   UndoOutlined,
@@ -36,6 +37,12 @@ import {
   type RevenueRouteRecord,
   type RevenueTransactionRecord,
 } from "../../share";
+import {
+  AddDriverModal,
+  AddRouteModal,
+  AddTripModal,
+  AddVehicleModal,
+} from "../../components/ManagementCreate";
 import "../Page2/style.scss";
 import "../management.scss";
 
@@ -49,6 +56,10 @@ const RevenuePage = () => {
   const [route, setRoute] = useState("all");
   const [vehicle, setVehicle] = useState("all");
   const [dateRange, setDateRange] = useState<[string, string]>(["", ""]);
+  const [tripModalOpen, setTripModalOpen] = useState(false);
+  const [routeModalOpen, setRouteModalOpen] = useState(false);
+  const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
+  const [driverModalOpen, setDriverModalOpen] = useState(false);
 
   const filteredTransactions = useMemo(() => {
     return revenueTransactions.filter((item) => {
@@ -62,7 +73,7 @@ const RevenuePage = () => {
 
       return matchRoute && matchVehicle && matchDate;
     });
-  }, [route, vehicle, dateRange]);
+  }, [dateRange, route, vehicle]);
 
   const filteredRoutes = useMemo(() => {
     return revenueByRoute.filter((item) => {
@@ -142,7 +153,6 @@ const RevenuePage = () => {
     },
     { title: "Tuyến", dataIndex: "route", key: "route" },
     { title: "Xe", dataIndex: "vehicle", key: "vehicle" },
-
     { title: "Booking", dataIndex: "bookings", key: "bookings" },
     {
       title: "Doanh thu",
@@ -162,6 +172,7 @@ const RevenuePage = () => {
           <span
             className="booking-status"
             style={{
+              background: `${meta.color}33`,
               color: meta.color,
               boxSizing: "border-box",
             }}
@@ -265,14 +276,12 @@ const RevenuePage = () => {
             value={route}
             onChange={setRoute}
             options={routeOptions}
-            style={{ minWidth: 0, flex: "1 1 140px" }}
           />
           <Select
             className="bm-select"
             value={vehicle}
             onChange={setVehicle}
             options={vehicleOptions}
-            style={{ minWidth: 0, flex: "1 1 140px" }}
           />
           <Button
             className="btn-ghost"
@@ -440,6 +449,29 @@ const RevenuePage = () => {
           </div>
         </div>
       </div>
+
+      <AddTripModal
+        open={tripModalOpen}
+        onClose={() => setTripModalOpen(false)}
+        onSubmit={(record) => message.success(`Đã tạo trip ${record.id}`)}
+      />
+      <AddRouteModal
+        open={routeModalOpen}
+        onClose={() => setRouteModalOpen(false)}
+        onSubmit={(record) => message.success(`Đã tạo route ${record.id}`)}
+      />
+      <AddVehicleModal
+        open={vehicleModalOpen}
+        onClose={() => setVehicleModalOpen(false)}
+        onSubmit={(record) =>
+          message.success(`Đã tạo vehicle ${record.plateNumber}`)
+        }
+      />
+      <AddDriverModal
+        open={driverModalOpen}
+        onClose={() => setDriverModalOpen(false)}
+        onSubmit={(record) => message.success(`Đã tạo driver ${record.id}`)}
+      />
     </div>
   );
 };

@@ -127,10 +127,9 @@ const ReportsPage = () => {
             placeholder="Tìm mã, tên báo cáo, người tạo..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            style={{ minWidth: 0, flex: '1 1 180px' }}
           />
-          <Select className="bm-select" value={type} onChange={setType} options={reportTypeOptions} style={{ minWidth: 0, flex: '1 1 140px' }} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={reportStatusOptions} style={{ minWidth: 0, flex: '1 1 140px' }} />
+          <Select className="bm-select" value={type} onChange={setType} options={reportTypeOptions} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={reportStatusOptions} />
           <Button
             className="btn-ghost"
             icon={<ReloadOutlined />}

@@ -25,6 +25,22 @@ interface IFormNumber {
   parser?: (value: string) => number;
 }
 
+const defaultFormatter = (value: number | string | undefined | null) => {
+  if (value === undefined || value === null || value === "") {
+    return "";
+  }
+
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const defaultParser = (value?: string) => {
+  if (!value) {
+    return 0;
+  }
+
+  return Number(value.replace(/\./g, "").replace(/,/g, "."));
+};
+
 export const FormNumber = ({
   label,
   formItemProps,
@@ -66,8 +82,8 @@ export const FormNumber = ({
         max={max}
         step={step}
         precision={precision}
-        formatter={formatter}
-        parser={parser}
+        formatter={formatter ?? defaultFormatter}
+        parser={parser ?? defaultParser}
         {...numberProps}
       />
     </Form.Item>

@@ -103,6 +103,14 @@ export const fleetTypeOptions: FilterOption[] = [
   { value: 'Xe limousine 9 chỗ', label: 'Xe limousine 9 chỗ' },
 ];
 
+export const demandLevelOptions: FilterOption[] = [
+  { value: 'Cao', label: 'Cao' },
+  { value: 'á»”n Ä‘á»‹nh', label: 'á»”n Ä‘á»‹nh' },
+  { value: 'Chiáº¿n lÆ°á»£c', label: 'Chiáº¿n lÆ°á»£c' },
+  { value: 'Trung bÃ¬nh', label: 'Trung bÃ¬nh' },
+  { value: 'Tháº¥p', label: 'Tháº¥p' },
+];
+
 export const trips: TripRecord[] = [
   {
     key: 'trip-01',
