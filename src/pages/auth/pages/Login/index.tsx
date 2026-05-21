@@ -1,5 +1,6 @@
 import { signIn } from "@/api/configs/auth.config";
-import type { LoginPayloadDto } from "@/api/dtos/auth.dto";
+import { Role, type LoginPayloadDto } from "@/api/dtos/auth.dto";
+import { useAuth } from "@/common/contexts/authContext";
 import { Logo } from "@/components/Logo";
 import { useLoading } from "@/providers/loadingProvider";
 import { useNotification } from "@/providers/notificationProvider";
@@ -23,14 +24,20 @@ export const Login = () => {
   const navigate = useNavigate();
   const { setLoading } = useLoading();
   const { showNotification } = useNotification();
+  const { setAuthSession } = useAuth();
   const [phone, setPhone] = useState("");
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayloadDto) => signIn(payload),
     onSuccess: (data) => {
       showNotification(SUCCESS_MESSAGE, NOTI_SUCCESS);
-      localStorage.setItem('token', data.accessToken);
-      navigate(ROUTER_PATH.DASHBOARD);
+      setAuthSession(data);
+
+      if (data.role === Role.ADMIN || data.role === Role.USER) {
+        navigate(ROUTER_PATH.DASHBOARD);
+      } else {
+        navigate(ROUTER_PATH.LOGIN);
+      }
     },
     onError: (error) => {
       let message = DEFAULT_MESSAGE;
@@ -53,13 +60,11 @@ export const Login = () => {
   });
 
   const handleSubmit = (values: { phone: string; password: string }) => {
-    // const payload: LoginPayloadDto = {
-    //   phoneNumber: values.phone,
-    //   password: values.password,
-    // };
-    // loginMutation.mutate(payload);
-
-    navigate(ROUTER_PATH.DASHBOARD);
+    const payload: LoginPayloadDto = {
+      phoneNumber: values.phone,
+      password: values.password,
+    };
+    loginMutation.mutate(payload);
   };
 
   return (

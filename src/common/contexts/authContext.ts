@@ -1,192 +1,83 @@
-import React, {
+import {
   createContext,
+  createElement,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
+  type ReactNode,
 } from "react";
-import {
-  signIn as signInApi,
-  signUp as signUpApi,
-} from "../../api/configs/auth.config";
-import { getUserPRofile } from "../../api/configs/user.config";
+import type { AuthResponseDto, Role } from "@/api/dtos/auth.dto";
 import {
   clearStoredAuth,
   getStoredRole,
   getStoredToken,
-  isStoredAuthRemembered,
   setStoredAuth,
-  setStoredRole,
 } from "../utils/authStorage";
-import type {
-  SignInPayloadDto,
-  SignInResponseDto,
-  SignUpPayloadDto,
-  SignUpResponseDto,
-} from "../../api/dtos/auth.dto";
-import type { UserProfileResponseDto } from "../../api/dtos/user.dto";
 
-interface AuthContextType {
+export interface AuthContextValue {
   token: string | null;
-  user: UserProfileResponseDto | null;
-  userRole: string | null;
+  role: Role | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
   isAuthResolved: boolean;
-  signIn: (
-    payload: SignInPayloadDto,
-    options?: { remember?: boolean },
-  ) => Promise<SignInResponseDto>;
-  signUp: (payload: SignUpPayloadDto) => Promise<SignUpResponseDto>;
+  setAuthSession: (data: AuthResponseDto, remember?: boolean) => void;
   signOut: () => void;
-  setUser: (user: UserProfileResponseDto | null) => void;
-  checkAuthStatus: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [token, setToken] = useState<string | null>(() => getStoredToken());
-  const [currentUser, setCurrentUser] = useState<UserProfileResponseDto | null>(
-    null,
-  );
-  const [isLoading, setIsLoading] = useState(false);
+const parseStoredRole = (value: string | null): Role | null => {
+  if (value === null || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : (parsed as Role);
+};
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
   const [isAuthResolved, setIsAuthResolved] = useState(false);
 
-  const applyAuthenticatedState = useCallback(
-    (
-      nextToken: string,
-      nextUser: UserProfileResponseDto | null,
-      remember = false,
-    ) => {
-      setToken(nextToken);
-      setStoredAuth(nextToken, nextUser?.role, remember);
+  useEffect(() => {
+    setToken(getStoredToken());
+    setRole(parseStoredRole(getStoredRole()));
+    setIsAuthResolved(true);
+  }, []);
 
-      setCurrentUser(nextUser);
+  const setAuthSession = useCallback(
+    (data: AuthResponseDto, remember = true) => {
+      setStoredAuth(data.accessToken, String(data.role), remember);
+      setToken(data.accessToken);
+      setRole(data.role);
     },
     [],
   );
 
-  const setUser = useCallback((nextUser: UserProfileResponseDto | null) => {
-    setCurrentUser(nextUser);
-    setStoredRole(nextUser?.role ?? null);
-  }, []);
-
   const signOut = useCallback(() => {
     clearStoredAuth();
     setToken(null);
-    setCurrentUser(null);
+    setRole(null);
   }, []);
 
-  const fetchAndApplyUserProfile = useCallback(
-    async (nextToken: string, remember = false) => {
-      const profile = await getUserPRofile();
-      applyAuthenticatedState(nextToken, profile, remember);
-    },
-    [applyAuthenticatedState],
-  );
-
-  const checkAuthStatus = useCallback(async () => {
-    setIsAuthResolved(false);
-    const currentToken = getStoredToken();
-
-    if (!currentToken) {
-      signOut();
-      setIsAuthResolved(true);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await fetchAndApplyUserProfile(currentToken, isStoredAuthRemembered());
-    } catch {
-      signOut();
-    } finally {
-      setIsLoading(false);
-      setIsAuthResolved(true);
-    }
-  }, [fetchAndApplyUserProfile, signOut]);
-
-  const signIn = useCallback(
-    async (payload: SignInPayloadDto, options?: { remember?: boolean }) => {
-      const remember = options?.remember ?? false;
-      setIsLoading(true);
-      try {
-        const response = await signInApi(payload);
-        applyAuthenticatedState(response.access_token, null, remember);
-        await fetchAndApplyUserProfile(response.access_token, remember);
-        return response;
-      } catch (error) {
-        signOut();
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [applyAuthenticatedState, fetchAndApplyUserProfile, signOut],
-  );
-
-  const signUp = useCallback(async (payload: SignUpPayloadDto) => {
-    setIsLoading(true);
-    try {
-      const response = await signUpApi(payload);
-      return response;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void checkAuthStatus();
-  }, [checkAuthStatus]);
-
-  const userRole = useMemo(
-    () => currentUser?.role ?? getStoredRole(),
-    [currentUser?.role],
-  );
-
-  const isAuthenticated = Boolean(token);
-
-  const contextValue = useMemo(
+  const value = useMemo<AuthContextValue>(
     () => ({
       token,
-      user: currentUser,
-      userRole,
-      isAuthenticated,
-      isLoading,
+      role,
+      isAuthenticated: Boolean(token),
       isAuthResolved,
-      signIn,
-      signUp,
+      setAuthSession,
       signOut,
-      setUser,
-      checkAuthStatus,
     }),
-    [
-      token,
-      currentUser,
-      userRole,
-      isAuthenticated,
-      isLoading,
-      isAuthResolved,
-      signIn,
-      signUp,
-      signOut,
-      setUser,
-      checkAuthStatus,
-    ],
+    [token, role, isAuthResolved, setAuthSession, signOut],
   );
 
-  return React.createElement(
-    AuthContext.Provider,
-    { value: contextValue },
-    children,
-  );
+  return createElement(AuthContext.Provider, { value }, children);
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within AuthProvider");

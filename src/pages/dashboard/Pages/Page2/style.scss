@@ -13,1022 +13,1509 @@
   border-radius: 18px;
   animation: fadeUp 0.35s ease forwards;
 }
-  
-  // ── Left: Vehicle Sidebar
-  .bm-vehicle-sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    background: $sidebar-bg;
-    border-right: 1px solid $border-color;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  
-    &__header {
-      padding: 20px 16px 12px;
-      border-bottom: 1px solid $border-color;
-  
-      .title {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: $text-muted;
-      }
-    }
-  
-    &__list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 0;
-    }
-  }
-  
-  .vehicle-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    cursor: pointer;
-    transition: $transition-fast;
-    border-left: 3px solid transparent;
-    position: relative;
-  
-    &:hover {
-      background: $sidebar-hover;
-      border-left-color: rgba(249, 115, 22, 0.3);
-    }
-  
-    &--active {
-      background: $sidebar-active !important;
-      border-left-color: $accent-orange !important;
-  
-      .vehicle-item__label { color: $text-primary; }
-      .vehicle-item__type  { color: $text-secondary; }
-    }
-  
-    &--maintenance {
-      opacity: 0.55;
-    }
-  
-    &__icon {
-      font-size: 18px;
-      width: 32px;
-      height: 32px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-  
-    &__body { flex: 1; min-width: 0; }
-  
-    &__label {
-      font-size: 12px;
-      font-weight: 600;
-      color: $text-secondary;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  
-    &__type {
-      font-size: 10px;
-      color: $text-muted;
-      margin-top: 1px;
-    }
-  
-    &__badge {
-      min-width: 20px;
-      height: 18px;
-      border-radius: 99px;
-      background: rgba(249, 115, 22, 0.15);
-      color: $accent-orange;
-      font-size: 10px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 5px;
-    }
-  
-    &__maintenance {
-      font-size: 9px;
-      color: $status-warning;
-      background: rgba(234,179,8,0.12);
-      border-radius: 4px;
-      padding: 1px 5px;
-    }
-  }
-  
-  // ── Right: Main Content
-  .bm-main {
-    flex: 1;
-    min-width: 0;
-    max-width: 100%;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  
-  // ── Top Toolbar
-  .bm-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
+
+// ── Left: Vehicle Sidebar
+.bm-vehicle-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: $sidebar-bg;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &__header {
+    padding: 20px 16px 12px;
     border-bottom: 1px solid $border-color;
-    background: $primary-navy;
-    gap: 10px;
-    flex-wrap: wrap;
-  
-    &__left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 0;
-      flex-wrap: wrap;
-    }
-  
-    &__right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      flex: 1 1 360px;
-      justify-content: flex-end;
-      min-width: 0;
-    }
-  
-    &__title {
-      font-size: 15px;
-      font-weight: 700;
-      color: $text-primary;
-      white-space: nowrap;
-    }
-  
-    &__count {
-      font-size: 12px;
-      color: $text-muted;
-      padding-left: 12px;
-      border-left: 1px solid $border-color;
-    }
 
-    &__search {
-      width: auto;
-      flex: 1 1 180px;
-      min-width: 0;
-    }
-
-    &__date {
-      width: auto;
-      flex: 1 1 190px;
-      min-width: 0;
-    }
-
-    &__select {
-      width: auto;
-      flex: 1 1 140px;
-      min-width: 0;
-    }
-
-    &__icon-btn,
-    &__action-btn {
-      flex: 0 0 auto;
-    }
-  }
-  
-  // Status Filter Tabs
-  .status-tabs {
-    display: flex;
-    gap: 4px;
-    background: $primary-dark;
-    border-radius: 10px;
-    padding: 4px;
-  
-    &__tab {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 7px;
-      border: none;
-      background: transparent;
-      color: $text-muted;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: $transition-fast;
-      white-space: nowrap;
-  
-      &:hover { color: $text-secondary; background: rgba(255,255,255,0.04); }
-  
-      &--active {
-        color: $text-primary !important;
-        font-weight: 600;
-      }
-  
-      &__dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-      }
-  
-      &__count {
-        font-size: 10px;
-        padding: 1px 5px;
-        border-radius: 99px;
-        background: rgba(255,255,255,0.07);
-        color: $text-muted;
-      }
-    }
-  }
-  
-  // ── Summary Strip
-  .bm-summary-strip {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    background: $primary-navy;
-    border-bottom: 1px solid $border-color;
-    gap: 0;
-    overflow: hidden;
-  
-    &__item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0 14px;
-      border-right: 1px solid $border-color;
-      min-width: 0;
-  
-      &:first-child { padding-left: 0; }
-      &:last-child  { border-right: none; }
-    }
-  
-    &__dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-  
-    &__label {
-      font-size: 11px;
-      color: $text-muted;
-      white-space: nowrap;
-    }
-  
-    &__value {
-      font-size: 14px;
-      font-weight: 700;
-      color: $text-primary;
-    }
-  }
-  
-  // ── Content area
-  .bm-content {
-    flex: 1;
-    min-width: 0;
-    max-width: 100%;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0 !important;
-  }
-  
-  // ── Booking Table (main)
-  .bm-table-wrap {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    background: $primary-navy;
-    border: 0 !important;
-
-    overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.045);
-
-  }
-  
-  // Ant Design Table overrides for booking table
-  .bm-table {
-    .ant-table {
-      background: transparent !important;
-      width: 100%;
-      table-layout: fixed;
-    }
-
-    .ant-table-wrapper,
-    .ant-spin-nested-loading,
-    .ant-spin-container,
-    .ant-table-container,
-    .ant-table-content {
-      min-width: 0;
-      max-width: 100%;
-      overflow: hidden !important;
-    }
-
-    .ant-table table {
-      width: 100% !important;
-      table-layout: fixed !important;
-    }
-
-    .ant-table-mesure-row {
-      display: none !important;
-    }
-  
-    .ant-table-thead > tr > th {
-      background: rgba(255,255,255,0.03) !important;
-      border-bottom: 1px solid $border-color !important;
-      color: $text-muted !important;
-      font-size: 11px !important;
-      font-weight: 700 !important;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 8px 10px !important;
-      white-space: normal !important;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-  
-      &::before { display: none !important; }
-    }
-
-    .ant-table-thead > tr > th:first-child {
-      border-start-start-radius: 0 !important;
-    }
-
-    .ant-table-thead > tr > th:last-child {
-      border-start-end-radius: 0 !important;
-    }
-  
-    .ant-table-tbody > tr > td {
-      border-bottom: 1px solid rgba(255,255,255,0.04) !important;
-      color: $text-secondary !important;
-      padding: 10px 10px !important;
-      background: transparent !important;
-      vertical-align: middle;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-  
-    .ant-table-tbody > tr:hover > td {
-      background: rgba(255,255,255,0.025) !important;
-      cursor: pointer;
-    }
-  
-    .ant-table-tbody > tr.row-selected > td {
-      background: rgba(249,115,22,0.06) !important;
-    }
-  
-    .ant-table-row-expand-icon {
-      background: transparent;
-      border-color: $border-color;
-      color: $text-muted;
-    }
-  
-    .ant-pagination {
-      padding: 10px 12px;
-      margin: 0 !important;
-      border-top: 1px solid $border-color;
-      max-width: 100%;
-      flex-wrap: wrap;
-  
-      .ant-pagination-item {
-        background: transparent;
-        border-color: $border-color;
-        a { color: $text-secondary; }
-        &-active {
-          background: $accent-orange !important;
-          border-color: $accent-orange !important;
-          a { color: #fff; }
-        }
-      }
-      .ant-pagination-prev button,
-      .ant-pagination-next button {
-        background: transparent;
-        border-color: $border-color;
-        color: $text-secondary;
-      }
-      .ant-select-selector {
-        background: transparent !important;
-        border-color: $border-color !important;
-        color: $text-secondary !important;
-      }
-    }
-  }
-  
-  // ── Customer cell
-  .bm-table-wrap--revenue {
-    border-radius: $radius-md;
-
-    .ant-table,
-    .ant-table-container,
-    .ant-table-content {
-      border-radius: $radius-md;
-    }
-
-    .ant-table-thead > tr > th:first-child {
-      border-start-start-radius: $radius-md !important;
-    }
-
-    .ant-table-thead > tr > th:last-child {
-      border-start-end-radius: $radius-md !important;
-    }
-  }
-
-  .cust-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  
-    &__avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-      background: rgba(249,115,22,0.15);
-      color: $accent-orange;
-    }
-  
-    &__name  { font-size: 13px; font-weight: 600; color: $text-primary; overflow-wrap: anywhere; }
-    &__phone { font-size: 11px; color: $text-muted; margin-top: 1px; overflow-wrap: anywhere; }
-  }
-  
-  // ── Route cell
-  .route-cell {
-    &__line {
-      font-size: 13px;
-      font-weight: 600;
-      color: $text-primary;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      overflow-wrap: anywhere;
-  
-      .arrow {
-        color: $accent-orange;
-        font-size: 10px;
-      }
-    }
-  
-    &__time {
-      font-size: 11px;
-      color: $text-muted;
-      margin-top: 2px;
-      font-variant-numeric: tabular-nums;
-    }
-  }
-  
-  // ── Seat badges
-  .seat-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  
-  .seat-badge {
-    padding: 2px 7px;
-    border-radius: 5px;
-    font-size: 10px;
-    font-weight: 700;
-    background: rgba(255,255,255,0.07);
-    color: $text-secondary;
-    border: 1px solid rgba(255,255,255,0.08);
-    font-family: $font-mono;
-    white-space: nowrap;
-  }
-  
-  // ── Status badge
-  .booking-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-  
-    &__dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-  }
-  
-  // ── Amount cell
-  .amount-cell {
-    font-size: 13px;
-    font-weight: 700;
-    color: $status-success;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  
-  // ── Action buttons
-  .row-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-  
-    button {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      border: 1px solid $border-color;
-      background: transparent;
-      color: $text-muted;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: $transition-fast;
-      font-size: 12px;
-  
-      &:hover {
-        border-color: $border-active;
-        color: $accent-orange;
-        background: $accent-orange-light;
-      }
-  
-      &.danger:hover {
-        border-color: rgba(239,68,68,0.4);
-        color: $status-error;
-        background: rgba(239,68,68,0.1);
-      }
-    }
-  }
-  
-  // ── Detail Drawer
-  .booking-drawer {
-    .ant-drawer-content {
-      background: $primary-navy !important;
-      border-left: 1px solid $border-color;
-    }
-  
-    .ant-drawer-header {
-      background: $primary-navy !important;
-      border-bottom: 1px solid $border-color !important;
-      padding: 16px 20px !important;
-    }
-  
-    .ant-drawer-title {
-      color: $text-primary !important;
-      font-weight: 700 !important;
-      font-family: $font-primary !important;
-    }
-  
-    .ant-drawer-close {
-      color: $text-muted !important;
-    }
-  
-    .ant-drawer-body {
-      background: $primary-navy !important;
-      padding: 0 !important;
-    }
-  }
-  
-  .drawer-body {
-    padding: 20px;
-  
-    &__section {
-      margin-bottom: 24px;
-    }
-  
-    &__section-title {
+    .title {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       color: $text-muted;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid $border-color;
-    }
-  
-    &__row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-  
-      &:last-child { border-bottom: none; }
-    }
-  
-    &__key {
-      font-size: 12px;
-      color: $text-muted;
-    }
-  
-    &__val {
-      font-size: 13px;
-      color: $text-primary;
-      font-weight: 500;
-      text-align: right;
-      max-width: 60%;
     }
   }
-  
-  // ── Journey Timeline in drawer
-  .journey-timeline {
-    position: relative;
-    padding: 12px 0;
-  
-    &__line {
-      position: absolute;
-      left: 11px;
-      top: 24px;
-      bottom: 24px;
-      width: 2px;
-      background: linear-gradient(to bottom, $accent-orange, rgba(249,115,22,0.2));
-      border-radius: 99px;
+
+  &__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+}
+
+.vehicle-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: $transition-fast;
+  border-left: 3px solid transparent;
+  position: relative;
+
+  &:hover {
+    background: $sidebar-hover;
+    border-left-color: rgba(249, 115, 22, 0.3);
+  }
+
+  &--active {
+    background: $sidebar-active !important;
+    border-left-color: $accent-orange !important;
+
+    .vehicle-item__label {
+      color: $text-primary;
     }
-  
-    &__point {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 20px;
-      position: relative;
-  
-      &:last-child { margin-bottom: 0; }
+    .vehicle-item__type {
+      color: $text-secondary;
     }
-  
+  }
+
+  &--maintenance {
+    opacity: 0.55;
+  }
+
+  &__icon {
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__type {
+    font-size: 10px;
+    color: $text-muted;
+    margin-top: 1px;
+  }
+
+  &__badge {
+    min-width: 20px;
+    height: 18px;
+    border-radius: 99px;
+    background: rgba(249, 115, 22, 0.15);
+    color: $accent-orange;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+  }
+
+  &__maintenance {
+    font-size: 9px;
+    color: $status-warning;
+    background: rgba(234, 179, 8, 0.12);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+}
+
+// ── Right: Main Content
+.bm-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ── Top Toolbar
+.bm-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-color;
+  background: $primary-navy;
+  gap: 10px;
+  flex-wrap: nowrap;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  &__right,
+  &_right {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+    margin-left: 4px;
+
+    > :first-child {
+      margin-left: auto;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text-primary;
+    white-space: nowrap;
+  }
+
+  &__count {
+    font-size: 12px;
+    color: $text-muted;
+    padding-left: 12px;
+    border-left: 1px solid $border-color;
+  }
+
+  &__search {
+    width: clamp(220px, 28ch, 360px);
+    min-width: 220px;
+    flex: 0 0 auto;
+  }
+
+  &__date {
+    width: fit-content;
+    min-width: fit-content;
+    flex: 0 0 auto;
+  }
+
+  &__select {
+    width: fit-content;
+    min-width: fit-content;
+    flex: 0 0 auto;
+  }
+
+  &__icon-btn,
+  &__action-btn {
+    flex: 0 0 auto;
+  }
+
+  &__primary-btn {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+}
+
+// Status Filter Tabs
+.status-tabs {
+  display: flex;
+  gap: 4px;
+  background: $primary-dark;
+  border-radius: 10px;
+  padding: 4px;
+  margin-top: 8px;
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+      color: $text-secondary;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    &--active {
+      color: $text-primary !important;
+      font-weight: 600;
+    }
+
     &__dot {
-      width: 24px;
-      height: 24px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      border: 2px solid $accent-orange;
-      background: $primary-navy;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+
+    &__count {
       font-size: 10px;
-      flex-shrink: 0;
-      z-index: 1;
-    }
-  
-    &__info {
-      flex: 1;
-      padding-top: 2px;
-    }
-  
-    &__label {
-      font-size: 12px;
+      padding: 1px 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.07);
       color: $text-muted;
-      margin-bottom: 2px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 10px;
-    }
-  
-    &__place {
-      font-size: 13px;
-      font-weight: 600;
-      color: $text-primary;
-    }
-  
-    &__time {
-      font-size: 12px;
-      color: $accent-orange;
-      font-weight: 600;
-      margin-top: 2px;
     }
   }
-  
-  // ── Seat Map Preview
-  .seat-map-mini {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    padding: 12px;
-    background: rgba(0,0,0,0.2);
-    border-radius: $radius-sm;
-    border: 1px solid $border-color;
-  
-    &__seat {
-      aspect-ratio: 1;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.05);
-      font-size: 8px;
-      color: $text-muted;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      transition: $transition-fast;
-  
-      &--booked {
-        background: rgba(249,115,22,0.15);
-        border-color: rgba(249,115,22,0.3);
-        color: $accent-orange;
-      }
-  
-      &--selected {
-        background: $accent-orange;
-        border-color: $accent-orange;
-        color: #fff;
-      }
-    }
-  }
-  
-  // ── Confirm/Cancel modal override
-  .bm-modal {
-    .ant-modal-content {
-      background: $primary-navy-2 !important;
-      border: 1px solid $border-color;
-      border-radius: $radius-md !important;
-      box-shadow: $shadow-lg;
-    }
-  
-    .ant-modal-header {
-      background: transparent !important;
-      border-bottom: 1px solid $border-color !important;
-      padding: 16px 20px !important;
-    }
-  
-    .ant-modal-title {
-      color: $text-primary !important;
-      font-family: $font-primary !important;
-      font-weight: 700 !important;
-    }
-  
-    .ant-modal-close { color: $text-muted !important; }
-  
-    .ant-modal-body {
-      background: transparent !important;
-      color: $text-secondary !important;
-      font-size: 14px;
-      padding: 20px !important;
-    }
-  
-    .ant-modal-footer {
-      background: transparent !important;
-      border-top: 1px solid $border-color !important;
-      padding: 12px 20px !important;
-    }
-  }
-  
-  // Input overrides
-  .bm-search.ant-input-affix-wrapper {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid $border-color !important;
-    border-radius: 8px !important;
-  
-    input {
-      background: transparent !important;
-      color: $text-primary !important;
-      font-size: 13px;
-  
-      &::placeholder { color: $text-muted; }
-    }
-  
-    .ant-input-prefix { color: $text-muted; }
-  
-    &:focus-within {
-      border-color: $border-active !important;
-      box-shadow: none !important;
-    }
-  }
-  
-  // Date picker override
-  .bm-date-picker.ant-picker {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid $border-color !important;
-    border-radius: 8px !important;
-  
-    input {
-      color: $text-primary !important;
-      font-size: 13px;
-      &::placeholder { color: $text-muted; }
-    }
-  
-    .ant-picker-suffix { color: $text-muted; }
-    .ant-picker-clear  { background: $primary-navy; }
-  
-    &:hover, &.ant-picker-focused {
-      border-color: $border-active !important;
-      box-shadow: none !important;
-    }
-  }
-  
-  // Select override
-  .bm-select {
-    .ant-select-selector {
-      background: rgba(255,255,255,0.05) !important;
-      border: 1px solid $border-color !important;
-      border-radius: 8px !important;
-      color: $text-primary !important;
-      font-size: 13px;
-    }
-  
-    .ant-select-arrow { color: $text-muted; }
-  
-    &.ant-select-focused .ant-select-selector {
-      border-color: $border-active !important;
-      box-shadow: none !important;
-    }
-  }
-  
-  // Btn overrides
-  .btn-primary {
-    background: $accent-orange !important;
-    border-color: $accent-orange !important;
-    color: #fff !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    height: 34px !important;
-  
-    &:hover {
-      background: $accent-orange-2 !important;
-      border-color: $accent-orange-2 !important;
-    }
-  }
-  
-  .btn-ghost {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid $border-color !important;
-    color: $text-secondary !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    height: 34px !important;
-  
-    &:hover {
-      border-color: rgba(255,255,255,0.15) !important;
-      color: $text-primary !important;
-    }
-  }
+}
 
-  @media (max-width: 1199px) {
-    .bm-page {
-      min-height: 100%;
-      border-radius: 16px;
-    }
+// ── Summary Strip
+.bm-summary-strip {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: $primary-navy;
+  border-bottom: 1px solid $border-color;
+  gap: 0;
+  overflow: hidden;
 
-    .bm-vehicle-sidebar {
-      width: 190px;
-    }
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    border-right: 1px solid $border-color;
+    min-width: 0;
 
-    .bm-toolbar {
-      padding: 12px 16px;
-
-      &__right {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      &__search {
-        flex: 1 1 240px;
-      }
-
-      &__date {
-        flex: 1 1 220px;
-      }
-    }
-
-    .bm-summary-strip,
-    .bm-content {
+    &:first-child {
       padding-left: 0;
-      padding-right: 0;
     }
-  }
-
-  @media (max-width: 767px) {
-    .bm-page {
-      flex-direction: column;
-      overflow: hidden;
-      border-radius: 14px;
-    }
-
-    .bm-vehicle-sidebar {
-      width: 100%;
+    &:last-child {
       border-right: none;
-      border-bottom: 1px solid $border-color;
+    }
+  }
 
-      &__header {
-        padding: 14px 16px 10px;
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-size: 11px;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__value {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+}
+
+// ── Content area
+.bm-content {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 !important;
+}
+
+// ── Booking Table (main)
+.bm-table-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  background: $primary-navy;
+  border: 0 !important;
+
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+}
+
+// Ant Design Table overrides for booking table
+.bm-table {
+  .ant-table {
+    background: transparent !important;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .ant-table-wrapper,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container,
+  .ant-table-content {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden !important;
+  }
+
+  .ant-table table {
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .ant-table-mesure-row {
+    display: none !important;
+  }
+
+  .ant-table-thead > tr > th {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid $border-color !important;
+    color: $text-muted !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 10px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    &::before {
+      display: none !important;
+    }
+  }
+
+  .ant-table-thead > tr > th:first-child {
+    border-start-start-radius: 0 !important;
+  }
+
+  .ant-table-thead > tr > th:last-child {
+    border-start-end-radius: 0 !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    color: $text-secondary !important;
+    padding: 10px 10px !important;
+    background: transparent !important;
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: rgba(255, 255, 255, 0.025) !important;
+    cursor: pointer;
+  }
+
+  .ant-table-tbody > tr.row-selected > td {
+    background: rgba(249, 115, 22, 0.06) !important;
+  }
+
+  .ant-table-row-expand-icon {
+    background: transparent;
+    border-color: $border-color;
+    color: $text-muted;
+  }
+
+  .ant-pagination {
+    padding: 10px 12px;
+    margin: 0 !important;
+    border-top: 1px solid $border-color;
+    max-width: 100%;
+    flex-wrap: wrap;
+
+    .ant-pagination-item {
+      background: transparent;
+      border-color: $border-color;
+      a {
+        color: $text-secondary;
       }
-
-      &__list {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 10px 12px 12px;
+      &-active {
+        background: $accent-orange !important;
+        border-color: $accent-orange !important;
+        a {
+          color: #fff;
+        }
       }
     }
+    .ant-pagination-prev button,
+    .ant-pagination-next button {
+      background: transparent;
+      border-color: $border-color;
+      color: $text-secondary;
+    }
+    .ant-select-selector {
+      background: transparent !important;
+      border-color: $border-color !important;
+      color: $text-secondary !important;
+    }
+  }
+}
 
-    .vehicle-item {
-      min-width: 180px;
-      border-left-width: 0;
-      border-radius: 10px;
-      padding: 10px 12px;
+// ── Customer cell
+.bm-table-wrap--revenue {
+  border-radius: $radius-md;
 
-      &:hover,
-      &--active {
-        border-left-color: transparent !important;
-      }
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content {
+    border-radius: $radius-md;
+  }
+
+  .ant-table-thead > tr > th:first-child {
+    border-start-start-radius: $radius-md !important;
+  }
+
+  .ant-table-thead > tr > th:last-child {
+    border-start-end-radius: $radius-md !important;
+  }
+}
+
+.cust-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: rgba(249, 115, 22, 0.15);
+    color: $accent-orange;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    overflow-wrap: anywhere;
+  }
+  &__phone {
+    font-size: 11px;
+    color: $text-muted;
+    margin-top: 1px;
+    overflow-wrap: anywhere;
+  }
+}
+
+// ── Route cell
+.route-cell {
+  &__line {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+
+    .arrow {
+      color: $accent-orange;
+      font-size: 10px;
+    }
+  }
+
+  &__time {
+    font-size: 11px;
+    color: $text-muted;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ── Seat badges
+.seat-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.seat-badge {
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.07);
+  color: $text-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: $font-mono;
+  white-space: nowrap;
+}
+
+// ── Status badge
+.booking-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+}
+
+// ── Amount cell
+.amount-cell {
+  font-size: 13px;
+  font-weight: 700;
+  color: $status-success;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// ── Action buttons
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+
+  button {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1px solid $border-color;
+    background: transparent;
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: $transition-fast;
+    font-size: 12px;
+
+    &:hover {
+      border-color: $border-active;
+      color: $accent-orange;
+      background: $accent-orange-light;
     }
 
-    .bm-toolbar {
-      padding: 14px 16px;
+    &.danger:hover {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: $status-error;
+      background: rgba(239, 68, 68, 0.1);
+    }
+  }
+}
 
-      &__left,
-      &__right {
-        width: 100%;
-      }
+// ── Detail Drawer
+.booking-drawer {
+  .ant-drawer-content {
+    background: $primary-navy !important;
+    border-left: 1px solid $border-color;
+  }
 
-      &__count {
-        border-left: 0;
-        padding-left: 0;
-      }
+  .ant-drawer-header {
+    background: $primary-navy !important;
+    border-bottom: 1px solid $border-color !important;
+    padding: 16px 20px !important;
+  }
 
-      &__search,
-      &__date,
-      &__select,
-      &__action-btn {
-        width: 100%;
-        flex: 1 1 100%;
-      }
+  .ant-drawer-title {
+    color: $text-primary !important;
+    font-weight: 700 !important;
+    font-family: $font-primary !important;
+  }
+
+  .ant-drawer-close {
+    color: $text-muted !important;
+  }
+
+  .ant-drawer-body {
+    background: $primary-navy !important;
+    padding: 0 !important;
+  }
+}
+
+.drawer-body {
+  padding: 20px;
+
+  &__section {
+    margin-bottom: 24px;
+  }
+
+  &__section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: $text-muted;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid $border-color;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__key {
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  &__val {
+    font-size: 13px;
+    color: $text-primary;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+  }
+}
+
+// ── Journey Timeline in drawer
+.journey-timeline {
+  position: relative;
+  padding: 12px 0;
+
+  &__line {
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      $accent-orange,
+      rgba(249, 115, 22, 0.2)
+    );
+    border-radius: 99px;
+  }
+
+  &__point {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid $accent-orange;
+    background: $primary-navy;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  &__info {
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  &__label {
+    font-size: 12px;
+    color: $text-muted;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+  }
+
+  &__place {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__time {
+    font-size: 12px;
+    color: $accent-orange;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+}
+
+// ── Seat Map Preview
+.seat-map-mini {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: $radius-sm;
+  border: 1px solid $border-color;
+
+  &__seat {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 8px;
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: $transition-fast;
+
+    &--booked {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.3);
+      color: $accent-orange;
     }
 
-    .status-tabs {
+    &--selected {
+      background: $accent-orange;
+      border-color: $accent-orange;
+      color: #fff;
+    }
+  }
+}
+
+// ── Confirm/Cancel modal override
+.bm-modal {
+  .ant-modal {
+    padding-bottom: 24px;
+    &-container {
+      background-color: $primary-navy-2 !important;
+    }
+
+    &-confirm-title {
+      color: white !important;
+    }
+  }
+
+  .ant-modal-content {
+    overflow: hidden;
+    background: $primary-navy-2 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: $radius-md !important;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .ant-modal-close {
+    top: 14px !important;
+    inset-inline-end: 14px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: $text-muted !important;
+    transition: $transition-fast;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: $text-primary !important;
+    }
+  }
+
+  .ant-modal-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 18px 20px 16px !important;
+  }
+
+  .ant-modal-title {
+    color: $text-primary !important;
+    font-family: $font-primary !important;
+    font-weight: 700 !important;
+    font-size: 17px !important;
+    line-height: 1.35;
+    padding-right: 36px;
+  }
+
+  .ant-modal-body {
+    background: transparent !important;
+    color: rgba(241, 245, 249, 0.9) !important;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 18px 20px 20px !important;
+  }
+
+  .ant-modal-footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 14px 20px 18px !important;
+  }
+
+  .ant-modal-confirm-body-wrapper {
+    padding: 0;
+  }
+
+  .ant-modal-confirm-body {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .ant-modal-confirm-content {
+    margin-top: 8px !important;
+    color: rgba(241, 245, 249, 0.82) !important;
+    line-height: 1.65;
+  }
+
+  .ant-modal-confirm-btns {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .ant-modal-confirm-btns .ant-btn {
+    min-width: 104px;
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  .ant-form {
+    padding: 4px 0 0;
+  }
+
+  .ant-form-item {
+    margin-bottom: 14px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 6px !important;
+  }
+
+  .ant-form-item-label > label {
+    color: rgba(226, 232, 240, 0.92) !important;
+    font-size: 12px !important;
+    font-weight: 600;
+  }
+
+  .ant-form-item-explain,
+  .ant-form-item-extra {
+    font-size: 12px;
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-picker,
+  .ant-select-selector {
+    min-height: 40px;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 10px !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+    transition: $transition-fast;
+  }
+
+  .ant-input,
+  .ant-input-number-input,
+  .ant-picker input,
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder,
+  .ant-input::placeholder,
+  .ant-input-number-input::placeholder,
+  .ant-picker input::placeholder,
+  .ant-input-textarea textarea::placeholder {
+    font-size: 13px;
+  }
+
+  .ant-input::placeholder,
+  .ant-input-number-input::placeholder,
+  .ant-picker input::placeholder,
+  .ant-input-textarea textarea::placeholder,
+  .ant-select-selection-placeholder {
+    color: rgba(203, 213, 225, 0.78) !important;
+  }
+
+  .ant-input:hover,
+  .ant-input:focus,
+  .ant-input-affix-wrapper:hover,
+  .ant-input-affix-wrapper:focus-within,
+  .ant-input-number:hover,
+  .ant-input-number-focused,
+  .ant-picker:hover,
+  .ant-picker-focused,
+  .ant-select-focused .ant-select-selector,
+  .ant-select-selector:hover,
+  .ant-input-textarea textarea:hover,
+  .ant-input-textarea textarea:focus {
+    border-color: rgba(249, 115, 22, 0.42) !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08) !important;
+  }
+
+  .ant-input-affix-wrapper input,
+  .ant-picker input,
+  .ant-input-number-input,
+  .ant-input-textarea textarea {
+    color: #f8fafc !important;
+    background: transparent !important;
+  }
+
+  .ant-input-affix-wrapper .ant-input-prefix,
+  .ant-picker-suffix,
+  .ant-select-arrow,
+  .ant-input-number-handler-wrap {
+    color: rgba(226, 232, 240, 0.82) !important;
+  }
+
+  .ant-input-number {
+    width: 100%;
+  }
+
+  .ant-input-number-input-wrap {
+    height: 100%;
+  }
+
+  .ant-input-textarea textarea {
+    min-height: 96px;
+    resize: vertical !important;
+  }
+
+  .ant-select {
+    width: 100%;
+  }
+
+  .ant-select-selector {
+    padding-inline: 11px 32px !important;
+  }
+
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    line-height: 38px !important;
+  }
+
+  .ant-picker,
+  .ant-input-affix-wrapper {
+    width: 100%;
+  }
+
+  .btn-primary,
+  .btn-ghost,
+  .ant-btn {
+    min-height: 38px;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+  }
+
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .ant-btn-default {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: rgba(241, 245, 249, 0.92) !important;
+  }
+
+  .ant-btn-default:hover {
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    color: $text-primary !important;
+  }
+
+  .ant-btn-dangerous,
+  .ant-btn-primary.ant-btn-dangerous {
+    background: $status-error !important;
+    border-color: $status-error !important;
+    color: #fff !important;
+  }
+}
+
+// Input overrides
+.bm-search.ant-input-affix-wrapper {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid $border-color !important;
+  border-radius: 8px !important;
+  width: clamp(220px, 28ch, 360px) !important;
+  min-width: 220px !important;
+  flex: 0 0 auto !important;
+
+  input {
+    background: transparent !important;
+    color: $text-primary !important;
+    font-size: 13px;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  .ant-input-prefix {
+    color: $text-muted;
+  }
+
+  &:focus-within {
+    border-color: $border-active !important;
+    box-shadow: none !important;
+  }
+}
+
+// Date picker override
+.bm-date-picker.ant-picker {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid $border-color !important;
+  border-radius: 8px !important;
+  width: fit-content !important;
+  min-width: fit-content !important;
+  flex: 0 0 auto !important;
+
+  input {
+    color: $text-primary !important;
+    font-size: 13px;
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  .ant-picker-suffix {
+    color: $text-muted;
+  }
+  .ant-picker-clear {
+    background: $primary-navy;
+  }
+
+  &:hover,
+  &.ant-picker-focused {
+    border-color: $border-active !important;
+    box-shadow: none !important;
+  }
+}
+
+// Select override
+.bm-select {
+  min-width: fit-content !important;
+  flex: 0 0 auto !important;
+
+  .ant-select-selector {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid $border-color !important;
+    border-radius: 8px !important;
+    color: $text-primary !important;
+    font-size: 13px;
+    min-width: 160px !important;
+    padding-right: 28px !important;
+  }
+
+  .ant-select-selection-wrap,
+  .ant-select-selection-search,
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    width: fit-content !important;
+    min-width: fit-content !important;
+  }
+
+  .ant-select-arrow {
+    color: $text-muted;
+  }
+
+  &.ant-select-focused .ant-select-selector {
+    border-color: $border-active !important;
+    box-shadow: none !important;
+    color: $text-primary !important;
+  }
+}
+
+// Btn overrides
+.btn-primary {
+  background: $accent-orange !important;
+  border-color: $accent-orange !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  height: 34px !important;
+
+  &:hover {
+    background: $accent-orange-2 !important;
+    border-color: $accent-orange-2 !important;
+  }
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid $border-color !important;
+  color: $text-secondary !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  height: 34px !important;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: $text-primary !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .bm-page {
+    min-height: 100%;
+    border-radius: 16px;
+  }
+
+  .bm-vehicle-sidebar {
+    width: 190px;
+  }
+
+  .bm-toolbar {
+    padding: 12px 16px;
+
+    &__right {
       width: 100%;
+      justify-content: flex-start;
+    }
+
+    &__search {
+      flex: 1 1 240px;
+    }
+
+    &__date {
+      flex: 1 1 220px;
+    }
+  }
+
+  .bm-summary-strip,
+  .bm-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .bm-page {
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+
+  .bm-vehicle-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid $border-color;
+
+    &__header {
+      padding: 14px 16px 10px;
+    }
+
+    &__list {
+      display: flex;
+      gap: 8px;
       overflow-x: auto;
-      padding-bottom: 2px;
-    }
-
-    .bm-summary-strip,
-    .bm-content {
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    .bm-content {
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
-    .drawer-body {
-      padding: 16px;
-
-      &__row {
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      &__val {
-        max-width: 100%;
-        text-align: left;
-      }
-    }
-
-    .journey-timeline__point {
-      gap: 12px;
+      overflow-y: hidden;
+      padding: 10px 12px 12px;
     }
   }
 
-  @media (max-width: 479px) {
-    .bm-toolbar {
-      padding: 12px;
+  .vehicle-item {
+    min-width: 180px;
+    border-left-width: 0;
+    border-radius: 10px;
+    padding: 10px 12px;
 
-      &__title {
-        font-size: 14px;
-      }
-
-      &__icon-btn {
-        width: 100%;
-      }
-    }
-
-    .bm-summary-strip,
-    .bm-content {
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    .vehicle-item {
-      min-width: 160px;
-    }
-
-    .bm-page {
-      border-radius: 12px;
+    &:hover,
+    &--active {
+      border-left-color: transparent !important;
     }
   }
+
+  .bm-toolbar {
+    padding: 14px 16px;
+
+    &__left,
+    &__right {
+      width: 100%;
+    }
+
+    &__count {
+      border-left: 0;
+      padding-left: 0;
+    }
+
+    &__search,
+    &__date,
+    &__select,
+    &__action-btn {
+      width: 100%;
+      flex: 1 1 100%;
+    }
+  }
+
+  .status-tabs {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .bm-summary-strip,
+  .bm-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .bm-content {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .drawer-body {
+    padding: 16px;
+
+    &__row {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    &__val {
+      max-width: 100%;
+      text-align: left;
+    }
+  }
+
+  .journey-timeline__point {
+    gap: 12px;
+  }
+
+  .bm-modal {
+    background-color: $primary-navy-2 !important;
+
+    .bm-select {
+      width: 100% !important;
+    }
+    .ant-modal {
+      max-width: calc(100vw - 24px) !important;
+      margin: 12px auto;
+    }
+
+    .ant-modal-header,
+    .ant-modal-body,
+    .ant-modal-footer {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+
+    .ant-modal-title {
+      font-size: 16px !important;
+    }
+
+    .ant-modal-confirm-btns {
+      width: 100%;
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: flex-end;
+      flex-wrap: nowrap;
+    }
+
+    .ant-modal-confirm-btns .ant-btn,
+    .ant-modal-footer .ant-btn {
+      flex: 1 1 calc(50% - 4px);
+    }
+
+    .ant-modal-confirm-btns .ant-btn {
+      width: auto !important;
+      flex: 0 0 auto !important;
+    }
+  }
+}
+
+.ant-select-dropdown,
+.ant-picker-dropdown {
+  .ant-select-item,
+  .ant-picker-cell,
+  .ant-picker-header,
+  .ant-picker-content th,
+  .ant-picker-time-panel-column > li {
+    color: #e2e8f0 !important;
+  }
+}
+
+.ant-select-dropdown {
+  padding: 8px !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.01)
+    ),
+    $primary-navy-2 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36) !important;
+
+  .ant-select-item {
+    min-height: 38px;
+    border-radius: 8px;
+    color: #f8fafc !important;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-select-item-option-content {
+    color: inherit !important;
+  }
+
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background: rgba(249, 115, 22, 0.16) !important;
+    color: #fff !important;
+    font-weight: 600;
+  }
+
+  .ant-empty-description,
+  .ant-select-item-empty {
+    color: rgba(226, 232, 240, 0.75) !important;
+  }
+}
+
+.ant-picker-dropdown {
+  .ant-picker-panel-container {
+    overflow: hidden;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.01)
+      ),
+      $primary-navy-2 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36) !important;
+  }
+
+  .ant-picker-header,
+  .ant-picker-body,
+  .ant-picker-time-panel {
+    background: transparent !important;
+  }
+
+  .ant-picker-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .ant-picker-cell-in-view {
+    color: #e2e8f0 !important;
+  }
+
+  .ant-picker-cell:hover .ant-picker-cell-inner {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-range-end .ant-picker-cell-inner {
+    background: $accent-orange !important;
+    color: #fff !important;
+  }
+
+  .ant-picker-cell-in-range::before {
+    background: rgba(249, 115, 22, 0.14) !important;
+  }
+
+  .ant-picker-time-panel-column
+    > li.ant-picker-time-panel-cell-selected
+    .ant-picker-time-panel-cell-inner {
+    background: rgba(249, 115, 22, 0.18) !important;
+    color: #fff !important;
+  }
+
+  .ant-picker-now-btn,
+  .ant-picker-ok button {
+    color: #fff !important;
+  }
+}
+
+@media (max-width: 479px) {
+  .bm-toolbar {
+    padding: 12px;
+
+    &__title {
+      font-size: 14px;
+    }
+
+    &__icon-btn {
+      width: 100%;
+    }
+  }
+
+  .bm-summary-strip,
+  .bm-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .vehicle-item {
+    min-width: 160px;
+  }
+
+  .bm-page {
+    border-radius: 12px;
+  }
+
+  .bm-modal {
+    .ant-modal {
+      max-width: calc(100vw - 16px) !important;
+      margin: 8px auto;
+    }
+
+    .ant-modal-header,
+    .ant-modal-body,
+    .ant-modal-footer {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+
+    .ant-modal-footer .ant-btn,
+    .ant-modal-confirm-btns .ant-btn {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .ant-modal-confirm-btns {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: flex-end;
+      flex-wrap: nowrap;
+      gap: 8px;
+    }
+
+    .ant-modal-confirm-btns .ant-btn {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: 120px;
+    }
+  }
+}

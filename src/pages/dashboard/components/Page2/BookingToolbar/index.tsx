@@ -89,9 +89,6 @@ const BookingToolbar = ({
           Xuất
         </Button>
 
-        <Button className="btn-primary bm-toolbar__action-btn" icon={<PlusOutlined />} onClick={onAddBooking}>
-          Thêm đặt vé
-        </Button>
       </div>
     </div>
   );
