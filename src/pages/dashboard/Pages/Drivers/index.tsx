@@ -199,31 +199,34 @@ const DriversPage = () => {
         <div className="row-actions">
           <button
             type="button"
+            aria-label={`Xem chi tiết tài xế ${record.name}`}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
           >
-            <EyeOutlined />
+            <EyeOutlined aria-hidden />
           </button>
           <button
             type="button"
+            aria-label={`Chỉnh sửa tài xế ${record.name}`}
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
             }}
           >
-            <EditOutlined />
+            <EditOutlined aria-hidden />
           </button>
           <button
             type="button"
             className="danger"
+            aria-label={`Xóa tài xế ${record.name}`}
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteDriver(record);
             }}
           >
-            <DeleteOutlined />
+            <DeleteOutlined aria-hidden />
           </button>
         </div>
       ),
