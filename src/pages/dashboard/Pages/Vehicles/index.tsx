@@ -198,34 +198,32 @@ const FleetVehiclesPage = () => {
       key: "actions",
       render: (_, record) => (
         <div className="row-actions">
-          <button
-            type="button"
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
-          >
-            <EyeOutlined />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
             }}
-          >
-            <EditOutlined />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
             className="danger"
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteVehicle(record);
             }}
-          >
-            <DeleteOutlined />
-          </button>
+          />
         </div>
       ),
     },

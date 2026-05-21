@@ -24,4 +24,11 @@ export interface SignUpPayloadDto {
 
 export interface AuthResponseDto {
   accessToken: string;
+  role: Role;
+}
+
+export const enum Role {
+  ADMIN= 0,
+  CUSTOMER = 1,
+  USER = 2,
 }

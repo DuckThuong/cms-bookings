@@ -12,6 +12,7 @@ import DriversPage from "@/pages/dashboard/Pages/Drivers";
 import RevenuePage from "@/pages/dashboard/Pages/Revenue";
 import ReportsPage from "@/pages/dashboard/Pages/Reports";
 import ProtectedRoute from "./ProtectedRoute";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export const WebRouter = () => (
   <Routes>
@@ -45,5 +46,6 @@ export const WebRouter = () => (
         <Route index element={<ReportsPage />} />
       </Route>
     </Route>
+    <Route path={ROUTER_PATH.NOT_FOUND} element={<NotFoundPage />} />
   </Routes>
 );
