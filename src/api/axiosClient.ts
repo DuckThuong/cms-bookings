@@ -31,10 +31,7 @@ axiosClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response?.status === 401) {
-      console.error("Unauthorized access. Redirecting to login.");
-      window.location.href = ROUTER_PATH.LOGIN;
-    }
+    
     return Promise.reject(error);
   },
 );

@@ -15,7 +15,7 @@ import {
   DEFAULT_MESSAGE,
   NOTI_ERROR,
   NOTI_SUCCESS,
-  SUCCESS_MESSAGE
+  SUCCESS_MESSAGE,
 } from "./../../../../common/constants/constants";
 import "./style.scss";
 
@@ -30,13 +30,13 @@ export const Login = () => {
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayloadDto) => signIn(payload),
     onSuccess: (data) => {
-      showNotification(SUCCESS_MESSAGE, NOTI_SUCCESS);
       setAuthSession(data);
 
-      if (data.role === Role.ADMIN || data.role === Role.USER) {
+      if (data.role === Role.ADMIN || data.role === Role.CUSTOMER) {
+        showNotification(SUCCESS_MESSAGE, NOTI_SUCCESS);
         navigate(ROUTER_PATH.DASHBOARD);
       } else {
-        navigate(ROUTER_PATH.LOGIN);
+        showNotification("Vai trò không hợp lệ", NOTI_ERROR);
       }
     },
     onError: (error) => {
@@ -119,7 +119,12 @@ export const Login = () => {
           </p>
         </div>
 
-        <Form form={form} layout="vertical" className="login-form" onFinish={handleSubmit}>
+        <Form
+          form={form}
+          layout="vertical"
+          className="login-form"
+          onFinish={handleSubmit}
+        >
           <InputPhoneNumber
             value={phone}
             onChange={(value) => setPhone(value)}
@@ -152,7 +157,6 @@ export const Login = () => {
             <span className="arrow"> →</span>
           </Button>
         </Form>
-
       </div>
 
       <div className="login-trust">

@@ -33,8 +33,8 @@ import {
 } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
-import { createVerhical } from "@/api/configs/verhical.config";
-import type { CreateVerhicalPayloadDto } from "@/api/dtos/verhical.dto";
+import { createVehical } from "@/api/configs/vehical.config";
+import type { CreateVehicalPayloadDto } from "@/api/dtos/vehical.dto";
 
 const FleetVehiclesPage = () => {
   const { showNotification } = useNotification();
@@ -66,8 +66,8 @@ const FleetVehiclesPage = () => {
     });
   }, [route, search, status, type, vehicleData]);
 
-  const createVerhicalMutation = useMutation({
-    mutationFn: (payload: CreateVerhicalPayloadDto) => createVerhical(payload),
+  const createVehicalMutation = useMutation({
+    mutationFn: (payload: CreateVehicalPayloadDto) => createVehical(payload),
     onSuccess: () => {
       showNotification("Thêm phương tiện thành công", NOTI_SUCCESS);
     },
@@ -92,7 +92,7 @@ const FleetVehiclesPage = () => {
   });
 
   const handleAddVehicle = (record: any) => {
-    const payload: CreateVerhicalPayloadDto = {
+    const payload: CreateVehicalPayloadDto = {
       name: record.plateNumber,
       code: record.plateNumber,
       type: record.type,
@@ -102,7 +102,7 @@ const FleetVehiclesPage = () => {
       description: record.note,
       status: record.status,
     };
-    createVerhicalMutation.mutate(payload);
+    createVehicalMutation.mutate(payload);
   };
 
   const handleEditVehicle = (record: FleetVehicleRecord) => {
