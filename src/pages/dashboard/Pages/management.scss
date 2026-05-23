@@ -486,10 +486,16 @@
     font-size: 12px;
   }
 
+  .ant-picker {
+    width: 100% !important;
+  }
+
   .ant-input,
   .ant-input-affix-wrapper,
   .ant-input-number,
   .ant-picker,
+  .ant-form-item-control-input-content,
+  .ant-select,
   .ant-select-selector {
     min-height: 42px;
     background: rgba(255, 255, 255, 0.06) !important;
