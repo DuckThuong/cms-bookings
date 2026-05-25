@@ -1,7 +1,7 @@
 import axiosClient from "../axiosClient";
 import type {
   CreateVehiclePayloadDto,
-  CreateVehicleResponseDto,
+  VehicleResponseDto,
   IVehicleResponse,
   UpdateVehiclePayloadDto,
 } from "../dtos/vehicle.dto";
@@ -9,7 +9,7 @@ import { VehicleEndPoints } from "../endpoints/vehicle.endpoint";
 
 export const createVehicle = async (
   payload: CreateVehiclePayloadDto,
-): Promise<CreateVehicleResponseDto> => {
+): Promise<VehicleResponseDto> => {
   const response = await axiosClient.post(
     VehicleEndPoints.CREATE_VEHICLE,
     payload,
@@ -19,7 +19,7 @@ export const createVehicle = async (
 
 export const updateVehicle = async (
   payload: UpdateVehiclePayloadDto,
-): Promise<CreateVehicleResponseDto> => {
+): Promise<VehicleResponseDto> => {
   const response = await axiosClient.patch(
     VehicleEndPoints.UPDATE_VEHICLE,
     payload,
@@ -32,7 +32,7 @@ export const getVehicles = async (): Promise<IVehicleResponse> => {
   return response.data;
 };
 
-export const getVehicleById = async (id: string): Promise<IVehicleResponse> => {
+export const getVehicleById = async (id: string): Promise<VehicleResponseDto> => {
   const response = await axiosClient.get(
     VehicleEndPoints.GET_VEHICLE_BY_ID.replace(":id", id),
   );

@@ -1,21 +1,11 @@
-import { numberFieldProps } from "@/common/contexts/format";
 import {
   fieldStyle,
   formLabel,
   renderModalFooter,
 } from "@/common/contexts/UserContext";
-import type { IVehicleItem } from "@/api/dtos/vehicle.dto";
-import {
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Select,
-  TimePicker,
-} from "antd";
-import dayjs, { type Dayjs } from "dayjs";
+import { numberFieldProps } from "@/common/contexts/format";
+import type { IVehicle } from "@/api/dtos/vehicle.dto";
+import { Col, Form, Input, InputNumber, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
 
 export type VehicleFormValues = {
@@ -25,70 +15,43 @@ export type VehicleFormValues = {
   seatCount: number;
   vehicleType: string;
   vehicleStatus: string;
-  schedule: string;
-  description: string;
-  timeStart: string;
-  timeEnd: string;
-  pricePerSeat: number;
+  schedule?: string;
+  description?: string;
 };
 
 type AddVehicleModalProps = {
   open: boolean;
-  initialRecord?: IVehicleItem | null;
+  initialRecord?: IVehicle | null;
   onClose: () => void;
   onSubmit: (values: VehicleFormValues) => void;
 };
 
 const VEHICLE_STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Đang hoạt động" },
-  { value: "INACTIVE", label: "Ngừng hoạt động" },
-  { value: "MAINTENANCE", label: "Bảo dưỡng" },
+  { value: "ACTIVE", label: "Dang hoat dong" },
+  { value: "INACTIVE", label: "Ngung hoat dong" },
+  { value: "MAINTENANCE", label: "Bao duong" },
 ];
 
 const VEHICLE_TYPE_OPTIONS = [
-  { value: "SLEEPER", label: "Xe giường nằm" },
+  { value: "SLEEPER", label: "Xe giuong nam" },
   { value: "LIMOUSINE", label: "Xe limousine" },
-  { value: "COACH", label: "Xe khách" },
+  { value: "COACH", label: "Xe khach" },
 ];
 
 const SEAT_TYPE_OPTIONS = [
-  { value: "GIUONG", label: "Giường nằm" },
-  { value: "NGOI", label: "Ghế ngồi" },
+  { value: "GIUONG", label: "Giuong nam" },
+  { value: "NGOI", label: "Ghe ngoi" },
 ];
 
-type VehicleFormFields = VehicleFormValues & {
-  timeStartPicker: Dayjs;
-  timeEndPicker: Dayjs;
-};
-
-const toFormRecord = (record: IVehicleItem): VehicleFormFields => ({
-  vehicleName: record.vehicle.name,
-  vehicleCode: record.vehicle.code,
-  seatType: record.seatType,
-  seatCount: record.seatCount,
-  vehicleType: record.vehicle.type,
-  vehicleStatus: record.vehicle.status,
-  schedule: record.vehicle.schedule,
-  description: record.vehicle.description ?? "",
-  timeStart: record.timeStart,
-  timeEnd: record.timeEnd,
-  pricePerSeat: 0,
-  timeStartPicker: dayjs(record.timeStart, "HH:mm"),
-  timeEndPicker: dayjs(record.timeEnd, "HH:mm"),
-});
-
-const toSubmitValues = (fields: VehicleFormFields): VehicleFormValues => ({
-  vehicleName: fields.vehicleName,
-  vehicleCode: fields.vehicleCode,
-  seatType: fields.seatType,
-  seatCount: fields.seatCount,
-  vehicleType: fields.vehicleType,
-  vehicleStatus: fields.vehicleStatus,
-  schedule: fields.schedule,
-  description: fields.description ?? "",
-  timeStart: fields.timeStartPicker.format("HH:mm"),
-  timeEnd: fields.timeEndPicker.format("HH:mm"),
-  pricePerSeat: fields.pricePerSeat ?? 0,
+const toFormRecord = (record: IVehicle): VehicleFormValues => ({
+  vehicleName: record.name,
+  vehicleCode: record.code,
+  seatType: record.seatType || "GIUONG",
+  seatCount: record.seatCount || 1,
+  vehicleType: record.type,
+  vehicleStatus: record.status,
+  schedule: record.schedule ?? "",
+  description: record.description ?? "",
 });
 
 const AddVehicleModal = ({
@@ -97,7 +60,7 @@ const AddVehicleModal = ({
   onClose,
   onSubmit,
 }: AddVehicleModalProps) => {
-  const [form] = Form.useForm<VehicleFormFields>();
+  const [form] = Form.useForm<VehicleFormValues>();
   const isEdit = Boolean(initialRecord);
 
   useEffect(() => {
@@ -119,17 +82,16 @@ const AddVehicleModal = ({
       vehicleStatus: "ACTIVE",
       schedule: "",
       description: "",
-      timeStart: "08:00",
-      timeEnd: "14:30",
-      pricePerSeat: 0,
-      timeStartPicker: dayjs("08:00", "HH:mm"),
-      timeEndPicker: dayjs("14:30", "HH:mm"),
     });
   }, [form, initialRecord, open]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    onSubmit(toSubmitValues(values));
+    onSubmit({
+      ...values,
+      schedule: values.schedule?.trim() || undefined,
+      description: values.description?.trim() || undefined,
+    });
   };
 
   const handleClose = () => {
@@ -140,33 +102,37 @@ const AddVehicleModal = ({
   return (
     <Modal
       className="bm-modal mgmt-modal"
-      title={isEdit ? "Cập nhật phương tiện" : "Thêm phương tiện mới"}
+      title={isEdit ? "Cap nhat phuong tien" : "Them phuong tien moi"}
       open={open}
       onCancel={handleClose}
       width={620}
       footer={renderModalFooter({
-        cancelText: "Hủy",
-        submitText: isEdit ? "Lưu thay đổi" : "Thêm phương tiện",
+        cancelText: "Huy",
+        submitText: isEdit ? "Luu thay doi" : "Them phuong tien",
         onCancel: handleClose,
         onSubmit: handleSubmit,
       })}
     >
-      <Form form={form} layout="vertical" style={{ padding: "8px 0" }}>
+      <Form<VehicleFormValues>
+        form={form}
+        layout="vertical"
+        style={{ padding: "8px 0" }}
+      >
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleName"
-              label={formLabel("Tên xe")}
-              rules={[{ required: true, message: "Nhập tên xe" }]}
+              label={formLabel("Ten xe")}
+              rules={[{ required: true, message: "Nhap ten xe" }]}
             >
-              <Input placeholder="Xe giường nằm 34 chỗ" style={fieldStyle} />
+              <Input placeholder="Xe giuong nam 34 cho" style={fieldStyle} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleCode"
-              label={formLabel("Biển số")}
-              rules={[{ required: true, message: "Nhập biển số" }]}
+              label={formLabel("Bien so")}
+              rules={[{ required: true, message: "Nhap bien so" }]}
             >
               <Input
                 placeholder="29B-2325"
@@ -181,8 +147,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleType"
-              label={formLabel("Loại xe")}
-              rules={[{ required: true, message: "Chọn loại xe" }]}
+              label={formLabel("Loai xe")}
+              rules={[{ required: true, message: "Chon loai xe" }]}
             >
               <Select className="bm-select" options={VEHICLE_TYPE_OPTIONS} />
             </Form.Item>
@@ -190,8 +156,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleStatus"
-              label={formLabel("Trạng thái")}
-              rules={[{ required: true, message: "Chọn trạng thái" }]}
+              label={formLabel("Trang thai")}
+              rules={[{ required: true, message: "Chon trang thai" }]}
             >
               <Select className="bm-select" options={VEHICLE_STATUS_OPTIONS} />
             </Form.Item>
@@ -202,8 +168,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="seatType"
-              label={formLabel("Loại ghế")}
-              rules={[{ required: true, message: "Chọn loại ghế" }]}
+              label={formLabel("Loai ghe")}
+              rules={[{ required: true, message: "Chon loai ghe" }]}
             >
               <Select className="bm-select" options={SEAT_TYPE_OPTIONS} />
             </Form.Item>
@@ -211,12 +177,12 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="seatCount"
-              label={formLabel("Số ghế")}
-              rules={[{ required: true, message: "Nhập số ghế" }]}
+              label={formLabel("So ghe")}
+              rules={[{ required: true, message: "Nhap so ghe" }]}
             >
               <InputNumber
                 min={1}
-                max={60}
+                max={100}
                 style={{ ...fieldStyle, width: "100%" }}
                 {...numberFieldProps}
               />
@@ -224,59 +190,14 @@ const AddVehicleModal = ({
           </Col>
         </Row>
 
-        <Form.Item
-          name="schedule"
-          label={formLabel("Lịch trình / tuyến")}
-          rules={[{ required: true, message: "Nhập lịch trình" }]}
-        >
-          <Input placeholder="Hà Nội - Đà Nẵng" style={fieldStyle} />
+        <Form.Item name="schedule" label={formLabel("Lich trinh / tuyen")}>
+          <Input placeholder="Ha Noi - Da Nang" style={fieldStyle} />
         </Form.Item>
 
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="timeStartPicker"
-              label={formLabel("Giờ đi")}
-              rules={[{ required: true, message: "Chọn giờ đi" }]}
-            >
-              <TimePicker
-                className="bm-date-picker"
-                format="HH:mm"
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="timeEndPicker"
-              label={formLabel("Giờ đến")}
-              rules={[{ required: true, message: "Chọn giờ đến" }]}
-            >
-              <TimePicker
-                className="bm-date-picker"
-                format="HH:mm"
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item
-          name="pricePerSeat"
-          label={formLabel("Giá mỗi ghế")}
-          rules={[{ required: true, message: "Nhập giá mỗi ghế" }]}
-        >
-          <InputNumber
-            min={0}
-            style={{ ...fieldStyle, width: "100%" }}
-            {...numberFieldProps}
-          />
-        </Form.Item>
-
-        <Form.Item name="description" label={formLabel("Mô tả")}>
+        <Form.Item name="description" label={formLabel("Mo ta")}>
           <Input.TextArea
             rows={3}
-            placeholder="Mô tả xe..."
+            placeholder="Mo ta xe..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>

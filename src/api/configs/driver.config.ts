@@ -1,6 +1,8 @@
 import type {
   CreateDriverPayloadDto,
   DriverResponseDto,
+  ICmsDriver,
+  IDriverListResponse,
   UpdateDriverPayloadDto,
 } from "../dtos/driver.dto";
 import axiosClient from "../axiosClient";
@@ -17,8 +19,10 @@ export const createDriver = async (
 };
 
 export const getDrivers = async (): Promise<DriverResponseDto[]> => {
-  const response = await axiosClient.get(DriverEndPoints.GET_DRIVERS);
-  return response.data;
+  const response = await axiosClient.get<IDriverListResponse>(
+    DriverEndPoints.GET_DRIVERS,
+  );
+  return response.data.items;
 };
 
 export const getDriverById = async (id: string): Promise<DriverResponseDto> => {
@@ -29,11 +33,10 @@ export const getDriverById = async (id: string): Promise<DriverResponseDto> => {
 };
 
 export const updateDriver = async (
-  id: string,
   payload: UpdateDriverPayloadDto,
 ): Promise<DriverResponseDto> => {
-  const response = await axiosClient.put(
-    DriverEndPoints.UPDATE_DRIVER.replace(":id", id),
+  const response = await axiosClient.patch(
+    DriverEndPoints.UPDATE_DRIVER,
     payload,
   );
   return response.data;

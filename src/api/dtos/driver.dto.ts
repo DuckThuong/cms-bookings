@@ -2,32 +2,31 @@ import type { ICompanyTrip, ITrip, IVehicle } from "./vehicle.dto";
 
 export interface CreateDriverPayloadDto {
   name: string;
-  code: string;
-  vehicleId: number;
   license: string;
+  licenseNum: string;
   phone: string;
   email: string;
-  driverStatus: string;
-  description: string;
+  status: string;
+  description?: string;
 }
 
 export interface UpdateDriverPayloadDto {
   id: number;
   name: string;
-  vehicleId: number;
   license: string;
+  licenseNum: string;
   phone: string;
   email: string;
-  driverStatus: string;
+  status: string;
   description?: string;
 }
 
 /** CmsDriverEntityDto */
 export interface ICmsDriver {
   id: number;
-  code: string;
+  code?: string;
+  licenseNum: string;
   companyId: number;
-  vehicleId: number;
   name: string;
   license: string;
   phone: string;
@@ -44,12 +43,12 @@ export interface ICmsDriver {
 export interface DriverResponseDto {
   id: string;
   name: string;
-  code: string;
-  vehicleId: string;
+  code?: string;
   license: string;
+  licenseNum: string;
   phone: string;
   email: string;
-  driverStatus: string;
+  status: string;
   description?: string;
   rate: number;
   totalTurn: number;
@@ -64,13 +63,12 @@ export interface IDriverItem {
   trip: ITrip | null;
   companyTrip: ICompanyTrip | null;
   companyTrips?: ICompanyTrip[];
-  vehicleId: string;
   tripId: string;
   companyTripId?: number;
 }
 
 /** CmsDriverListResponseDto */
 export interface IDriverListResponse {
-  items: IDriverItem[];
+  items: DriverResponseDto[];
   total: number;
 }

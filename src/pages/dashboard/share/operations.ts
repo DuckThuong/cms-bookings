@@ -447,7 +447,7 @@ export const getFleetSummary = (data: FleetVehicleRecord[]): SummaryItem[] => [
 ];
 
 export type VehicleFleetSummaryInput = {
-  vehicle: { status: string };
+  status: string;
   seatCount: number;
 };
 
@@ -459,13 +459,13 @@ export const getVehicleFleetSummary = (
     key: "active",
     label: "Đang hoạt động",
     color: "#22c55e",
-    value: data.filter((item) => item.vehicle.status === "ACTIVE").length,
+    value: data.filter((item) => item.status === "ACTIVE").length,
   },
   {
     key: "maintenance",
     label: "Bảo dưỡng",
     color: "#ef4444",
-    value: data.filter((item) => item.vehicle.status === "MAINTENANCE").length,
+    value: data.filter((item) => item.status === "MAINTENANCE").length,
   },
   {
     key: "seats",

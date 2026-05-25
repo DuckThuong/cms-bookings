@@ -4,25 +4,19 @@ import {
   getVehicles,
   updateVehicle,
 } from "@/api/configs/vehicle.config";
-
 import type {
   CreateVehiclePayloadDto,
-  IVehicleItem,
+  IVehicle,
   UpdateVehiclePayloadDto,
 } from "@/api/dtos/vehicle.dto";
-
 import { VehicleEndPoints } from "@/api/endpoints/vehicle.endpoint";
-
 import {
   DEFAULT_MESSAGE,
   NOTI_ERROR,
   NOTI_SUCCESS,
 } from "@/common/constants/constants";
-
 import { useLoading } from "@/providers/loadingProvider";
-
 import { useNotification } from "@/providers/notificationProvider";
-
 import {
   DeleteOutlined,
   EditOutlined,
@@ -30,34 +24,17 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { Button, Drawer, Input, Modal, Select, Table } from "antd";
-
 import type { ColumnsType } from "antd/es/table";
-
 import { isAxiosError } from "axios";
-
 import { useMemo, useState } from "react";
-
 import AddVehicleModal, {
   type VehicleFormValues,
 } from "../../components/ManagementCreate/AddVehicleModal";
-
 import SummaryStrip from "../../components/Page2/SummaryStrip";
-
-import {
-  VEHICLE_STATUS_META,
-  fleetStatusOptions,
-  fleetTypeOptions,
-  getVehicleFleetSummary,
-  routeOptions,
-  type VehicleStatusKey,
-} from "../../share";
-
+import { getVehicleFleetSummary } from "../../share";
 import "../Page2/style.scss";
-
 import "../management.scss";
 
 const API_VEHICLE_STATUS_LABEL: Record<
@@ -65,36 +42,31 @@ const API_VEHICLE_STATUS_LABEL: Record<
   { label: string; color: string; bg: string }
 > = {
   ACTIVE: {
-    label: "Đang hoạt động",
-
+    label: "Dang hoat dong",
     color: "#22c55e",
-
     bg: "rgba(34,197,94,0.12)",
   },
-
   INACTIVE: {
-    label: "Ngừng hoạt động",
-
+    label: "Ngung hoat dong",
     color: "#64748b",
-
     bg: "rgba(100,116,139,0.12)",
   },
-
   MAINTENANCE: {
-    label: "Bảo dưỡng",
-
+    label: "Bao duong",
     color: "#ef4444",
-
     bg: "rgba(239,68,68,0.12)",
   },
 };
 
 const API_VEHICLE_TYPE_LABEL: Record<string, string> = {
-  SLEEPER: "Xe giường nằm",
-
+  SLEEPER: "Xe giuong nam",
   LIMOUSINE: "Xe limousine",
+  COACH: "Xe khach",
+};
 
-  COACH: "Xe khách",
+const SEAT_TYPE_LABEL: Record<string, string> = {
+  GIUONG: "Giuong nam",
+  NGOI: "Ghe ngoi",
 };
 
 const getApiErrorMessage = (error: unknown) => {
@@ -119,84 +91,54 @@ const toCreatePayload = (
   values: VehicleFormValues,
 ): CreateVehiclePayloadDto => ({
   vehicleName: values.vehicleName,
-
   vehicleCode: values.vehicleCode,
-
   seatType: values.seatType,
-
   seatCount: values.seatCount,
-
   vehicleType: values.vehicleType,
-
   vehicleStatus: values.vehicleStatus,
-
   schedule: values.schedule,
-
   description: values.description,
-
-  timeStart: values.timeStart,
-
-  timeEnd: values.timeEnd,
-
-  pricePerSeat: values.pricePerSeat,
 });
 
 const toUpdatePayload = (
   values: VehicleFormValues,
-
-  record: IVehicleItem,
+  record: IVehicle,
 ): UpdateVehiclePayloadDto => ({
-  id: record.vehicle.id,
-
-  vehicleName: values.vehicleName,
-
-  vehicleCode: values.vehicleCode,
-
-  seatType: values.seatType,
-
-  seatCount: values.seatCount,
-
-  vehicleType: values.vehicleType,
-
-  vehicleStatus: values.vehicleStatus,
-
-  tripId: record.tripId ?? "",
-
-  driverId: record.driverId ?? "",
-
-  schedule: values.schedule,
-
-  description: values.description,
-
-  timeStart: values.timeStart,
-
-  timeEnd: values.timeEnd,
-
-  pricePerSeat: values.pricePerSeat,
-
-  companyTripId: record.companyTrip?.id ?? 0,
+  id: record.id,
+  ...toCreatePayload(values),
 });
+
+const renderStatus = (status: string) => {
+  const meta = API_VEHICLE_STATUS_LABEL[status];
+
+  if (!meta) {
+    return status || "-";
+  }
+
+  return (
+    <span
+      className="booking-status"
+      style={{ background: meta.bg, color: meta.color }}
+    >
+      <span
+        className="booking-status__dot"
+        style={{ background: meta.color }}
+      />
+      {meta.label}
+    </span>
+  );
+};
 
 const FleetVehiclesPage = () => {
   const { showNotification } = useNotification();
-
   const { setLoading } = useLoading();
-
   const queryClient = useQueryClient();
-
   const [search, setSearch] = useState("");
-
   const [status, setStatus] = useState("all");
-
   const [type, setType] = useState("all");
-
-  const [route, setRoute] = useState("all");
-
-  const [selected, setSelected] = useState<IVehicleItem | null>(null);
-
+  const [selected, setSelected] = useState<IVehicle | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
-
-  const [editingRecord, setEditingRecord] = useState<IVehicleItem | null>(null);
+  const [editingRecord, setEditingRecord] = useState<IVehicle | null>(null);
 
   const invalidateVehicles = () => {
     queryClient.invalidateQueries({
@@ -206,257 +148,160 @@ const FleetVehiclesPage = () => {
 
   const closeVehicleModal = () => {
     setVehicleModalOpen(false);
-
     setEditingRecord(null);
   };
 
   const createVehicleMutation = useMutation({
     mutationFn: (payload: CreateVehiclePayloadDto) => createVehicle(payload),
-
     onSuccess: () => {
-      showNotification("Thêm phương tiện thành công", NOTI_SUCCESS);
-
+      showNotification("Them phuong tien thanh cong", NOTI_SUCCESS);
       invalidateVehicles();
-
       closeVehicleModal();
     },
-
     onError: (error) => {
       showNotification(getApiErrorMessage(error), NOTI_ERROR);
     },
-
     onSettled: () => setLoading(false),
-
     onMutate: () => setLoading(true),
   });
 
   const updateMutation = useMutation({
     mutationFn: (payload: UpdateVehiclePayloadDto) => updateVehicle(payload),
-
-    onSuccess: () => {
-      showNotification("Cập nhật phương tiện thành công", NOTI_SUCCESS);
-
+    onSuccess: (data) => {
+      showNotification("Cap nhat phuong tien thanh cong", NOTI_SUCCESS);
       invalidateVehicles();
-
+      setSelected((prev) => (prev?.id === data.id ? data : prev));
       closeVehicleModal();
     },
-
     onError: (error) => {
       showNotification(getApiErrorMessage(error), NOTI_ERROR);
     },
-
     onSettled: () => setLoading(false),
-
     onMutate: () => setLoading(true),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteVehicle(id),
-
     onSuccess: (_data, id) => {
-      showNotification("Xóa phương tiện thành công", NOTI_SUCCESS);
-
+      showNotification("Xoa phuong tien thanh cong", NOTI_SUCCESS);
       invalidateVehicles();
-
-      setSelected((prev) =>
-        prev && String(prev.vehicle.id) === id ? null : prev,
-      );
+      setSelected((prev) => (prev && String(prev.id) === id ? null : prev));
     },
-
     onError: (error) => {
       showNotification(getApiErrorMessage(error), NOTI_ERROR);
     },
-
     onSettled: () => setLoading(false),
-
     onMutate: () => setLoading(true),
   });
 
   const { data: vehicleData } = useQuery({
     queryKey: [VehicleEndPoints.GET_VEHICLES],
-
     queryFn: () => getVehicles(),
   });
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
-    return vehicleData?.items.filter((vehicle) => {
+    return (vehicleData?.items ?? []).filter((vehicle) => {
       const matchKeyword =
         !keyword ||
-        vehicle.vehicle.name.toLowerCase().includes(keyword) ||
-        vehicle.vehicle.code.toLowerCase().includes(keyword) ||
+        vehicle.name.toLowerCase().includes(keyword) ||
+        vehicle.code.toLowerCase().includes(keyword) ||
+        vehicle.type.toLowerCase().includes(keyword) ||
+        vehicle.status.toLowerCase().includes(keyword) ||
         vehicle.seatType.toLowerCase().includes(keyword) ||
-        vehicle.vehicle.type.toLowerCase().includes(keyword) ||
-        vehicle.vehicle.status.toLowerCase().includes(keyword);
+        (vehicle.schedule ?? "").toLowerCase().includes(keyword);
 
-      const matchStatus = status === "all" || vehicle.vehicle.status === status;
+      const matchStatus = status === "all" || vehicle.status === status;
+      const matchType = type === "all" || vehicle.type === type;
 
-      const matchType = type === "all" || vehicle.vehicle.type === type;
-
-      const matchRoute =
-        route === "all" ||
-        vehicle.vehicle.schedule.toLowerCase().includes(route.toLowerCase());
-
-      return matchKeyword && matchStatus && matchType && matchRoute;
+      return matchKeyword && matchStatus && matchType;
     });
-  }, [search, status, type, route, vehicleData]);
+  }, [search, status, type, vehicleData]);
 
   const openCreateModal = () => {
     setEditingRecord(null);
-
     setVehicleModalOpen(true);
   };
 
-  const openEditModal = (record: IVehicleItem) => {
+  const openEditModal = (record: IVehicle) => {
     setEditingRecord(record);
-
     setVehicleModalOpen(true);
   };
 
   const handleSubmitVehicle = (values: VehicleFormValues) => {
     if (editingRecord) {
       updateMutation.mutate(toUpdatePayload(values, editingRecord));
-
       return;
     }
 
     createVehicleMutation.mutate(toCreatePayload(values));
   };
 
-  const handleDeleteVehicle = (record: IVehicleItem) => {
+  const handleDeleteVehicle = (record: IVehicle) => {
     Modal.confirm({
       className: "bm-modal",
-
-      title: "Xóa phương tiện",
-
+      title: "Xoa phuong tien",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-
-      content: `Bạn chắc chắn muốn xóa xe ${record.vehicle.code}?`,
-
-      okText: "Xóa phương tiện",
-
-      cancelText: "Hủy",
-
+      content: `Ban chac chan muon xoa xe ${record.code}?`,
+      okText: "Xoa phuong tien",
+      cancelText: "Huy",
       okButtonProps: {
         danger: true,
-
         style: {
           background: "#ef4444",
-
           borderColor: "#ef4444",
-
           borderRadius: 8,
         },
       },
-
       cancelButtonProps: { style: { borderRadius: 8 } },
-
       onOk() {
-        deleteMutation.mutate(String(record.vehicle.id));
+        deleteMutation.mutate(String(record.id));
       },
     });
   };
 
-  const columns: ColumnsType<IVehicleItem> = [
+  const columns: ColumnsType<IVehicle> = [
     {
-      title: "Biển số",
-
+      title: "Bien so",
       key: "code",
-
       render: (_, record) => (
         <span
           style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}
         >
-          {record.vehicle.code}
+          {record.code}
         </span>
       ),
     },
-
     {
-      title: "Loại xe",
-
+      title: "Ten xe",
+      key: "name",
+      render: (_, record) => record.name,
+    },
+    {
+      title: "Loai xe",
       key: "type",
-
-      render: (_, record) =>
-        record.vehicle.name ||
-        API_VEHICLE_TYPE_LABEL[record.vehicle.type] ||
-        record.vehicle.type,
+      render: (_, record) => API_VEHICLE_TYPE_LABEL[record.type] ?? record.type,
     },
-
     {
-      title: "Sức chứa",
-
+      title: "Suc chua",
       key: "seatCount",
-
-      render: (_, record) => `${record.seatCount} chỗ`,
-    },
-
-    {
-      title: "Tuyến phụ trách",
-
-      key: "route",
-
       render: (_, record) =>
-        record.companyTrip?.name ?? record.vehicle.schedule ?? "—",
+        `${record.seatCount} cho (${SEAT_TYPE_LABEL[record.seatType] ?? record.seatType})`,
     },
-
     {
-      title: "Tài xế chính",
-
-      key: "driver",
-
-      render: (_, record) => record.driver?.name ?? "—",
-    },
-
-    {
-      title: "Khung giờ",
-
+      title: "Lich trinh",
       key: "schedule",
-
-      render: (_, record) =>
-        record.timeStart && record.timeEnd
-          ? `${record.timeStart} – ${record.timeEnd}`
-          : "—",
+      render: (_, record) => record.schedule || "-",
     },
-
     {
-      title: "Trạng thái",
-
+      title: "Trang thai",
       key: "status",
-
-      render: (_, record) => {
-        const vehicleStatus = record.vehicle.status;
-
-        const meta =
-          API_VEHICLE_STATUS_LABEL[vehicleStatus] ??
-          VEHICLE_STATUS_META[vehicleStatus as VehicleStatusKey];
-
-        if (!meta) {
-          return vehicleStatus;
-        }
-
-        return (
-          <span
-            className="booking-status"
-            style={{ background: meta.bg, color: meta.color }}
-          >
-            <span
-              className="booking-status__dot"
-              style={{ background: meta.color }}
-            />
-
-            {meta.label}
-          </span>
-        );
-      },
+      render: (_, record) => renderStatus(record.status),
     },
-
     {
       title: "",
-
       key: "actions",
-
       render: (_, record) => (
         <div className="row-actions">
           <Button
@@ -464,21 +309,17 @@ const FleetVehiclesPage = () => {
             icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
-
               setSelected(record);
             }}
           />
-
           <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={(event) => {
               event.stopPropagation();
-
               openEditModal(record);
             }}
           />
-
           <Button
             type="primary"
             danger
@@ -486,7 +327,6 @@ const FleetVehiclesPage = () => {
             className="danger"
             onClick={(event) => {
               event.stopPropagation();
-
               handleDeleteVehicle(record);
             }}
           />
@@ -498,88 +338,67 @@ const FleetVehiclesPage = () => {
   return (
     <div className="mgmt-page">
       <div className="mgmt-hero">
-        <div className="mgmt-hero__eyebrow">Vận hành phương tiện</div>
-
+        <div className="mgmt-hero__eyebrow">Van hanh phuong tien</div>
         <div className="mgmt-hero__title">
-          Theo dõi đội xe và mức độ sẵn sàng khai thác
+          Theo doi doi xe va suc chua khai thac
         </div>
-
         <div className="mgmt-hero__subtitle">
-          Giám sát xe đang khai thác, xe chờ phân công và các lịch bảo dưỡng ảnh
-          hưởng đến năng lực phục vụ.
+          Quan ly thong tin xe, trang thai, loai ghe va so ghe dang su dung.
         </div>
       </div>
 
       <div className="bm-toolbar">
         <div className="bm-toolbar__left">
-          <span className="bm-toolbar__title">Danh sách phương tiện</span>
-
-          <span className="bm-toolbar__count">{filtered?.length ?? 0} xe</span>
+          <span className="bm-toolbar__title">Danh sach phuong tien</span>
+          <span className="bm-toolbar__count">{filtered.length} xe</span>
         </div>
-
         <div className="bm-toolbar__right">
           <Input
             className="bm-search"
-            placeholder="Tìm biển số, tài xế, tuyến..."
+            placeholder="Tim bien so, ten xe, lich trinh..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-
           <Select
             className="bm-select"
             value={status}
             onChange={setStatus}
             options={[
-              { value: "all", label: "Tất cả trạng thái" },
-
-              { value: "ACTIVE", label: "Đang hoạt động" },
-
-              { value: "INACTIVE", label: "Ngừng hoạt động" },
-
-              { value: "MAINTENANCE", label: "Bảo dưỡng" },
+              { value: "all", label: "Tat ca trang thai" },
+              { value: "ACTIVE", label: "Dang hoat dong" },
+              { value: "INACTIVE", label: "Ngung hoat dong" },
+              { value: "MAINTENANCE", label: "Bao duong" },
             ]}
           />
-
           <Select
             className="bm-select"
             value={type}
             onChange={setType}
             options={[
-              { value: "all", label: "Tất cả loại xe" },
-
-              { value: "SLEEPER", label: "Xe giường nằm" },
-
+              { value: "all", label: "Tat ca loai xe" },
+              { value: "SLEEPER", label: "Xe giuong nam" },
               { value: "LIMOUSINE", label: "Xe limousine" },
-
-              { value: "COACH", label: "Xe khách" },
+              { value: "COACH", label: "Xe khach" },
             ]}
           />
-
-          <Select
-            className="bm-select"
-            value={route}
-            onChange={setRoute}
-            options={routeOptions}
-          />
-
           <Button
             className="btn-primary"
             icon={<PlusOutlined />}
             onClick={openCreateModal}
           >
-            Thêm phương tiện
+            Them phuong tien
           </Button>
         </div>
       </div>
 
-      <SummaryStrip items={getVehicleFleetSummary(filtered ?? [])} />
+      <SummaryStrip items={getVehicleFleetSummary(filtered)} />
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
           <Table
-            rowKey={(record) => String(record.vehicle.id)}
+            rowKey={(record) => String(record.id)}
             columns={columns}
-            dataSource={filtered ?? []}
+            dataSource={filtered}
             pagination={{ pageSize: 6, showSizeChanger: false }}
             onRow={(record) => ({
               onClick: () => setSelected(record),
@@ -593,62 +412,47 @@ const FleetVehiclesPage = () => {
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         width={420}
-        title={
-          selected ? `${selected.vehicle.code} · ${selected.vehicle.name}` : ""
-        }
+        title={selected ? `${selected.code} - ${selected.name}` : ""}
       >
         {selected && (
           <div className="drawer-body">
             <div className="drawer-body__section">
               <div className="drawer-body__section-title">
-                Hồ sơ phương tiện
+                Ho so phuong tien
               </div>
-
               <div className="mgmt-detail-list">
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">
-                    Tuyến phụ trách
-                  </span>
-
+                  <span className="mgmt-detail-list__label">Loai xe</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.companyTrip?.name ??
-                      selected.vehicle.schedule ??
-                      "—"}
+                    {API_VEHICLE_TYPE_LABEL[selected.type] ?? selected.type}
                   </span>
                 </div>
-
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Tài xế chính</span>
-
+                  <span className="mgmt-detail-list__label">Suc chua</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.driver?.name ?? "—"}
+                    {selected.seatCount} cho (
+                    {SEAT_TYPE_LABEL[selected.seatType] ?? selected.seatType})
                   </span>
                 </div>
-
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Sức chứa</span>
-
+                  <span className="mgmt-detail-list__label">Lich trinh</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.seatCount} chỗ ({selected.seatType})
+                    {selected.schedule || "-"}
                   </span>
                 </div>
-
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Khung giờ</span>
-
+                  <span className="mgmt-detail-list__label">Trang thai</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.timeStart} – {selected.timeEnd}
+                    {API_VEHICLE_STATUS_LABEL[selected.status]?.label ??
+                      selected.status}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="drawer-body__section">
-              <div className="drawer-body__section-title">Mô tả</div>
-
-              <div className="mgmt-note">
-                {selected.vehicle.description || "—"}
-              </div>
+              <div className="drawer-body__section-title">Mo ta</div>
+              <div className="mgmt-note">{selected.description || "-"}</div>
             </div>
 
             <div style={{ justifySelf: "center", marginTop: 24 }}>
@@ -658,15 +462,14 @@ const FleetVehiclesPage = () => {
                   icon={<EditOutlined />}
                   onClick={() => openEditModal(selected)}
                 >
-                  Sửa
+                  Sua
                 </Button>
-
                 <Button
                   danger
                   icon={<DeleteOutlined />}
                   onClick={() => handleDeleteVehicle(selected)}
                 >
-                  Xóa
+                  Xoa
                 </Button>
               </div>
             </div>

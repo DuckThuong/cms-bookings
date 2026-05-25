@@ -5,65 +5,12 @@ export interface CreateVehiclePayloadDto {
   seatCount: number;
   vehicleType: string;
   vehicleStatus: string;
-  schedule: string;
-  description: string;
-  timeStart: string;
-  timeEnd: string;
-  pricePerSeat: number;
+  schedule?: string;
+  description?: string;
 }
-export interface UpdateVehiclePayloadDto {
+
+export interface UpdateVehiclePayloadDto extends CreateVehiclePayloadDto {
   id: number;
-  vehicleName: string;
-  vehicleCode: string;
-  seatType: string;
-  seatCount: number;
-  vehicleType: string;
-  vehicleStatus: string;
-  tripId: string;
-  driverId: string;
-  schedule: string;
-  description: string;
-  timeStart: string;
-  timeEnd: string;
-  pricePerSeat: number;
-  companyTripId: number;
-}
-
-export interface CreateVehicleResponseDto {
-  id: string;
-  name: string;
-  code: string;
-  seatType: string;
-  seatCount: number;
-  vehicleType: string;
-  vehicleStatus: string;
-  tripId: string;
-  driverId: string;
-  pricePerSeat: number;
-  schedule: string;
-  description: string;
-  timeStart: string;
-  timeEnd: string;
-}
-
-export interface IVehicleResponse {
-  items: IVehicleItem[];
-  total: number;
-}
-
-export interface IVehicleItem {
-  vehicle: IVehicle;
-  seats: ISeat[];
-  trip: ITrip | null;
-  driver: IDriver | null;
-  companyTrip: ICompanyTrip | null;
-  companyTrips: ICompanyTrip[];
-  seatType: string;
-  seatCount: number;
-  tripId: string;
-  driverId: string;
-  timeStart: string;
-  timeEnd: string;
 }
 
 export interface IVehicle {
@@ -73,30 +20,21 @@ export interface IVehicle {
   name: string;
   type: string;
   status: string;
-  schedule: string;
-  description: string;
+  schedule?: string;
+  description?: string;
+  image?: string;
+  seatType: string;
+  seatCount: number;
 }
 
-export interface ISeat {
-  id: number;
-  vehicleId: number;
-  code: string;
-  name: string;
-  index: string;
-  type: string;
-  status: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
+export type VehicleResponseDto = IVehicle;
+
+export interface IVehicleResponse {
+  items: IVehicle[];
+  total: number;
 }
 
 export interface ITrip {
-  id?: number;
-  code?: string;
-  name?: string;
-}
-
-export interface IDriver {
   id?: number;
   code?: string;
   name?: string;
