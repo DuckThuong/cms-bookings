@@ -1,24 +1,24 @@
-export interface CreateVehicalPayloadDto {
-  vehicalName: string;
-  vehicalCode: string;
+export interface CreateVehiclePayloadDto {
+  vehicleName: string;
+  vehicleCode: string;
   seatType: string;
   seatCount: number;
-  vehicalType: string;
-  vehicalStatus: string;
+  vehicleType: string;
+  vehicleStatus: string;
   schedule: string;
   description: string;
   timeStart: string;
   timeEnd: string;
   pricePerSeat: number;
 }
-export interface UpdateVehicalPayloadDto {
+export interface UpdateVehiclePayloadDto {
   id: number;
-  vehicalName: string;
-  vehicalCode: string;
+  vehicleName: string;
+  vehicleCode: string;
   seatType: string;
   seatCount: number;
-  vehicalType: string;
-  vehicalStatus: string;
+  vehicleType: string;
+  vehicleStatus: string;
   tripId: string;
   driverId: string;
   schedule: string;
@@ -29,14 +29,14 @@ export interface UpdateVehicalPayloadDto {
   companyTripId: number;
 }
 
-export interface CreateVehicalResponseDto {
+export interface CreateVehicleResponseDto {
   id: string;
   name: string;
   code: string;
   seatType: string;
   seatCount: number;
-  vehicalType: string;
-  vehicalStatus: string;
+  vehicleType: string;
+  vehicleStatus: string;
   tripId: string;
   driverId: string;
   pricePerSeat: number;
@@ -46,13 +46,13 @@ export interface CreateVehicalResponseDto {
   timeEnd: string;
 }
 
-export interface IVerhicalResponse {
-  items: IVerhicalItem[];
+export interface IVehicleResponse {
+  items: IVehicleItem[];
   total: number;
 }
 
-export interface IVerhicalItem {
-  verhical: IVerhical;
+export interface IVehicleItem {
+  vehicle: IVehicle;
   seats: ISeat[];
   trip: ITrip | null;
   driver: IDriver | null;
@@ -66,7 +66,7 @@ export interface IVerhicalItem {
   timeEnd: string;
 }
 
-export interface IVerhical {
+export interface IVehicle {
   id: number;
   companyId: number;
   code: string;
@@ -79,7 +79,7 @@ export interface IVerhical {
 
 export interface ISeat {
   id: number;
-  verhicalId: number;
+  vehicleId: number;
   code: string;
   name: string;
   index: string;

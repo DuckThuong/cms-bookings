@@ -4,18 +4,27 @@ import {
   formLabel,
   renderModalFooter,
 } from "@/common/contexts/UserContext";
-import type { IVerhicalItem } from "@/api/dtos/vehical.dto";
-import { Col, Form, Input, InputNumber, Modal, Row, Select, TimePicker } from "antd";
+import type { IVehicleItem } from "@/api/dtos/vehicle.dto";
+import {
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  TimePicker,
+} from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { useEffect } from "react";
 
 export type VehicleFormValues = {
-  vehicalName: string;
-  vehicalCode: string;
+  vehicleName: string;
+  vehicleCode: string;
   seatType: string;
   seatCount: number;
-  vehicalType: string;
-  vehicalStatus: string;
+  vehicleType: string;
+  vehicleStatus: string;
   schedule: string;
   description: string;
   timeStart: string;
@@ -25,18 +34,18 @@ export type VehicleFormValues = {
 
 type AddVehicleModalProps = {
   open: boolean;
-  initialRecord?: IVerhicalItem | null;
+  initialRecord?: IVehicleItem | null;
   onClose: () => void;
   onSubmit: (values: VehicleFormValues) => void;
 };
 
-const VEHICAL_STATUS_OPTIONS = [
+const VEHICLE_STATUS_OPTIONS = [
   { value: "ACTIVE", label: "Đang hoạt động" },
   { value: "INACTIVE", label: "Ngừng hoạt động" },
   { value: "MAINTENANCE", label: "Bảo dưỡng" },
 ];
 
-const VEHICAL_TYPE_OPTIONS = [
+const VEHICLE_TYPE_OPTIONS = [
   { value: "SLEEPER", label: "Xe giường nằm" },
   { value: "LIMOUSINE", label: "Xe limousine" },
   { value: "COACH", label: "Xe khách" },
@@ -52,15 +61,15 @@ type VehicleFormFields = VehicleFormValues & {
   timeEndPicker: Dayjs;
 };
 
-const toFormRecord = (record: IVerhicalItem): VehicleFormFields => ({
-  vehicalName: record.verhical.name,
-  vehicalCode: record.verhical.code,
+const toFormRecord = (record: IVehicleItem): VehicleFormFields => ({
+  vehicleName: record.vehicle.name,
+  vehicleCode: record.vehicle.code,
   seatType: record.seatType,
   seatCount: record.seatCount,
-  vehicalType: record.verhical.type,
-  vehicalStatus: record.verhical.status,
-  schedule: record.verhical.schedule,
-  description: record.verhical.description ?? "",
+  vehicleType: record.vehicle.type,
+  vehicleStatus: record.vehicle.status,
+  schedule: record.vehicle.schedule,
+  description: record.vehicle.description ?? "",
   timeStart: record.timeStart,
   timeEnd: record.timeEnd,
   pricePerSeat: 0,
@@ -69,12 +78,12 @@ const toFormRecord = (record: IVerhicalItem): VehicleFormFields => ({
 });
 
 const toSubmitValues = (fields: VehicleFormFields): VehicleFormValues => ({
-  vehicalName: fields.vehicalName,
-  vehicalCode: fields.vehicalCode,
+  vehicleName: fields.vehicleName,
+  vehicleCode: fields.vehicleCode,
   seatType: fields.seatType,
   seatCount: fields.seatCount,
-  vehicalType: fields.vehicalType,
-  vehicalStatus: fields.vehicalStatus,
+  vehicleType: fields.vehicleType,
+  vehicleStatus: fields.vehicleStatus,
   schedule: fields.schedule,
   description: fields.description ?? "",
   timeStart: fields.timeStartPicker.format("HH:mm"),
@@ -102,12 +111,12 @@ const AddVehicleModal = ({
     }
 
     form.setFieldsValue({
-      vehicalName: "",
-      vehicalCode: "",
+      vehicleName: "",
+      vehicleCode: "",
       seatType: "GIUONG",
       seatCount: 34,
-      vehicalType: "SLEEPER",
-      vehicalStatus: "ACTIVE",
+      vehicleType: "SLEEPER",
+      vehicleStatus: "ACTIVE",
       schedule: "",
       description: "",
       timeStart: "08:00",
@@ -146,7 +155,7 @@ const AddVehicleModal = ({
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="vehicalName"
+              name="vehicleName"
               label={formLabel("Tên xe")}
               rules={[{ required: true, message: "Nhập tên xe" }]}
             >
@@ -155,7 +164,7 @@ const AddVehicleModal = ({
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="vehicalCode"
+              name="vehicleCode"
               label={formLabel("Biển số")}
               rules={[{ required: true, message: "Nhập biển số" }]}
             >
@@ -171,23 +180,20 @@ const AddVehicleModal = ({
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="vehicalType"
+              name="vehicleType"
               label={formLabel("Loại xe")}
               rules={[{ required: true, message: "Chọn loại xe" }]}
             >
-              <Select className="bm-select" options={VEHICAL_TYPE_OPTIONS} />
+              <Select className="bm-select" options={VEHICLE_TYPE_OPTIONS} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="vehicalStatus"
+              name="vehicleStatus"
               label={formLabel("Trạng thái")}
               rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
-              <Select
-                className="bm-select"
-                options={VEHICAL_STATUS_OPTIONS}
-              />
+              <Select className="bm-select" options={VEHICLE_STATUS_OPTIONS} />
             </Form.Item>
           </Col>
         </Row>

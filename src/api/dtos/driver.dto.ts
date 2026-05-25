@@ -1,9 +1,9 @@
-import type { ICompanyTrip, ITrip, IVerhical } from "./vehical.dto";
+import type { ICompanyTrip, ITrip, IVehicle } from "./vehicle.dto";
 
 export interface CreateDriverPayloadDto {
   name: string;
   code: string;
-  verhicalId: number;
+  vehicleId: number;
   license: string;
   phone: string;
   email: string;
@@ -14,7 +14,7 @@ export interface CreateDriverPayloadDto {
 export interface UpdateDriverPayloadDto {
   id: number;
   name: string;
-  verhicalId: number;
+  vehicleId: number;
   license: string;
   phone: string;
   email: string;
@@ -27,7 +27,7 @@ export interface ICmsDriver {
   id: number;
   code: string;
   companyId: number;
-  verhicalId: number;
+  vehicleId: number;
   name: string;
   license: string;
   phone: string;
@@ -45,7 +45,7 @@ export interface DriverResponseDto {
   id: string;
   name: string;
   code: string;
-  verhicalId: string;
+  vehicleId: string;
   license: string;
   phone: string;
   email: string;
@@ -60,11 +60,11 @@ export interface DriverResponseDto {
 /** CmsDriverDetailResponseDto */
 export interface IDriverItem {
   driver: ICmsDriver;
-  verhical: IVerhical | null;
+  vehicle: IVehicle | null;
   trip: ITrip | null;
   companyTrip: ICompanyTrip | null;
   companyTrips?: ICompanyTrip[];
-  verhicalId: string;
+  vehicleId: string;
   tripId: string;
   companyTripId?: number;
 }

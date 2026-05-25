@@ -464,7 +464,7 @@ const RevenuePage = () => {
         open={vehicleModalOpen}
         onClose={() => setVehicleModalOpen(false)}
         onSubmit={(record) =>
-          message.success(`Đã tạo vehicle ${record.vehicalCode}`)
+          message.success(`Đã tạo vehicle ${record.vehicleCode}`)
         }
       />
       <AddDriverModal
