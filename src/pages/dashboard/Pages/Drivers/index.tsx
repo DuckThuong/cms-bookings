@@ -90,9 +90,7 @@ const normalizeSearchText = (value: unknown) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-const toCreatePayload = (
-  values: DriverFormValues,
-): CreateDriverPayloadDto => ({
+const toCreatePayload = (values: DriverFormValues): CreateDriverPayloadDto => ({
   name: values.name,
   license: values.license,
   licenseNum: values.licenseNum,
@@ -173,8 +171,9 @@ const DriversPage = () => {
   const [status, setStatus] = useState("all");
   const [selected, setSelected] = useState<DriverResponseDto | null>(null);
   const [driverModalOpen, setDriverModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] =
-    useState<DriverResponseDto | null>(null);
+  const [editingRecord, setEditingRecord] = useState<DriverResponseDto | null>(
+    null,
+  );
 
   const invalidateDrivers = () => {
     queryClient.invalidateQueries({
@@ -250,8 +249,7 @@ const DriversPage = () => {
       ]
         .map(normalizeSearchText)
         .join(" ");
-      const matchKeyword =
-        !keyword || searchableText.includes(keyword);
+      const matchKeyword = !keyword || searchableText.includes(keyword);
       const matchLicense = license === "all" || driver.license === license;
       const matchStatus = status === "all" || driver.status === status;
 
@@ -318,10 +316,10 @@ const DriversPage = () => {
       key: "name",
       render: (_, record) => (
         <div className="cust-cell">
-          <div className="cust-cell__avatar">{record.name.charAt(0)}</div>
+          <div className="cust-cell__avatar">{record?.name?.charAt(0)}</div>
           <div>
-            <div className="cust-cell__name">{record.name}</div>
-            <div className="cust-cell__phone">{record.phone}</div>
+            <div className="cust-cell__name">{record?.name}</div>
+            <div className="cust-cell__phone">{record?.phone}</div>
           </div>
         </div>
       ),
@@ -459,7 +457,9 @@ const DriversPage = () => {
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         width={420}
-        title={selected ? `${selected.name} · ${selected.code ?? selected.id}` : ""}
+        title={
+          selected ? `${selected.name} · ${selected.code ?? selected.id}` : ""
+        }
       >
         {selected && (
           <div className="drawer-body">
@@ -492,7 +492,9 @@ const DriversPage = () => {
                   </span>
                 </div>
               </div>
-              <div className="mgmt-note">{selected.description || "Chưa có mô tả"}</div>
+              <div className="mgmt-note">
+                {selected.description || "Chưa có mô tả"}
+              </div>
             </div>
 
             <div className="drawer-body__section">
