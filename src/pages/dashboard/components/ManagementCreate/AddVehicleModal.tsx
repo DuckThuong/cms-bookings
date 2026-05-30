@@ -27,26 +27,26 @@ type AddVehicleModalProps = {
 };
 
 const VEHICLE_STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Dang hoat dong" },
-  { value: "INACTIVE", label: "Ngung hoat dong" },
-  { value: "MAINTENANCE", label: "Bao duong" },
+  { value: "ACTIVE", label: "Đang hoạt động" },
+  { value: "INACTIVE", label: "Ngừng hoạt động" },
+  { value: "MAINTENANCE", label: "Bảo dưỡng" },
 ];
 
 const VEHICLE_TYPE_OPTIONS = [
-  { value: "SLEEPER", label: "Xe giuong nam" },
-  { value: "LIMOUSINE", label: "Xe limousine" },
-  { value: "COACH", label: "Xe khach" },
+  { value: "SLEEPER", label: "Xe giường nằm" },
+  { value: "LIMOUSINE", label: "Xe Limousine" },
+  { value: "COACH", label: "Xe Khách" },
 ];
 
 const SEAT_TYPE_OPTIONS = [
-  { value: "GIUONG", label: "Giuong nam" },
-  { value: "NGOI", label: "Ghe ngoi" },
+  { value: "BED", label: "Giường nằm" },
+  { value: "SEAT", label: "Ghế ngồi" },
 ];
 
 const toFormRecord = (record: IVehicle): VehicleFormValues => ({
   vehicleName: record.name,
   vehicleCode: record.code,
-  seatType: record.seatType || "GIUONG",
+  seatType: record.seatType || "BED",
   seatCount: record.seatCount || 1,
   vehicleType: record.type,
   vehicleStatus: record.status,
@@ -76,7 +76,7 @@ const AddVehicleModal = ({
     form.setFieldsValue({
       vehicleName: "",
       vehicleCode: "",
-      seatType: "GIUONG",
+      seatType: "BED",
       seatCount: 34,
       vehicleType: "SLEEPER",
       vehicleStatus: "ACTIVE",
@@ -102,13 +102,13 @@ const AddVehicleModal = ({
   return (
     <Modal
       className="bm-modal mgmt-modal"
-      title={isEdit ? "Cap nhat phuong tien" : "Them phuong tien moi"}
+      title={isEdit ? "Cập nhật phương tiện" : "Thêm phương tiện mới"}
       open={open}
       onCancel={handleClose}
       width={620}
       footer={renderModalFooter({
-        cancelText: "Huy",
-        submitText: isEdit ? "Luu thay doi" : "Them phuong tien",
+        cancelText: "Hủy",
+        submitText: isEdit ? "Lưu thay đổi" : "Thêm phương tiện",
         onCancel: handleClose,
         onSubmit: handleSubmit,
       })}
@@ -122,17 +122,17 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleName"
-              label={formLabel("Ten xe")}
-              rules={[{ required: true, message: "Nhap ten xe" }]}
+              label={formLabel("Tên xe")}
+              rules={[{ required: true, message: "Nhập tên xe" }]}
             >
-              <Input placeholder="Xe giuong nam 34 cho" style={fieldStyle} />
+              <Input placeholder="Xe giường nằm cao cấp" style={fieldStyle} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleCode"
-              label={formLabel("Bien so")}
-              rules={[{ required: true, message: "Nhap bien so" }]}
+              label={formLabel("Biển số")}
+              rules={[{ required: true, message: "Nhập biển số" }]}
             >
               <Input
                 placeholder="29B-2325"
@@ -147,8 +147,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleType"
-              label={formLabel("Loai xe")}
-              rules={[{ required: true, message: "Chon loai xe" }]}
+              label={formLabel("Loại xe")}
+              rules={[{ required: true, message: "Chọn loại xe" }]}
             >
               <Select className="bm-select" options={VEHICLE_TYPE_OPTIONS} />
             </Form.Item>
@@ -156,8 +156,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleStatus"
-              label={formLabel("Trang thai")}
-              rules={[{ required: true, message: "Chon trang thai" }]}
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
               <Select className="bm-select" options={VEHICLE_STATUS_OPTIONS} />
             </Form.Item>
@@ -168,8 +168,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="seatType"
-              label={formLabel("Loai ghe")}
-              rules={[{ required: true, message: "Chon loai ghe" }]}
+              label={formLabel("Loại ghế")}
+              rules={[{ required: true, message: "Chọn loại ghế" }]}
             >
               <Select className="bm-select" options={SEAT_TYPE_OPTIONS} />
             </Form.Item>
@@ -177,8 +177,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="seatCount"
-              label={formLabel("So ghe")}
-              rules={[{ required: true, message: "Nhap so ghe" }]}
+              label={formLabel("Số ghế")}
+              rules={[{ required: true, message: "Nhập số ghế" }]}
             >
               <InputNumber
                 min={1}
@@ -190,14 +190,10 @@ const AddVehicleModal = ({
           </Col>
         </Row>
 
-        <Form.Item name="schedule" label={formLabel("Lich trinh / tuyen")}>
-          <Input placeholder="Ha Noi - Da Nang" style={fieldStyle} />
-        </Form.Item>
-
-        <Form.Item name="description" label={formLabel("Mo ta")}>
+        <Form.Item name="description" label={formLabel("Mô tả")}>
           <Input.TextArea
             rows={3}
-            placeholder="Mo ta xe..."
+            placeholder="Mô tả xe..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>

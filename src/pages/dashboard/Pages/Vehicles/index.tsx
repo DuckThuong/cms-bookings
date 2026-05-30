@@ -59,14 +59,14 @@ const API_VEHICLE_STATUS_LABEL: Record<
 };
 
 const API_VEHICLE_TYPE_LABEL: Record<string, string> = {
-  SLEEPER: "Xe giuong nam",
-  LIMOUSINE: "Xe limousine",
-  COACH: "Xe khach",
+  SLEEPER: "Xe gường nằm",
+  LIMOUSINE: "Xe Limousine",
+  COACH: "Xe Khách",
 };
 
 const SEAT_TYPE_LABEL: Record<string, string> = {
-  GIUONG: "Giuong nam",
-  NGOI: "Ghe ngoi",
+  BED: "Giuong nam",
+  SEAT: "Ghe ngoi",
 };
 
 const getApiErrorMessage = (error: unknown) => {
@@ -90,12 +90,12 @@ const getApiErrorMessage = (error: unknown) => {
 const toCreatePayload = (
   values: VehicleFormValues,
 ): CreateVehiclePayloadDto => ({
-  vehicleName: values.vehicleName,
-  vehicleCode: values.vehicleCode,
+  name: values.vehicleName,
+  code: values.vehicleCode,
   seatType: values.seatType,
   seatCount: values.seatCount,
-  vehicleType: values.vehicleType,
-  vehicleStatus: values.vehicleStatus,
+  type: values.vehicleType,
+  status: values.vehicleStatus,
   schedule: values.schedule,
   description: values.description,
 });

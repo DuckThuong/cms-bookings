@@ -1,10 +1,10 @@
 export interface CreateVehiclePayloadDto {
-  vehicleName: string;
-  vehicleCode: string;
+  name: string;
+  code: string;
   seatType: string;
   seatCount: number;
-  vehicleType: string;
-  vehicleStatus: string;
+  type: string;
+  status: string;
   schedule?: string;
   description?: string;
 }
