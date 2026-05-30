@@ -33,7 +33,7 @@ export const confirmCmsBooking = async (
 ) => {
   const response = await axiosClient.patch(
     BookingEndPoints.CONFIRM(paymentId),
-    payload ?? {},
+    payload,
   );
   return response.data;
 };
