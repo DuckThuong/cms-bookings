@@ -168,13 +168,13 @@ const TripsPage = () => {
         return (
           <span
             className="booking-status"
-            style={{ background: meta.bg, color: meta.color }}
+            style={{ background: meta?.bg, color: meta?.color }}
           >
             <span
               className="booking-status__dot"
-              style={{ background: meta.color }}
+              style={{ background: meta?.color }}
             />
-            {meta.label}
+            {meta?.label}
           </span>
         );
       },
@@ -186,6 +186,7 @@ const TripsPage = () => {
         <div className="row-actions">
           <button
             type="button"
+            title="Xem chi tiết"
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
@@ -195,6 +196,7 @@ const TripsPage = () => {
           </button>
           <button
             type="button"
+            title="Sửa"
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
@@ -205,6 +207,7 @@ const TripsPage = () => {
           <button
             type="button"
             className="danger"
+            title="Xóa"
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteTrip(record);
