@@ -1,13 +1,17 @@
-import React from 'react';
-import { Tooltip } from 'antd';
-import { vehicles } from '../../../share/bookingManagement';
+import type { VehicleRecord } from "../../../share/bookingManagement";
+import { Tooltip } from "antd";
 
 interface VehicleSidebarProps {
+  vehicles: VehicleRecord[];
   selected: string;
   onChange: (id: string) => void;
 }
 
-const VehicleSidebar = ({ selected, onChange }: VehicleSidebarProps) => {
+const VehicleSidebar = ({
+  vehicles,
+  selected,
+  onChange,
+}: VehicleSidebarProps) => {
   return (
     <div className="bm-vehicle-sidebar">
       <div className="bm-vehicle-sidebar__header">
@@ -18,25 +22,29 @@ const VehicleSidebar = ({ selected, onChange }: VehicleSidebarProps) => {
         {vehicles.map((vehicle) => (
           <Tooltip
             key={vehicle.id}
-            title={vehicle.status === 'maintenance' ? 'Đang bảo dưỡng' : ''}
+            title={vehicle.status === "maintenance" ? "Đang bảo dưỡng" : ""}
             placement="right"
           >
             <div
               className={[
-                'vehicle-item',
-                selected === vehicle.id ? 'vehicle-item--active' : '',
-                vehicle.status === 'maintenance' ? 'vehicle-item--maintenance' : '',
+                "vehicle-item",
+                selected === vehicle.id ? "vehicle-item--active" : "",
+                vehicle.status === "maintenance"
+                  ? "vehicle-item--maintenance"
+                  : "",
               ]
                 .filter(Boolean)
-                .join(' ')}
+                .join(" ")}
               onClick={() => onChange(vehicle.id)}
             >
               <div className="vehicle-item__icon">{vehicle.icon}</div>
 
               <div className="vehicle-item__body">
                 <div className="vehicle-item__label">{vehicle.label}</div>
-                {vehicle.type && <div className="vehicle-item__type">{vehicle.type}</div>}
-                {vehicle.status === 'maintenance' && (
+                {vehicle.type && (
+                  <div className="vehicle-item__type">{vehicle.type}</div>
+                )}
+                {vehicle.status === "maintenance" && (
                   <div className="vehicle-item__maintenance">Bảo dưỡng</div>
                 )}
               </div>

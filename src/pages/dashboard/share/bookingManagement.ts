@@ -20,6 +20,9 @@ export type VehicleRecord = {
 export type BookingRecord = {
   key: string;
   id: string;
+  paymentId?: number;
+  bookingId?: number;
+  ticketId?: number;
   vehicleId: string;
   customer: string;
   phone: string;

@@ -1,32 +1,51 @@
-import React, { useMemo, useState } from "react";
+import {
+  confirmCmsBooking,
+  getCmsBookings,
+  rejectCmsBooking,
+} from "@/api/configs/booking.config";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { message, Modal } from "antd";
-import VehicleSidebar from "../../components/Page2/VehicleSideBar";
+import { useMemo, useState } from "react";
+import AddBookingModal from "../../components/Page2/AddBookingModal";
+import BookingDetailDrawer from "../../components/Page2/BookingDetailDrawer";
+import BookingTable from "../../components/Page2/BookingTable";
 import BookingToolbar from "../../components/Page2/BookingToolbar";
 import SummaryStrip from "../../components/Page2/SummaryStrip";
-import BookingTable from "../../components/Page2/BookingTable";
-import BookingDetailDrawer from "../../components/Page2/BookingDetailDrawer";
-import AddBookingModal from "../../components/Page2/AddBookingModal";
+import VehicleSidebar from "../../components/Page2/VehicleSideBar";
 import {
-  bookings as initialBookings,
   getBookingStatusTabs,
   getBookingSummaryItems,
-  vehicles,
   type BookingRecord,
+  type BookingStatusKey,
 } from "../../share";
 import "./style.scss";
 
 const BookingManagementPage = () => {
+  const queryClient = useQueryClient();
   const [selectedVehicle, setSelectedVehicle] = useState("all");
-  const [activeStatus, setActiveStatus] = useState("all");
+  const [activeStatus, setActiveStatus] = useState<BookingStatusKey | "all">(
+    "all",
+  );
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingRecord | null>(
     null,
   );
-  const [bookingData, setBookingData] =
-    useState<BookingRecord[]>(initialBookings);
+
+  const listQuery = useQuery({
+    queryKey: ["cmsBookings", selectedVehicle, activeStatus, search],
+    queryFn: () =>
+      getCmsBookings({
+        status: activeStatus,
+        vehicleId: selectedVehicle === "all" ? undefined : selectedVehicle,
+        search: search.trim() || undefined,
+      }),
+  });
+
+  const bookingData = listQuery.data?.items ?? [];
+  const vehicles = listQuery.data?.vehicles ?? [];
 
   const vehicleLabel = useMemo(() => {
     if (selectedVehicle === "all") {
@@ -34,36 +53,32 @@ const BookingManagementPage = () => {
     }
 
     return (
-      vehicles.find((vehicle) => vehicle.id === selectedVehicle)?.label || "Xe"
+      vehicles.find((vehicle) => vehicle.id === selectedVehicle)?.label ?? "Xe"
     );
-  }, [selectedVehicle]);
-
-  const filtered = useMemo(() => {
-    return bookingData.filter((booking) => {
-      const matchVehicle =
-        selectedVehicle === "all" || booking.vehicleId === selectedVehicle;
-      const matchStatus =
-        activeStatus === "all" || booking.status === activeStatus;
-      const keyword = search.toLowerCase();
-      const matchSearch =
-        !keyword ||
-        booking.customer.toLowerCase().includes(keyword) ||
-        booking.id.toLowerCase().includes(keyword) ||
-        booking.route.toLowerCase().includes(keyword) ||
-        booking.phone.includes(keyword);
-
-      return matchVehicle && matchStatus && matchSearch;
-    });
-  }, [bookingData, selectedVehicle, activeStatus, search]);
+  }, [selectedVehicle, vehicles]);
 
   const statusTabs = useMemo(
     () => getBookingStatusTabs(bookingData),
     [bookingData],
   );
   const summaryItems = useMemo(
-    () => getBookingSummaryItems(filtered),
-    [filtered],
+    () => getBookingSummaryItems(bookingData),
+    [bookingData],
   );
+
+  const confirmMutation = useMutation({
+    mutationFn: (paymentId: number) => confirmCmsBooking(paymentId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["cmsBookings"] });
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: (paymentId: number) => rejectCmsBooking(paymentId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["cmsBookings"] });
+    },
+  });
 
   const handleView = (record: BookingRecord) => {
     setSelectedBooking(record);
@@ -71,6 +86,8 @@ const BookingManagementPage = () => {
   };
 
   const handleConfirm = (record: BookingRecord) => {
+    if (record.paymentId == null) return;
+
     Modal.confirm({
       className: "bm-modal",
       title: "Xác nhận đặt vé",
@@ -86,14 +103,8 @@ const BookingManagementPage = () => {
         },
       },
       cancelButtonProps: { style: { borderRadius: 8 } },
-      onOk() {
-        setBookingData((prev) =>
-          prev.map((booking) =>
-            booking.key === record.key
-              ? { ...booking, status: "confirmed" }
-              : booking,
-          ),
-        );
+      async onOk() {
+        await confirmMutation.mutateAsync(record.paymentId);
         message.success(`Đã xác nhận vé ${record.id}`);
         setDrawerOpen(false);
       },
@@ -101,12 +112,14 @@ const BookingManagementPage = () => {
   };
 
   const handleCancel = (record: BookingRecord) => {
+    if (record.paymentId == null) return;
+
     Modal.confirm({
       className: "bm-modal",
-      title: "Hủy đặt vé",
+      title: "Từ chối đặt vé",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: `Bạn chắc chắn muốn hủy vé ${record.id}?`,
-      okText: "Hủy vé",
+      content: `Bạn chắc chắn muốn từ chối vé ${record.id}?`,
+      okText: "Từ chối",
       cancelText: "Không",
       okButtonProps: {
         danger: true,
@@ -117,48 +130,23 @@ const BookingManagementPage = () => {
         },
       },
       cancelButtonProps: { style: { borderRadius: 8 } },
-      onOk() {
-        setBookingData((prev) =>
-          prev.map((booking) =>
-            booking.key === record.key
-              ? { ...booking, status: "cancelled" }
-              : booking,
-          ),
-        );
-        message.warning(`Đã hủy vé ${record.id}`);
+      async onOk() {
+        await rejectMutation.mutateAsync(record.paymentId);
+        message.warning(`Đã từ chối vé ${record.id}`);
         setDrawerOpen(false);
       },
     });
   };
 
-  const handleAddBooking = (values: Record<string, any>) => {
-    const seatCount = values.seatCount || 1;
-    const newBooking: BookingRecord = {
-      key: `bk_new_${Date.now()}`,
-      id: `#BK-${20520 + Math.floor(Math.random() * 100)}`,
-      vehicleId: values.vehicleId,
-      customer: values.customer,
-      phone: values.phone,
-      route: values.route,
-      departure: values.departure?.format("YYYY-MM-DD HH:mm") || "—",
-      arrival: "—",
-      seats: Array.from({ length: seatCount }, (_, index) => `X${index + 1}`),
-      seatCount,
-      amount: seatCount * 230000,
-      status: "pending",
-      bookedAt: new Date().toLocaleString("vi-VN"),
-      note: values.note || "",
-      pickup: values.pickup || "—",
-      dropoff: values.dropoff || "—",
-    };
-
-    setBookingData((prev) => [newBooking, ...prev]);
-    message.success("Đã tạo đặt vé mới!");
+  const handleAddBooking = () => {
+    message.info("Khách hàng đặt vé qua ứng dụng — đơn sẽ hiển thị ở trạng thái Chờ xác nhận");
+    setAddModalOpen(false);
   };
 
   return (
     <div className="bm-page">
       <VehicleSidebar
+        vehicles={vehicles}
         selected={selectedVehicle}
         onChange={setSelectedVehicle}
       />
@@ -171,7 +159,7 @@ const BookingManagementPage = () => {
           onSearch={setSearch}
           onAddBooking={() => setAddModalOpen(true)}
           vehicleLabel={vehicleLabel}
-          totalCount={filtered.length}
+          totalCount={bookingData.length}
           onDateChange={() => {}}
           STATUS_TABS={statusTabs}
         />
@@ -180,11 +168,11 @@ const BookingManagementPage = () => {
 
         <div className="bm-content">
           <BookingTable
-            data={filtered}
+            data={bookingData}
             onView={handleView}
             onConfirm={handleConfirm}
             onCancel={handleCancel}
-            loading={false}
+            loading={listQuery.isLoading}
           />
         </div>
       </div>
