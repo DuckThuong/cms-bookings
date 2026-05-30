@@ -47,7 +47,7 @@ const toFormRecord = (record: IVehicle): VehicleFormValues => ({
   vehicleName: record.name,
   vehicleCode: record.code,
   seatType: record.seatType || "BED",
-  seatCount: record.seatCount || 1,
+  seatCount: record.seatCount > 0 ? record.seatCount : 34,
   vehicleType: record.type,
   vehicleStatus: record.status,
   schedule: record.schedule ?? "",

@@ -65,8 +65,9 @@ const API_VEHICLE_TYPE_LABEL: Record<string, string> = {
 };
 
 const SEAT_TYPE_LABEL: Record<string, string> = {
-  BED: "Giuong nam",
-  SEAT: "Ghe ngoi",
+  BED: "Giường nằm",
+  SEAT: "Ghế ngồi",
+  STANDARD: "Tiêu chuẩn",
 };
 
 const getApiErrorMessage = (error: unknown) => {
