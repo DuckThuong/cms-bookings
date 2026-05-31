@@ -104,8 +104,8 @@ const getApiErrorMessage = (error: unknown) => {
 const toCreatePayload = (values: RouteFormValues): CreateRoadPayloadDto => ({
   name: values.name,
   length: values.length,
-  startPoint: values.startPoint,
-  endPoint: values.endPoint,
+  pickUpPoint: values.pickUpPoint,
+  dropOffPoint: values.dropOffPoint,
   status: values.status,
   standardDuration: values.standardDuration,
   tripsPerDay: values.tripsPerDay,
@@ -328,7 +328,7 @@ const RoutesPage = () => {
 
   const columns: ColumnsType<IRoad> = [
     {
-      title: "Ma tuyen",
+      title: "Mã tuyến đường",
       key: "code",
       render: (_, record) => (
         <span
@@ -339,12 +339,22 @@ const RoutesPage = () => {
       ),
     },
     {
-      title: "Tuyen duong",
+      title: "Tên tuyến đường",
       key: "name",
       render: (_, record) => toDisplayText(record.name),
     },
     {
-      title: "Thong so",
+      title: "Điểm đón khách",
+      key: "pickUpPoint",
+      render: (_, record) => toDisplayText(record.pickUpPoint),
+    },
+    {
+      title: "Điểm trả khách",
+      key: "dropOffPoint",
+      render: (_, record) => toDisplayText(record.dropOffPoint),
+    },
+    {
+      title: "Thông số",
       key: "specs",
       render: (_, record) => (
         <div>
@@ -355,28 +365,6 @@ const RoutesPage = () => {
             {toDisplayText(record.standardDuration)} tieu chuan
           </div>
         </div>
-      ),
-    },
-    {
-      title: "Khai thac",
-      key: "ops",
-      render: (_, record) => (
-        <div>
-          <div className="cust-cell__name">
-            {toDisplayNumber(record.tripsPerDay)} chuyen/ngay
-          </div>
-          <div className="cust-cell__phone">
-            {toDisplayNumber(record.averageOccupancy)}% lap day
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Doanh thu uoc tinh",
-      dataIndex: "estimatedRevenue",
-      key: "estimatedRevenue",
-      render: (value: number) => (
-        <span className="amount-cell">{formatMoney(value)}</span>
       ),
     },
     {
