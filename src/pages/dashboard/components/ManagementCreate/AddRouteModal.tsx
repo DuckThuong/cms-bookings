@@ -93,13 +93,13 @@ const AddRouteModal = ({
   return (
     <Modal
       className="bm-modal mgmt-modal"
-      title={isEdit ? "Cap nhat tuyen duong" : "Them tuyen duong moi"}
+      title={isEdit ? "Cập nhật tuyến đường" : "Thêm tuyến đường mới"}
       open={open}
       onCancel={onClose}
       width={620}
       footer={renderModalFooter({
-        cancelText: "Huy",
-        submitText: isEdit ? "Luu thay doi" : "Them tuyen duong",
+        cancelText: "Hủy",
+        submitText: isEdit ? "Lưu thay đổi" : "Thêm tuyến đường",
         onCancel: onClose,
         onSubmit: handleSubmit,
       })}
@@ -123,7 +123,9 @@ const AddRouteModal = ({
             <Form.Item
               name="pickUpPoint"
               label={formLabel("Điểm đón khách")}
-              rules={[{ required: true, message: "Vui lòng nhập điểm đón khách" }]}
+              rules={[
+                { required: true, message: "Vui lòng nhập điểm đón khách" },
+              ]}
             >
               <Input placeholder="BigC Thăng Long" style={fieldStyle} />
             </Form.Item>
@@ -132,7 +134,9 @@ const AddRouteModal = ({
             <Form.Item
               name="dropOffPoint"
               label={formLabel("Điểm trả khách")}
-              rules={[{ required: true, message: "Vui lòng nhập điểm trả khách" }]}
+              rules={[
+                { required: true, message: "Vui lòng nhập điểm trả khách" },
+              ]}
             >
               <Input placeholder="Ga Hải Phòng" style={fieldStyle} />
             </Form.Item>
@@ -144,7 +148,12 @@ const AddRouteModal = ({
             <Form.Item
               name="length"
               label={formLabel("Chiều dài quãng đường (km)")}
-              rules={[{ required: true, message: "Vui lòng nhập chiều dài quãng đường" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập chiều dài quãng đường",
+                },
+              ]}
             >
               <InputNumber
                 min={1}
@@ -163,29 +172,31 @@ const AddRouteModal = ({
           </Col>
         </Row>
 
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="status"
-              label={formLabel("Trạng thái")}
-              rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
-            >
-              <Select
-                className="bm-select"
-                options={routeStatusOptions.filter(
-                  (item) => item.value !== "all",
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {mode === "edit" && (
+          <Row gutter={12}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="status"
+                label={formLabel("Trạng thái")}
+                rules={[
+                  { required: true, message: "Vui lòng chọn trạng thái" },
+                ]}
+              >
+                <Select
+                  className="bm-select"
+                  options={routeStatusOptions.filter(
+                    (item) => item.value !== "all",
+                  )}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
 
-        
-
-        <Form.Item name="note" label={formLabel("Ghi chu")}>
+        <Form.Item name="note" label={formLabel("Ghi chú")}>
           <Input.TextArea
             rows={3}
-            placeholder="Ghi chu tuyen..."
+            placeholder="Ghi chú tuyến..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>

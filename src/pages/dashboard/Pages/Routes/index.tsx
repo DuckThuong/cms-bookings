@@ -139,19 +139,19 @@ const getRoadSummary = (data: IRoad[]): SummaryItem[] => {
   return [
     {
       key: "routes",
-      label: "Tong tuyen",
+      label: "Tổng tuyến",
       color: "#3b82f6",
       value: data.length,
     },
     {
       key: "peak",
-      label: "Nhu cau cao",
+      label: "Nhu cầu cao",
       color: "#f97316",
       value: data.filter((item) => item.status === "peak").length,
     },
     {
       key: "tripsPerDay",
-      label: "Chuyen/ngay",
+      label: "Chuyến/ngày",
       color: "#22c55e",
       value: data.reduce(
         (sum, item) => sum + toDisplayNumber(item.tripsPerDay),
@@ -160,7 +160,7 @@ const getRoadSummary = (data: IRoad[]): SummaryItem[] => {
     },
     {
       key: "occupancy",
-      label: "Lap day TB",
+      label: "Lấp đầy TB",
       color: "#eab308",
       value: `${occupancy}%`,
     },
@@ -212,7 +212,7 @@ const RoutesPage = () => {
   const createRoadMutation = useMutation({
     mutationFn: (payload: CreateRoadPayloadDto) => createRoad(payload),
     onSuccess: () => {
-      showNotification("Them tuyen duong thanh cong", NOTI_SUCCESS);
+      showNotification("Thêm tuyến đường thành công", NOTI_SUCCESS);
       invalidateRoads();
       closeRouteModal();
     },
@@ -226,7 +226,7 @@ const RoutesPage = () => {
   const updateRoadMutation = useMutation({
     mutationFn: (payload: UpdateRoadPayloadDto) => updateRoad(payload),
     onSuccess: (data) => {
-      showNotification("Cap nhat tuyen duong thanh cong", NOTI_SUCCESS);
+      showNotification("Cập nhật tuyến đường thành công", NOTI_SUCCESS);
       invalidateRoads();
       setSelected((prev) => (prev?.id === data.id ? data : prev));
       closeRouteModal();
@@ -241,7 +241,7 @@ const RoutesPage = () => {
   const deleteRoadMutation = useMutation({
     mutationFn: (id: number) => deleteRoad(id),
     onSuccess: (_data, id) => {
-      showNotification("Xoa tuyen duong thanh cong", NOTI_SUCCESS);
+      showNotification("Xóa tuyến đường thành công", NOTI_SUCCESS);
       invalidateRoads();
       setSelected((prev) => (prev?.id === id ? null : prev));
       setEditingRecord((prev) => (prev?.id === id ? null : prev));
@@ -303,14 +303,14 @@ const RoutesPage = () => {
   const handleDeleteRoute = (record: IRoad) => {
     Modal.confirm({
       className: "bm-modal",
-      title: "Xoa tuyen duong",
+      title: "Xóa tuyến đường",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: `Ban chac chan muon xoa tuyen ${toDisplayText(
+      content: `Bạn chắc chắn muốn xóa tuyến ${toDisplayText(
         record.code,
         String(record.id),
       )}?`,
-      okText: "Xoa tuyen",
-      cancelText: "Huy",
+      okText: "Xóa tuyến",
+      cancelText: "Hủy",
       okButtonProps: {
         danger: true,
         style: {
@@ -362,13 +362,13 @@ const RoutesPage = () => {
             {toDisplayNumber(record.length)} km
           </div>
           <div className="cust-cell__phone">
-            {toDisplayText(record.standardDuration)} tieu chuan
+            {toDisplayText(record.standardDuration)} tiêu chuẩn
           </div>
         </div>
       ),
     },
     {
-      title: "Trang thai",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (value: string) => renderStatus(toDisplayText(value, "")),
@@ -412,25 +412,25 @@ const RoutesPage = () => {
   return (
     <div className="mgmt-page">
       <div className="mgmt-hero">
-        <div className="mgmt-hero__eyebrow">Van hanh tuyen duong</div>
+        <div className="mgmt-hero__eyebrow">Vận hành tuyến đường</div>
         <div className="mgmt-hero__title">
-          Nang luc khai thac theo tung tuyen trong diem
+          Năng lực khai thác theo từng tuyến trong điểm
         </div>
         <div className="mgmt-hero__subtitle">
-          Theo doi tuyen co nhu cau cao, tuyen giam chuyen va suc keo doanh thu
+          Theo dõi tuyến có nhu cầu cao, tuyến giảm chuyến và sức kéo doanh thu
           cua tung hanh lang van chuyen.
         </div>
       </div>
 
       <div className="bm-toolbar">
         <div className="bm-toolbar__left">
-          <span className="bm-toolbar__title">Danh sach tuyen</span>
-          <span className="bm-toolbar__count">{filtered.length} tuyen</span>
+          <span className="bm-toolbar__title">Danh sách tuyến</span>
+          <span className="bm-toolbar__count">{filtered.length} tuyến</span>
         </div>
         <div className="bm-toolbar__right">
           <Input
             className="bm-search"
-            placeholder="Tim ma tuyen, ten tuyen, xe chu luc..."
+            placeholder="Tìm mã tuyến, tên tuyến, xe chủ lực..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -445,7 +445,7 @@ const RoutesPage = () => {
             icon={<PlusOutlined />}
             onClick={openCreateModal}
           >
-            Them tuyen duong
+            Thêm tuyến đường
           </Button>
         </div>
       </div>
@@ -478,37 +478,37 @@ const RoutesPage = () => {
         {selected && (
           <div className="drawer-body">
             <div className="drawer-body__section">
-              <div className="drawer-body__section-title">Thong tin tuyen</div>
+              <div className="drawer-body__section-title">Thông tin tuyến</div>
               <div className="mgmt-detail-list">
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Quang duong</span>
+                  <span className="mgmt-detail-list__label">Quãng đường</span>
                   <span className="mgmt-detail-list__value">
                     {toDisplayNumber(selected.length)} km
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">
-                    Thoi luong chuan
+                    Thời gian chuẩn
                   </span>
                   <span className="mgmt-detail-list__value">
                     {toDisplayText(selected.standardDuration)}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Diem dau/cuoi</span>
+                  <span className="mgmt-detail-list__label">Điểm đầu/cuối</span>
                   <span className="mgmt-detail-list__value">
                     {toDisplayText(selected.startPoint)} -{" "}
                     {toDisplayText(selected.endPoint)}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Xe chu luc</span>
+                  <span className="mgmt-detail-list__label">Xe chủ lực</span>
                   <span className="mgmt-detail-list__value">
                     {toDisplayText(selected.leadVehicle)}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Nhu cau</span>
+                  <span className="mgmt-detail-list__label">Nhu cầu</span>
                   <span className="mgmt-detail-list__value">
                     {toDisplayText(selected.demandLevel)}
                   </span>
@@ -518,12 +518,12 @@ const RoutesPage = () => {
 
             <div className="drawer-body__section">
               <div className="drawer-body__section-title">
-                Hieu suat khai thac
+                Hiệu suất khai thác
               </div>
               <div className="mgmt-grid">
                 <div className="mgmt-card">
                   <div className="mgmt-card__body">
-                    <div className="mgmt-card__subtitle">Chuyen/ngay</div>
+                    <div className="mgmt-card__subtitle">Chuyến/ngày</div>
                     <div className="revenue-metric-card__value">
                       {toDisplayNumber(selected.tripsPerDay)}
                     </div>
@@ -531,7 +531,7 @@ const RoutesPage = () => {
                 </div>
                 <div className="mgmt-card">
                   <div className="mgmt-card__body">
-                    <div className="mgmt-card__subtitle">Lap day TB</div>
+                    <div className="mgmt-card__subtitle">Lấp đầy TB</div>
                     <div className="revenue-metric-card__value">
                       {toDisplayNumber(selected.averageOccupancy)}%
                     </div>
@@ -547,14 +547,14 @@ const RoutesPage = () => {
                   icon={<EditOutlined />}
                   onClick={() => openEditModal(selected)}
                 >
-                  Sua
+                  Sửa
                 </Button>
                 <Button
                   danger
                   icon={<DeleteOutlined />}
                   onClick={() => handleDeleteRoute(selected)}
                 >
-                  Xoa
+                  Xóa
                 </Button>
               </div>
             </div>
