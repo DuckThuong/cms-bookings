@@ -1,8 +1,26 @@
+export type VehicleLayoutPreset =
+  | "SLEEPER_38"
+  | "LIMOUSINE"
+  | "COACH"
+  | "CUSTOM_SIMPLE";
+
+export interface VehicleLayoutConfig {
+  preset: VehicleLayoutPreset;
+  floorCount: 1 | 2;
+  rowsPerFloor: number;
+  columns: number;
+  aisleColumns: number[];
+  lastRowSeatCount: number;
+  seatType: string;
+}
+
 export interface CreateVehiclePayloadDto {
   name: string;
   code: string;
   seatType: string;
-  seatCount: number;
+  seatCount?: number;
+  layoutPreset: VehicleLayoutPreset;
+  layoutConfig: VehicleLayoutConfig;
   type: string;
   status: string;
   schedule?: string;
@@ -25,6 +43,8 @@ export interface IVehicle {
   image?: string;
   seatType: string;
   seatCount: number;
+  layoutPreset?: VehicleLayoutPreset;
+  layoutConfig?: VehicleLayoutConfig | null;
 }
 
 export type VehicleResponseDto = IVehicle;

@@ -95,6 +95,8 @@ const toCreatePayload = (
   code: values.vehicleCode,
   seatType: values.seatType,
   seatCount: values.seatCount,
+  layoutPreset: values.layoutPreset,
+  layoutConfig: values.layoutConfig,
   type: values.vehicleType,
   status: values.vehicleStatus,
   schedule: values.schedule,
