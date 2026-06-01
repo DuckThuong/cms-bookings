@@ -1,20 +1,20 @@
-// src/components/dashboard/WeeklyBookingChart.jsx
-import React from "react";
+import type { CmsDashboardWeeklyPoint } from "@/api/dtos/dashboard.dto";
+import { STATUS_COLORS } from "@/pages/dashboard/share";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
-import { weeklyBookingData, STATUS_COLORS } from "@/pages/dashboard/share";
+
 interface CustomTooltipProps {
-  active: boolean;
-  payload: any[];
-  label: string;
+  active?: boolean;
+  payload?: { dataKey: string; value: number; fill: string }[];
+  label?: string;
 }
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
@@ -26,7 +26,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
         <div className="custom-tooltip__row" key={entry.dataKey}>
           <span className="legend-dot" style={{ background: entry.fill }} />
           <span style={{ color: "#94a3b8", fontSize: 11 }}>
-            {entry.name === "completed" ? "Hoàn thành" : "Đã hủy"}:
+            {entry.dataKey === "completed" ? "Hoàn thành" : "Đã hủy"}:
           </span>
           <span>{entry.value}</span>
         </div>
@@ -35,7 +35,11 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   );
 };
 
-const WeeklyBookingChart = () => (
+type WeeklyBookingChartProps = {
+  data: CmsDashboardWeeklyPoint[];
+};
+
+const WeeklyBookingChart = ({ data }: WeeklyBookingChartProps) => (
   <div className="chart-panel" style={{ minHeight: 300 }}>
     <div className="chart-panel__header">
       <div>
@@ -46,7 +50,7 @@ const WeeklyBookingChart = () => (
 
     <ResponsiveContainer width="100%" height={220}>
       <BarChart
-        data={weeklyBookingData}
+        data={data}
         margin={{ top: 4, right: 8, left: -10, bottom: 0 }}
         barGap={4}
         barCategoryGap="30%"
@@ -68,9 +72,7 @@ const WeeklyBookingChart = () => (
           tickLine={false}
         />
         <Tooltip
-          content={
-            (<CustomTooltip active={true} payload={[]} label="" />) as any
-          }
+          content={<CustomTooltip />}
           cursor={{ fill: "rgba(255,255,255,0.04)" }}
         />
         <Legend
@@ -79,7 +81,11 @@ const WeeklyBookingChart = () => (
             value === "completed" ? "Hoàn thành" : "Đã hủy"
           }
         />
-        <Bar dataKey="completed" fill={STATUS_COLORS.completed} radius={[4, 4, 0, 0]} />
+        <Bar
+          dataKey="completed"
+          fill={STATUS_COLORS.completed}
+          radius={[4, 4, 0, 0]}
+        />
         <Bar
           dataKey="cancelled"
           fill={STATUS_COLORS.cancelled}

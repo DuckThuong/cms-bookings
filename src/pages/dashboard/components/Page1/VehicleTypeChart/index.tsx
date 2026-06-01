@@ -1,22 +1,21 @@
-// src/components/dashboard/VehicleTypeChart.jsx
-import React from 'react';
+import type { CmsDashboardVehicleType } from "@/api/dtos/dashboard.dto";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Cell,
   ResponsiveContainer,
-} from 'recharts';
-import { vehicleTypeData } from '@/pages/dashboard/share';
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface CustomTooltipProps {
-  active: boolean;
-  payload: any[];
-  label: string;
+  active?: boolean;
+  payload?: { fill: string; value: number }[];
+  label?: string;
 }
+
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
@@ -34,7 +33,11 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   );
 };
 
-const VehicleTypeChart = () => (
+type VehicleTypeChartProps = {
+  data: CmsDashboardVehicleType[];
+};
+
+const VehicleTypeChart = ({ data }: VehicleTypeChartProps) => (
   <div className="chart-panel" style={{ minHeight: 300 }}>
     <div className="chart-panel__header">
       <div>
@@ -46,7 +49,7 @@ const VehicleTypeChart = () => (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart
         layout="vertical"
-        data={vehicleTypeData}
+        data={data}
         margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
       >
         <CartesianGrid
@@ -56,25 +59,25 @@ const VehicleTypeChart = () => (
         />
         <XAxis
           type="number"
-          tick={{ fill: '#64748b', fontSize: 11 }}
+          tick={{ fill: "#64748b", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           type="category"
           dataKey="type"
-          tick={{ fill: '#94a3b8', fontSize: 12 }}
+          tick={{ fill: "#94a3b8", fontSize: 12 }}
           axisLine={false}
           tickLine={false}
           width={100}
         />
         <Tooltip
-          content={(<CustomTooltip active={true} payload={[]} label="" />) as any}
-          cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+          content={<CustomTooltip />}
+          cursor={{ fill: "rgba(255,255,255,0.04)" }}
         />
         <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-          {vehicleTypeData.map((entry, index) => (
-            <Cell key={index} fill={entry.color} />
+          {data.map((entry, index) => (
+            <Cell key={`${entry.type}-${index}`} fill={entry.color} />
           ))}
         </Bar>
       </BarChart>
