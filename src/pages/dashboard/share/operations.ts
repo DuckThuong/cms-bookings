@@ -6,7 +6,7 @@ export type TripStatusKey =
   | "running"
   | "completed"
   | "delayed";
-export type RouteStatusKey = "active" | "peak" | "reduced" | "paused";
+export type RouteStatusKey = "ACTIVE" | "INACTIVE";
 export type VehicleStatusKey = "ready" | "in_service" | "maintenance" | "idle";
 
 export type TripRecord = {
@@ -78,18 +78,16 @@ export const TRIP_STATUS_META: Record<TripStatusKey, StatusMeta> = {
 };
 
 export const ROUTE_STATUS_META: Record<RouteStatusKey, StatusMeta> = {
-  active: {
-    label: "Khai thác ổn định",
+  ACTIVE: {
+    label: "Đang khai thác",
     color: "#22c55e",
     bg: "rgba(34,197,94,0.12)",
   },
-  peak: { label: "Nhu cầu cao", color: "#f97316", bg: "rgba(249,115,22,0.12)" },
-  reduced: {
-    label: "Giảm chuyến",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
+  INACTIVE: {
+    label: "Tạm dừng",
+    color: "#64748b",
+    bg: "rgba(100,116,139,0.12)",
   },
-  paused: { label: "Tạm dừng", color: "#64748b", bg: "rgba(100,116,139,0.12)" },
 };
 
 export const VEHICLE_STATUS_META: Record<VehicleStatusKey, StatusMeta> = {
@@ -122,10 +120,8 @@ export const tripStatusOptions: FilterOption[] = [
 
 export const routeStatusOptions: FilterOption[] = [
   { value: "all", label: "Tất cả tuyến" },
-  { value: "active", label: "Khai thác ổn định" },
-  { value: "peak", label: "Nhu cầu cao" },
-  { value: "reduced", label: "Giảm chuyến" },
-  { value: "paused", label: "Tạm dừng" },
+  { value: "ACTIVE", label: "Đang khai thác" },
+  { value: "INACTIVE", label: "Tạm dừng" },
 ];
 
 export const fleetStatusOptions: FilterOption[] = [
@@ -146,10 +142,10 @@ export const fleetTypeOptions: FilterOption[] = [
 
 export const demandLevelOptions: FilterOption[] = [
   { value: "Cao", label: "Cao" },
-  { value: "á»”n Ä‘á»‹nh", label: "á»”n Ä‘á»‹nh" },
-  { value: "Chiáº¿n lÆ°á»£c", label: "Chiáº¿n lÆ°á»£c" },
-  { value: "Trung bÃ¬nh", label: "Trung bÃ¬nh" },
-  { value: "Tháº¥p", label: "Tháº¥p" },
+  { value: "Ổn định", label: "Ổn định" },
+  { value: "Chiến lược", label: "Chiến lược" },
+  { value: "Trung bình", label: "Trung bình" },
+  { value: "Thấp", label: "Thấp" },
 ];
 
 export const trips: TripRecord[] = [
@@ -249,7 +245,7 @@ export const operationRoutes: RouteRecord[] = [
     tripsPerDay: 12,
     averageOccupancy: 84,
     estimatedRevenue: 42800000,
-    status: "peak",
+    status: "ACTIVE",
     leadVehicle: "51B-123.45",
     demandLevel: "Cao",
     note: "Tuyến chủ lực cuối tuần và lễ.",
@@ -263,7 +259,7 @@ export const operationRoutes: RouteRecord[] = [
     tripsPerDay: 9,
     averageOccupancy: 79,
     estimatedRevenue: 39100000,
-    status: "active",
+    status: "ACTIVE",
     leadVehicle: "51B-456.78",
     demandLevel: "Ổn định",
     note: "Tuyến đêm có tỷ lệ lấp đầy cao.",
@@ -277,7 +273,7 @@ export const operationRoutes: RouteRecord[] = [
     tripsPerDay: 3,
     averageOccupancy: 86,
     estimatedRevenue: 51700000,
-    status: "active",
+    status: "ACTIVE",
     leadVehicle: "51B-789.01",
     demandLevel: "Chiến lược",
     note: "Cần theo dõi xoay tài xế 2 ca.",
@@ -291,7 +287,7 @@ export const operationRoutes: RouteRecord[] = [
     tripsPerDay: 6,
     averageOccupancy: 62,
     estimatedRevenue: 22300000,
-    status: "reduced",
+    status: "INACTIVE",
     leadVehicle: "51B-234.56",
     demandLevel: "Trung bình",
     note: "Đã giảm 1 chuyến/ngày do nhu cầu thấp giữa tuần.",
@@ -305,7 +301,7 @@ export const operationRoutes: RouteRecord[] = [
     tripsPerDay: 4,
     averageOccupancy: 48,
     estimatedRevenue: 12400000,
-    status: "paused",
+    status: "INACTIVE",
     leadVehicle: "51B-234.56",
     demandLevel: "Thấp",
     note: "Tạm dừng khung giờ tối để tái cơ cấu lịch chạy.",
