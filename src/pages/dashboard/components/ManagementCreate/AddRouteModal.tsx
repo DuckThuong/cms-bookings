@@ -166,6 +166,12 @@ const AddRouteModal = ({
             <Form.Item
               name="standardDuration"
               label={formLabel("Thời gian di chuyển(h:mm)")}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập thời gian di chuyển",
+                },
+              ]}
             >
               <Input placeholder="3h30" style={fieldStyle} />
             </Form.Item>

@@ -285,15 +285,15 @@ const FleetVehiclesPage = () => {
       render: (_, record) => API_VEHICLE_TYPE_LABEL[record.type] ?? record.type,
     },
     {
-      title: "Suc chua",
-      key: "seatCount",
+      title: "Loại ghế",
+      key: "seatType",
       render: (_, record) =>
-        `${record.seatCount} cho (${SEAT_TYPE_LABEL[record.seatType] ?? record.seatType})`,
+        SEAT_TYPE_LABEL[record.seatType] ?? record.seatType,
     },
     {
-      title: "Lich trinh",
-      key: "schedule",
-      render: (_, record) => record.schedule || "-",
+      title: "Suc chua",
+      key: "seatCount",
+      render: (_, record) => `${record.seatCount} chỗ `,
     },
     {
       title: "Trang thai",

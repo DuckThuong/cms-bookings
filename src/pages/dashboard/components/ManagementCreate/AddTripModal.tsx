@@ -4,10 +4,7 @@ import { getRoads } from "@/api/configs/route.config";
 import { getVehicles } from "@/api/configs/vehicle.config";
 import type { CmsTripItem } from "@/api/dtos/trip.dto";
 import { TripEndpoint } from "@/api/endpoints/trip.endpoint";
-import {
-  NOTI_ERROR,
-  NOTI_SUCCESS,
-} from "@/common/constants/constants";
+import { NOTI_ERROR, NOTI_SUCCESS } from "@/common/constants/constants";
 import {
   fieldStyle,
   formLabel,
@@ -16,7 +13,17 @@ import {
 import { numberFieldProps } from "@/common/contexts/format";
 import { useNotification } from "@/providers/notificationProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Spin } from "antd";
+import {
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Spin,
+} from "antd";
 import EllipsisSelect from "./EllipsisSelect";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -69,6 +76,31 @@ const parseDateValue = (value?: string | null) => {
 const formatDateValue = (value?: Dayjs | null) => {
   if (!value) return "";
   return value.format("DD/MM/YYYY HH:mm");
+};
+
+const parseDurationToMinutes = (value?: string | null) => {
+  const rawValue = value?.trim().toLowerCase();
+  if (!rawValue) return null;
+
+  const normalized = rawValue
+    .replace(/giờ|gio/g, "h")
+    .replace(/phút|phut/g, "m")
+    .replace(/\s+/g, "");
+
+  const minuteOnlyMatch = normalized.match(/^(\d+)m$/);
+  if (minuteOnlyMatch) {
+    return Number(minuteOnlyMatch[1]);
+  }
+
+  const hourMinuteMatch = normalized.match(/^(\d+)(?:h|:)(?:(\d{1,2})m?)?$/);
+  if (hourMinuteMatch) {
+    const hours = Number(hourMinuteMatch[1]);
+    const minutes = Number(hourMinuteMatch[2] ?? 0);
+    if (minutes >= 60) return null;
+    return hours * 60 + minutes;
+  }
+
+  return null;
 };
 
 const toFormValues = (trip: CmsTripItem): Partial<TripFormValues> => ({
@@ -174,6 +206,16 @@ const AddTripModal = ({
   );
 
   const selectedVehicleId = Form.useWatch("vehicleId", form);
+  const selectedRoadId = Form.useWatch("roadId", form);
+  const departureValue = Form.useWatch("departure", form);
+  const selectedRoad = useMemo(
+    () => (roadsQuery.data ?? []).find((road) => road.id === selectedRoadId),
+    [roadsQuery.data, selectedRoadId],
+  );
+  const selectedRoadDurationMinutes = useMemo(
+    () => parseDurationToMinutes(selectedRoad?.standardDuration),
+    [selectedRoad?.standardDuration],
+  );
   const selectedVehicle = useMemo(
     () =>
       (vehiclesQuery.data ?? []).find(
@@ -181,10 +223,15 @@ const AddTripModal = ({
       ),
     [selectedVehicleId, vehiclesQuery.data],
   );
+  const selectedRoadDurationLabel =
+    selectedRoad?.standardDuration?.trim() || "Vui lòng chọn tuyến";
 
   const saveMutation = useMutation({
     mutationFn: async (values: TripFormValues) => {
-      const payload = toPayload(values, isEdit ? tripId ?? undefined : undefined);
+      const payload = toPayload(
+        values,
+        isEdit ? (tripId ?? undefined) : undefined,
+      );
       if (isEdit && tripId) {
         return updateTrip(payload as Parameters<typeof updateTrip>[0]);
       }
@@ -202,9 +249,12 @@ const AddTripModal = ({
       onSuccess?.();
       onClose();
     },
-    onError: () => {
+    onError: (error: any) => {
+      const serverMessage =
+        error.response?.data?.message ||
+        (isEdit ? "Cập nhật chuyến xe thất bại" : "Thêm chuyến xe thất bại");
       showNotification(
-        isEdit ? "Cập nhật chuyến xe thất bại" : "Thêm chuyến xe thất bại",
+        serverMessage,
         NOTI_ERROR,
       );
     },
@@ -242,6 +292,37 @@ const AddTripModal = ({
       });
     }
   }, [form, isEdit, open, tripDetailQuery.data]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (!selectedRoadId || !departureValue) {
+      form.setFieldsValue({ arrival: null });
+      return;
+    }
+
+    if (roadsQuery.isLoading) {
+      return;
+    }
+
+    if (selectedRoadDurationMinutes === null) {
+      form.setFieldsValue({ arrival: null });
+      return;
+    }
+
+    form.setFieldsValue({
+      arrival: departureValue.add(selectedRoadDurationMinutes, "minute"),
+    });
+  }, [
+    departureValue,
+    form,
+    open,
+    roadsQuery.isLoading,
+    selectedRoadDurationMinutes,
+    selectedRoadId,
+  ]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -320,7 +401,36 @@ const AddTripModal = ({
               <Form.Item
                 name="roadId"
                 label={formLabel("Tuyến")}
-                rules={[{ required: true, message: "Chọn tuyến" }]}
+                rules={[
+                  { required: true, message: "Chọn tuyến" },
+                  {
+                    validator: (_, value) => {
+                      if (!value) {
+                        return Promise.resolve();
+                      }
+
+                      const road = (roadsQuery.data ?? []).find(
+                        (item) => item.id === value,
+                      );
+
+                      if (!road) {
+                        return Promise.reject(
+                          new Error("Không tìm thấy tuyến đã chọn"),
+                        );
+                      }
+
+                      if (parseDurationToMinutes(road.standardDuration) === null) {
+                        return Promise.reject(
+                          new Error(
+                            "Tuyến chưa có thời gian di chuyển hợp lệ",
+                          ),
+                        );
+                      }
+
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <EllipsisSelect
                   placeholder="Chọn tuyến đường"
@@ -371,9 +481,26 @@ const AddTripModal = ({
             />
           </Form.Item>
 
+          <Form.Item label={formLabel("Thời gian di chuyển")}>
+            <Input
+              value={selectedRoadDurationLabel}
+              disabled
+              status={
+                selectedRoadId && selectedRoadDurationMinutes === null
+                  ? "error"
+                  : undefined
+              }
+              style={fieldStyle}
+            />
+          </Form.Item>
+
           <Row gutter={12}>
             <Col xs={24} md={12}>
-              <Form.Item name="departure" label={formLabel("Giờ khởi hành")}>
+              <Form.Item
+                name="departure"
+                label={formLabel("Giờ khởi hành")}
+                rules={[{ required: true, message: "Chọn giờ khởi hành" }]}
+              >
                 <DatePicker
                   className="bm-date-picker"
                   showTime
@@ -383,13 +510,19 @@ const AddTripModal = ({
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item name="arrival" label={formLabel("Giờ đến")}>
-                <DatePicker
-                  className="bm-date-picker"
-                  showTime
-                  format="DD/MM/YYYY HH:mm"
-                  style={{ width: "100%" }}
-                />
+              <Form.Item
+                name="arrival"
+                label={formLabel("Giờ đến( dự kiến )")}
+                getValueProps={(value?: Dayjs | null) => ({
+                  value: value
+                    ? ` ${formatDateValue(value)}`
+                    : "Vui lòng chọn tuyến và giờ khởi hành ",
+                })}
+                rules={[
+                  { required: true, message: "Giờ đến sẽ được tự tính" },
+                ]}
+              >
+                <Input disabled style={fieldStyle} />
               </Form.Item>
             </Col>
           </Row>
@@ -401,7 +534,7 @@ const AddTripModal = ({
                   value={
                     selectedVehicle
                       ? `${selectedVehicle.seatCount} chỗ`
-                      : "Chọn xe để xem sức chứa"
+                      : "Vui lòng chọn xe "
                   }
                   disabled
                   style={fieldStyle}
@@ -422,10 +555,7 @@ const AddTripModal = ({
                         (item) => item.id === vehicleId,
                       );
                       const capacity = vehicle?.seatCount ?? 60;
-                      if (
-                        typeof value !== "number" ||
-                        value <= capacity
-                      ) {
+                      if (typeof value !== "number" || value <= capacity) {
                         return Promise.resolve();
                       }
                       return Promise.reject(

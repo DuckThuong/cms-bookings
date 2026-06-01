@@ -5,19 +5,20 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { Button, DatePicker, Input, Select } from 'antd';
+import type { BookingStatusFilterKey, BookingStatusTab } from '../../../share';
 
 const { RangePicker } = DatePicker;
 
 interface BookingToolbarProps {
-  activeStatus: string;
-  onStatusChange: (key: string) => void;
+  activeStatus: BookingStatusFilterKey;
+  onStatusChange: (key: BookingStatusFilterKey) => void;
   search: string;
   onSearch: (value: string) => void;
   onDateChange: (dates: [string, string]) => void;
   onAddBooking: () => void;
   vehicleLabel: string;
   totalCount: number;
-  STATUS_TABS: { key: string; label: string; color: string; count: number }[];
+  STATUS_TABS: BookingStatusTab[];
 }
 
 const BookingToolbar = ({
