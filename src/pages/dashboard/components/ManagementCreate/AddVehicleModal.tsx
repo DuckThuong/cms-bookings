@@ -44,12 +44,15 @@ const VEHICLE_TYPE_OPTIONS = [
   { value: "COACH", label: "Xe Khach" },
 ];
 
-const LAYOUT_PRESET_OPTIONS = [
+const LAYOUT_PRESET_OPTIONS: Array<{
+  value: VehicleLayoutPreset;
+  label: string;
+}> = [
   { value: "SLEEPER_38", label: "Giuong nam 38 cho" },
   { value: "LIMOUSINE", label: "Limousine" },
   { value: "COACH", label: "Xe khach" },
   { value: "CUSTOM_SIMPLE", label: "Tuy chinh don gian" },
-] as const;
+];
 
 const SEAT_TYPE_OPTIONS = [
   { value: "BED", label: "Giuong nam" },
@@ -128,7 +131,8 @@ const calcSeatCount = (config?: VehicleLayoutConfig) => {
 };
 
 const toFormRecord = (record: IVehicle): VehicleFormValues => {
-  const preset = record.layoutPreset ?? record.layoutConfig?.preset ?? "SLEEPER_38";
+  const preset =
+    record.layoutPreset ?? record.layoutConfig?.preset ?? "SLEEPER_38";
   const layout = normalizeLayout(record.layoutConfig, preset);
 
   return {
@@ -207,8 +211,15 @@ const AddVehicleModal = ({
     const previewRows = Math.min(config.rowsPerFloor, 6);
 
     return (
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
+      <div style={{ marginBottom: 16, alignItems: "center", display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            marginBottom: 8,
+            color: "#374151",
+          }}
+        >
           Preview ({computedSeatCount} cho)
         </div>
         <div
@@ -225,14 +236,17 @@ const AddVehicleModal = ({
             const seatSlots = lastRow
               ? new Set(
                   Array.from(
-                    { length: Math.min(config.lastRowSeatCount, config.columns) },
+                    {
+                      length: Math.min(config.lastRowSeatCount, config.columns),
+                    },
                     (_, index) => index,
                   ),
                 )
               : new Set(
-                  Array.from({ length: config.columns }, (_, index) => index).filter(
-                    (index) => !config.aisleColumns.includes(index),
-                  ),
+                  Array.from(
+                    { length: config.columns },
+                    (_, index) => index,
+                  ).filter((index) => !config.aisleColumns.includes(index)),
                 );
 
             return (
@@ -351,8 +365,8 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="layoutPreset"
-              label={formLabel("Mau so do")}
-              rules={[{ required: true, message: "Chon mau so do" }]}
+              label={formLabel("Kiểu sơ đồ ghế")}
+              rules={[{ required: true, message: "Chọn kiểu sơ đồ ghế" }]}
             >
               <Select className="bm-select" options={LAYOUT_PRESET_OPTIONS} />
             </Form.Item>
@@ -403,74 +417,79 @@ const AddVehicleModal = ({
             </Form.Item>
           </Col>
         </Row>
-
         <Row gutter={12}>
-          <Col xs={24} md={8}>
-            <Form.Item
-              name={["layoutConfig", "rowsPerFloor"]}
-              label={formLabel("Hang/tang")}
-              rules={[{ required: true, message: "Nhap so hang" }]}
-            >
-              <InputNumber
-                min={1}
-                max={30}
-                disabled={!isCustom}
-                style={{ ...fieldStyle, width: "100%" }}
-                {...numberFieldProps}
-              />
-            </Form.Item>
+          <Col xs={24} md={12}>
+            <Row gutter={12}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name={["layoutConfig", "rowsPerFloor"]}
+                  label={formLabel("Hang/tang")}
+                  rules={[{ required: true, message: "Nhap so hang" }]}
+                >
+                  <InputNumber
+                    min={1}
+                    max={30}
+                    disabled={!isCustom}
+                    style={{ ...fieldStyle, width: "100%" }}
+                    {...numberFieldProps}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name={["layoutConfig", "columns"]}
+                  label={formLabel("So cot")}
+                  rules={[{ required: true, message: "Nhap so cot" }]}
+                >
+                  <InputNumber
+                    min={1}
+                    max={8}
+                    disabled={!isCustom}
+                    style={{ ...fieldStyle, width: "100%" }}
+                    {...numberFieldProps}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name={["layoutConfig", "lastRowSeatCount"]}
+                  label={formLabel("Ghe hang cuoi")}
+                  rules={[{ required: true, message: "Nhap ghe hang cuoi" }]}
+                >
+                  <InputNumber
+                    min={1}
+                    max={8}
+                    disabled={!isCustom}
+                    style={{ ...fieldStyle, width: "100%" }}
+                    {...numberFieldProps}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name={["layoutConfig", "aisleColumns"]}
+                  label={formLabel("Cot loi di")}
+                >
+                  <Select
+                    mode="multiple"
+                    disabled={!isCustom}
+                    className="bm-select"
+                    options={Array.from(
+                      { length: Math.max(0, layoutConfig?.columns ?? 0) },
+                      (_, index) => ({
+                        value: index,
+                        label: `Cot ${index + 1}`,
+                      }),
+                    )}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
           </Col>
-          <Col xs={24} md={8}>
-            <Form.Item
-              name={["layoutConfig", "columns"]}
-              label={formLabel("So cot")}
-              rules={[{ required: true, message: "Nhap so cot" }]}
-            >
-              <InputNumber
-                min={1}
-                max={8}
-                disabled={!isCustom}
-                style={{ ...fieldStyle, width: "100%" }}
-                {...numberFieldProps}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={8}>
-            <Form.Item
-              name={["layoutConfig", "lastRowSeatCount"]}
-              label={formLabel("Ghe hang cuoi")}
-              rules={[{ required: true, message: "Nhap ghe hang cuoi" }]}
-            >
-              <InputNumber
-                min={1}
-                max={8}
-                disabled={!isCustom}
-                style={{ ...fieldStyle, width: "100%" }}
-                {...numberFieldProps}
-              />
-            </Form.Item>
-          </Col>
+          <Col span={12}>{renderPreview()}</Col>
         </Row>
-
-        <Form.Item
-          name={["layoutConfig", "aisleColumns"]}
-          label={formLabel("Cot loi di")}
-        >
-          <Select
-            mode="multiple"
-            disabled={!isCustom}
-            className="bm-select"
-            options={Array.from(
-              { length: Math.max(0, layoutConfig?.columns ?? 0) },
-              (_, index) => ({
-                value: index,
-                label: `Cot ${index + 1}`,
-              }),
-            )}
-          />
-        </Form.Item>
-
-        {renderPreview()}
 
         <Form.Item name="description" label={formLabel("Mo ta")}>
           <Input.TextArea
