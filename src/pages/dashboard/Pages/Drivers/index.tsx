@@ -1,6 +1,22 @@
-import React, { useMemo, useState } from "react";
-import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import {
+  createDriver,
+  deleteDriver,
+  getDrivers,
+  updateDriver,
+} from "@/api/configs/driver.config";
+import type {
+  CreateDriverPayloadDto,
+  DriverResponseDto,
+  UpdateDriverPayloadDto,
+} from "@/api/dtos/driver.dto";
+import { DriverEndPoints } from "@/api/endpoints/driver.endpoint";
+import {
+  DEFAULT_MESSAGE,
+  NOTI_ERROR,
+  NOTI_SUCCESS,
+} from "@/common/constants/constants";
+import { useLoading } from "@/providers/loadingProvider";
+import { useNotification } from "@/providers/notificationProvider";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -9,112 +25,265 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, Drawer, Input, Modal, Select, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { isAxiosError } from "axios";
+import React, { useMemo, useState } from "react";
 import { AddDriverModal } from "../../components/ManagementCreate";
-import {
-  DRIVER_STATUS_META,
-  driverLicenseOptions,
-  driverStatusOptions,
-  drivers,
-  fleetVehicles,
-  getDriverSummary,
-  routeOptions,
-  trips,
-  type DriverRecord,
-} from "../../share";
+import type { DriverFormValues } from "../../components/ManagementCreate/AddDriverModal";
+import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { driverLicenseOptions } from "../../share";
+import type { SummaryItem } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
 
+const DRIVER_STATUS_META: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  ACTIVE: {
+    label: "Dang hoat dong",
+    color: "#22c55e",
+    bg: "rgba(34,197,94,0.12)",
+  },
+  INACTIVE: {
+    label: "Ngung hoat dong",
+    color: "#64748b",
+    bg: "rgba(100,116,139,0.12)",
+  },
+  MAINTENANCE: {
+    label: "Bao duong",
+    color: "#ef4444",
+    bg: "rgba(239,68,68,0.12)",
+  },
+};
+
+const DRIVER_STATUS_OPTIONS = [
+  { value: "all", label: "Tat ca trang thai" },
+  { value: "ACTIVE", label: "Dang hoat dong" },
+  { value: "INACTIVE", label: "Ngung hoat dong" },
+  { value: "MAINTENANCE", label: "Bao duong" },
+];
+
+const getApiErrorMessage = (error: unknown) => {
+  if (!isAxiosError(error)) {
+    return DEFAULT_MESSAGE;
+  }
+
+  const apiMessage = error.response?.data?.message;
+
+  if (typeof apiMessage === "string") {
+    return apiMessage;
+  }
+
+  if (Array.isArray(apiMessage) && apiMessage[0]) {
+    return apiMessage[0];
+  }
+
+  return DEFAULT_MESSAGE;
+};
+
+const normalizeSearchText = (value: unknown) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const toCreatePayload = (values: DriverFormValues): CreateDriverPayloadDto => ({
+  name: values.name,
+  license: values.license,
+  licenseNum: values.licenseNum,
+  phone: values.phone,
+  email: values.email,
+  status: values.status,
+  description: values.description,
+});
+
+const toUpdatePayload = (
+  values: DriverFormValues,
+  record: DriverResponseDto,
+): UpdateDriverPayloadDto => ({
+  id: Number(record.id),
+  name: values.name,
+  licenseNum: values.licenseNum,
+  license: values.license,
+  phone: values.phone,
+  email: values.email,
+  status: values.status,
+  description: values.description,
+});
+
+const getDriverSummary = (data: DriverResponseDto[]): SummaryItem[] => [
+  {
+    key: "drivers",
+    label: "Tong tai xe",
+    color: "#3b82f6",
+    value: data.length,
+  },
+  {
+    key: "active",
+    label: "Dang hoat dong",
+    color: "#22c55e",
+    value: data.filter((item) => item.status === "ACTIVE").length,
+  },
+  {
+    key: "maintenance",
+    label: "Bao duong",
+    color: "#ef4444",
+    value: data.filter((item) => item.status === "MAINTENANCE").length,
+  },
+  {
+    key: "e-license",
+    label: "Bang E",
+    color: "#a855f7",
+    value: data.filter((item) => item.license === "E").length,
+  },
+];
+
+const renderStatus = (status: string) => {
+  const meta = DRIVER_STATUS_META[status];
+
+  if (!meta) {
+    return status || "-";
+  }
+
+  return (
+    <span
+      className="booking-status"
+      style={{ background: meta.bg, color: meta.color }}
+    >
+      <span
+        className="booking-status__dot"
+        style={{ background: meta.color }}
+      />
+      {meta.label}
+    </span>
+  );
+};
+
 const DriversPage = () => {
-  const [driverData, setDriverData] = useState(drivers);
+  const { showNotification } = useNotification();
+  const { setLoading } = useLoading();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [license, setLicense] = useState("all");
   const [status, setStatus] = useState("all");
-  const [route, setRoute] = useState("all");
-  const [selected, setSelected] = useState<DriverRecord | null>(null);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<DriverRecord | null>(null);
+  const [selected, setSelected] = useState<DriverResponseDto | null>(null);
+  const [driverModalOpen, setDriverModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<DriverResponseDto | null>(
+    null,
+  );
 
-  const filtered = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    return driverData.filter((driver) => {
-      const matchKeyword =
-        !keyword ||
-        driver.name.toLowerCase().includes(keyword) ||
-        driver.phone.includes(keyword) ||
-        driver.id.toLowerCase().includes(keyword);
-      const matchLicense = license === "all" || driver.license === license;
-      const matchStatus = status === "all" || driver.status === status;
-      const matchRoute = route === "all" || driver.mainRoute === route;
-      return matchKeyword && matchLicense && matchStatus && matchRoute;
+  const invalidateDrivers = () => {
+    queryClient.invalidateQueries({
+      queryKey: [DriverEndPoints.GET_DRIVERS],
     });
-  }, [driverData, license, route, search, status]);
-
-  const openEditModal = (record: DriverRecord) => {
-    setEditingRecord(record);
-    setEditModalOpen(true);
   };
 
-  const closeEditModal = () => {
-    setEditModalOpen(false);
+  const closeDriverModal = () => {
+    setDriverModalOpen(false);
     setEditingRecord(null);
   };
 
-  const handleAddDriver = (record: DriverRecord) => {
-    setDriverData((prev) => [record, ...prev]);
-    message.success(`Đã thêm driver ${record.id}`);
+  const createDriverMutation = useMutation({
+    mutationFn: (payload: CreateDriverPayloadDto) => createDriver(payload),
+    onSuccess: () => {
+      showNotification("Them tai xe thanh cong", NOTI_SUCCESS);
+      invalidateDrivers();
+      closeDriverModal();
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const updateDriverMutation = useMutation({
+    mutationFn: (payload: UpdateDriverPayloadDto) => updateDriver(payload),
+    onSuccess: () => {
+      showNotification("Cap nhat tai xe thanh cong", NOTI_SUCCESS);
+      invalidateDrivers();
+      closeDriverModal();
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const deleteDriverMutation = useMutation({
+    mutationFn: (id: string) => deleteDriver(id),
+    onSuccess: (_data, id) => {
+      showNotification("Xoa tai xe thanh cong", NOTI_SUCCESS);
+      invalidateDrivers();
+      setSelected((prev) => (prev?.id === id ? null : prev));
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const { data: driverData } = useQuery({
+    queryKey: [DriverEndPoints.GET_DRIVERS],
+    queryFn: () => getDrivers(),
+  });
+
+  const filtered = useMemo(() => {
+    const keyword = normalizeSearchText(search.trim());
+    const data = driverData ?? [];
+
+    return data.filter((driver) => {
+      const searchableText = [
+        driver.name,
+        driver.phone,
+        driver.email,
+        driver.id,
+        driver.code,
+        driver.license,
+        driver.licenseNum,
+      ]
+        .map(normalizeSearchText)
+        .join(" ");
+      const matchKeyword = !keyword || searchableText.includes(keyword);
+      const matchLicense = license === "all" || driver.license === license;
+      const matchStatus = status === "all" || driver.status === status;
+
+      return matchKeyword && matchLicense && matchStatus;
+    });
+  }, [driverData, license, search, status]);
+
+  const openCreateModal = () => {
+    setEditingRecord(null);
+    setDriverModalOpen(true);
   };
 
-  const handleEditDriver = (record: DriverRecord) => {
-    setDriverData((prev) =>
-      prev.map((item) => (item.key === record.key ? record : item)),
-    );
-    setSelected((prev) => (prev?.key === record.key ? record : prev));
-    message.success(`Đã cập nhật driver ${record.id}`);
-    closeEditModal();
+  const openEditModal = (record: DriverResponseDto) => {
+    setEditingRecord(record);
+    setDriverModalOpen(true);
   };
 
-  const getDeleteBlockReason = (record: DriverRecord) => {
-    const activeTrip = trips.find((trip) => trip.driver === record.name);
-    if (activeTrip) {
-      return `Không thể xóa tài xế ${record.id} vì đang được gán cho chuyến ${activeTrip.id}.`;
-    }
-
-    const assignedVehicle = fleetVehicles.find(
-      (vehicle) => vehicle.primaryDriver === record.name,
-    );
-    if (assignedVehicle) {
-      return `Không thể xóa tài xế ${record.id} vì đang là tài xế chính của xe ${assignedVehicle.plateNumber}.`;
-    }
-
-    return null;
-  };
-
-  const removeDriver = (record: DriverRecord) => {
-    setDriverData((prev) => prev.filter((item) => item.key !== record.key));
-    setSelected((prev) => (prev?.key === record.key ? null : prev));
-    setEditingRecord((prev) => (prev?.key === record.key ? null : prev));
-    setEditModalOpen((prev) =>
-      editingRecord?.key === record.key ? false : prev,
-    );
-    message.success(`Đã xóa driver ${record.id}`);
-  };
-
-  const handleDeleteDriver = (record: DriverRecord) => {
-    const blockReason = getDeleteBlockReason(record);
-    if (blockReason) {
-      message.warning(blockReason);
+  const handleSubmitDriver = (values: DriverFormValues) => {
+    if (editingRecord) {
+      updateDriverMutation.mutate(toUpdatePayload(values, editingRecord));
       return;
     }
 
+    createDriverMutation.mutate(toCreatePayload(values));
+  };
+
+  const handleDeleteDriver = (record: DriverResponseDto) => {
     Modal.confirm({
       className: "bm-modal",
-      title: "Xóa tài xế",
+      title: "Xoa tai xe",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: `Bạn chắc chắn muốn xóa tài xế ${record.id}?`,
-      okText: "Xóa tài xế",
-      cancelText: "Hủy",
+      content: `Ban chac chan muon xoa tai xe ${record.code ?? record.id}?`,
+      okText: "Xoa tai xe",
+      cancelText: "Huy",
       okButtonProps: {
         danger: true,
         style: {
@@ -125,109 +294,89 @@ const DriversPage = () => {
       },
       cancelButtonProps: { style: { borderRadius: 8 } },
       onOk() {
-        removeDriver(record);
+        deleteDriverMutation.mutate(record.id);
       },
     });
   };
 
-  const columns: ColumnsType<DriverRecord> = [
+  const columns: ColumnsType<DriverResponseDto> = [
     {
-      title: "Mã tài xế",
-      dataIndex: "id",
-      key: "id",
-      render: (value: string) => (
+      title: "Ma tai xe",
+      key: "code",
+      render: (_, record) => (
         <span
           style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}
         >
-          {value}
+          {record.code ?? record.id}
         </span>
       ),
     },
     {
-      title: "Tài xế",
+      title: "Tai xe",
       key: "name",
       render: (_, record) => (
         <div className="cust-cell">
-          <div className="cust-cell__avatar">{record.name.charAt(0)}</div>
+          <div className="cust-cell__avatar">{record?.name?.charAt(0)}</div>
           <div>
-            <div className="cust-cell__name">{record.name}</div>
-            <div className="cust-cell__phone">{record.phone}</div>
+            <div className="cust-cell__name">{record?.name}</div>
+            <div className="cust-cell__phone">{record?.phone}</div>
           </div>
         </div>
       ),
     },
-    { title: "Bằng lái", dataIndex: "license", key: "license" },
+    { title: "Bang lai", dataIndex: "license", key: "license" },
+    { title: "Email", dataIndex: "email", key: "email" },
     {
-      title: "Xe phụ trách",
-      dataIndex: "assignedVehicle",
-      key: "assignedVehicle",
+      title: "So chuyen",
+      dataIndex: "totalTurn",
+      key: "totalTurn",
+      render: (value: number) => value ?? 0,
     },
-    { title: "Tuyến chính", dataIndex: "mainRoute", key: "mainRoute" },
-    { title: "Số chuyến", dataIndex: "tripCount", key: "tripCount" },
     {
-      title: "Đánh giá",
-      dataIndex: "rating",
-      key: "rating",
+      title: "Danh gia",
+      dataIndex: "rate",
+      key: "rate",
       render: (value: number) => (
-        <span className="amount-cell">{value.toFixed(1)}★</span>
+        <span className="amount-cell">{(value ?? 0).toFixed(1)}*</span>
       ),
     },
     {
-      title: "Trạng thái",
+      title: "Trang thai",
       dataIndex: "status",
       key: "status",
-      render: (value: DriverRecord["status"]) => {
-        const meta = DRIVER_STATUS_META[value];
-        return (
-          <span
-            className="booking-status"
-            style={{ background: meta.bg, color: meta.color }}
-          >
-            <span
-              className="booking-status__dot"
-              style={{ background: meta.color }}
-            />
-            {meta.label}
-          </span>
-        );
-      },
+      render: renderStatus,
     },
     {
       title: "",
       key: "actions",
       render: (_, record) => (
         <div className="row-actions">
-          <button
-            type="button"
-            aria-label={`Xem chi tiết tài xế ${record.name}`}
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
-          >
-            <EyeOutlined aria-hidden />
-          </button>
-          <button
-            type="button"
-            aria-label={`Chỉnh sửa tài xế ${record.name}`}
+          />
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
             }}
-          >
-            <EditOutlined aria-hidden />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
             className="danger"
-            aria-label={`Xóa tài xế ${record.name}`}
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteDriver(record);
             }}
-          >
-            <DeleteOutlined aria-hidden />
-          </button>
+          />
         </div>
       ),
     },
@@ -236,25 +385,25 @@ const DriversPage = () => {
   return (
     <div className="mgmt-page">
       <div className="mgmt-hero">
-        <div className="mgmt-hero__eyebrow">Quản lý tài xế</div>
+        <div className="mgmt-hero__eyebrow">Quan ly tai xe</div>
         <div className="mgmt-hero__title">
-          Nguồn lực vận hành theo ca và tuyến
+          Theo doi ho so va trang thai tai xe
         </div>
         <div className="mgmt-hero__subtitle">
-          Giám sát tài xế đang chạy tuyến, năng lực bằng lái và trạng thái phân
-          công trong ngày.
+          Giam sat thong tin lien he, bang lai, danh gia va trang thai van hanh
+          cua doi ngu tai xe.
         </div>
       </div>
 
       <div className="bm-toolbar">
         <div className="bm-toolbar__left">
-          <span className="bm-toolbar__title">Danh sách tài xế</span>
-          <span className="bm-toolbar__count">{filtered.length} hồ sơ</span>
+          <span className="bm-toolbar__title">Danh sach tai xe</span>
+          <span className="bm-toolbar__count">{filtered.length} ho so</span>
         </div>
         <div className="bm-toolbar__right">
           <Input
             className="bm-search"
-            placeholder="Tìm tên, SĐT, mã tài xế..."
+            placeholder="Tim ten, SDT, email, ma tai xe..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -268,13 +417,7 @@ const DriversPage = () => {
             className="bm-select"
             value={status}
             onChange={setStatus}
-            options={driverStatusOptions}
-          />
-          <Select
-            className="bm-select"
-            value={route}
-            onChange={setRoute}
-            options={routeOptions}
+            options={DRIVER_STATUS_OPTIONS}
           />
           <Button
             className="btn-ghost"
@@ -283,15 +426,14 @@ const DriversPage = () => {
               setSearch("");
               setLicense("all");
               setStatus("all");
-              setRoute("all");
             }}
           />
           <Button
             className="btn-primary"
             icon={<PlusOutlined />}
-            onClick={() => setAddModalOpen(true)}
+            onClick={openCreateModal}
           >
-            Thêm tài xế
+            Them tai xe
           </Button>
         </div>
       </div>
@@ -301,7 +443,7 @@ const DriversPage = () => {
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
           <Table
-            rowKey="key"
+            rowKey={(record) => record.id}
             columns={columns}
             dataSource={filtered}
             pagination={{ pageSize: 6, showSizeChanger: false }}
@@ -315,97 +457,83 @@ const DriversPage = () => {
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         width={420}
-        title={selected ? `${selected.name} · ${selected.id}` : ""}
+        title={
+          selected ? `${selected.name} · ${selected.code ?? selected.id}` : ""
+        }
       >
         {selected && (
           <div className="drawer-body">
             <div className="drawer-body__section">
-              <div className="drawer-body__section-title">Thông tin hồ sơ</div>
+              <div className="drawer-body__section-title">Thong tin ho so</div>
               <div className="mgmt-detail-list">
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Điện thoại</span>
+                  <span className="mgmt-detail-list__label">Dien thoai</span>
                   <span className="mgmt-detail-list__value">
                     {selected.phone}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Bằng lái</span>
+                  <span className="mgmt-detail-list__label">Email</span>
+                  <span className="mgmt-detail-list__value">
+                    {selected.email}
+                  </span>
+                </div>
+                <div className="mgmt-detail-list__item">
+                  <span className="mgmt-detail-list__label">Bang lai</span>
                   <span className="mgmt-detail-list__value">
                     {selected.license}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Ca làm</span>
+                  <span className="mgmt-detail-list__label">Trang thai</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.shift}
-                  </span>
-                </div>
-                <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Xe phụ trách</span>
-                  <span className="mgmt-detail-list__value">
-                    {selected.assignedVehicle}
+                    {DRIVER_STATUS_META[selected.status]?.label ??
+                      selected.status}
                   </span>
                 </div>
               </div>
-              <div className="mgmt-note">{selected.note}</div>
+              <div className="mgmt-note">
+                {selected.description || "Chưa có mô tả"}
+              </div>
             </div>
 
             <div className="drawer-body__section">
-              <div className="drawer-body__section-title">
-                Năng suất hiện tại
-              </div>
+              <div className="drawer-body__section-title">Hieu suat</div>
               <div className="mgmt-grid">
                 <div className="mgmt-card">
                   <div className="mgmt-card__body">
-                    <div className="mgmt-card__subtitle">Tổng chuyến</div>
+                    <div className="mgmt-card__subtitle">Tong chuyen</div>
                     <div className="revenue-metric-card__value">
-                      {selected.tripCount}
+                      {selected.totalTurn ?? 0}
                     </div>
                   </div>
                 </div>
                 <div className="mgmt-card">
                   <div className="mgmt-card__body">
-                    <div className="mgmt-card__subtitle">Đánh giá</div>
+                    <div className="mgmt-card__subtitle">Danh gia</div>
                     <div className="revenue-metric-card__value">
-                      {selected.rating.toFixed(1)}★
+                      {(selected.rate ?? 0).toFixed(1)}*
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="drawer-body__section">
-              <div className="drawer-body__section-title">Phân công</div>
-              <div className="mgmt-detail-list">
-                <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Tuyến chính</span>
-                  <span className="mgmt-detail-list__value">
-                    {selected.mainRoute}
-                  </span>
-                </div>
-                <div className="mgmt-detail-list__item">
-                  <span className="mgmt-detail-list__label">Trạng thái</span>
-                  <span className="mgmt-detail-list__value">
-                    {DRIVER_STATUS_META[selected.status].label}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div style={{justifySelf: "center", marginTop: 24}}>
+            <div style={{ justifySelf: "center", marginTop: 24 }}>
               <div style={{ display: "flex", gap: 8 }}>
                 <Button
                   className="btn-primary"
                   icon={<EditOutlined />}
                   onClick={() => openEditModal(selected)}
                 >
-                  Sửa
+                  Sua
                 </Button>
                 <Button
                   danger
                   icon={<DeleteOutlined />}
                   onClick={() => handleDeleteDriver(selected)}
                 >
-                  Xóa
+                  Xoa
                 </Button>
               </div>
             </div>
@@ -414,17 +542,10 @@ const DriversPage = () => {
       </Drawer>
 
       <AddDriverModal
-        mode="create"
-        open={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        onSubmit={handleAddDriver}
-      />
-      <AddDriverModal
-        mode="edit"
-        open={editModalOpen}
-        onClose={closeEditModal}
-        initialValues={editingRecord}
-        onSubmit={handleEditDriver}
+        open={driverModalOpen}
+        initialRecord={editingRecord}
+        onClose={closeDriverModal}
+        onSubmit={handleSubmitDriver}
       />
     </div>
   );

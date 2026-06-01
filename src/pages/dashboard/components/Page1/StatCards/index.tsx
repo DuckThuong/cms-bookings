@@ -1,12 +1,23 @@
-// src/components/dashboard/StatCards.jsx
-import React from 'react';
-import { Row, Col } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import { statCards } from '../../../share';
-const StatCards = () => {
+import type { CmsDashboardStatCard } from "@/api/dtos/dashboard.dto";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
+import { Col, Empty, Row } from "antd";
+
+type StatCardsProps = {
+  items: CmsDashboardStatCard[];
+};
+
+const StatCards = ({ items }: StatCardsProps) => {
+  if (items.length === 0) {
+    return (
+      <div className="stat-cards-row" style={{ marginBottom: 24 }}>
+        <Empty description="Chưa có dữ liệu thống kê" />
+      </div>
+    );
+  }
+
   return (
     <Row gutter={[16, 16]} className="stat-cards-row">
-      {statCards.map((card) => (
+      {items.map((card) => (
         <Col xs={24} sm={12} xl={6} key={card.key}>
           <div className="stat-card">
             <div className={`stat-card__icon ${card.iconClass}`}>
@@ -19,7 +30,7 @@ const StatCards = () => {
                 <span
                   className={`stat-card__trend stat-card__trend--${card.trendDir}`}
                 >
-                  {card.trendDir === 'up' ? (
+                  {card.trendDir === "up" ? (
                     <ArrowUpOutlined />
                   ) : (
                     <ArrowDownOutlined />

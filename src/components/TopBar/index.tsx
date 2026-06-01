@@ -1,92 +1,44 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Badge, Dropdown, Tooltip } from 'antd';
-import type { MenuProps } from 'antd';
-import { useAuth } from '@/common/contexts/authContext';
-import { ROUTER_PATH } from '@/routers/Route';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Badge, Dropdown, Tooltip } from "antd";
+import type { MenuProps } from "antd";
+import { useAuth } from "@/common/contexts/authContext";
+import type { Role } from "@/api/dtos/auth.dto";
+import { ROUTER_PATH } from "@/routers/Route";
+import { getBreadcrumbs } from "@/routers/navigation";
 import {
   BellOutlined,
   DownOutlined,
   GlobalOutlined,
-  HomeOutlined,
   LogoutOutlined,
   ProfileOutlined,
   QuestionCircleOutlined,
   SearchOutlined,
   SettingOutlined,
   UserOutlined,
-} from '@ant-design/icons';
-import './style.scss';
-
-type BreadcrumbCrumb = {
-  label: string;
-  icon?: React.ReactNode;
-};
-
-const ROUTE_MAP: Record<string, BreadcrumbCrumb[]> = {
-  dashboard: [{ icon: <HomeOutlined />, label: 'Dashboard' }],
-  bookings: [
-    { icon: null as React.ReactNode, label: 'Vận hành' },
-    { icon: null, label: 'Đặt vé' },
-  ],
-  trips: [
-    { label: 'Vận hành' },
-    { label: 'Chuyến xe' },
-  ],
-  routes: [
-    { label: 'Vận hành' },
-    { label: 'Tuyến đường' },
-  ],
-  vehicles: [
-    { label: 'Vận hành' },
-    { label: 'Phương tiện' },
-  ],
-  customers: [
-    { label: 'Quản lý' },
-    { label: 'Khách hàng' },
-  ],
-  drivers: [
-    { label: 'Quản lý' },
-    { label: 'Tài xế' },
-  ],
-  revenue: [
-    { label: 'Quản lý' },
-    { label: 'Doanh thu' },
-  ],
-  reports: [
-    { label: 'Quản lý' },
-    { label: 'Báo cáo' },
-  ],
-  settings: [
-    { label: 'Hệ thống' },
-    { label: 'Cài đặt' },
-  ],
-  help: [
-    { label: 'Hệ thống' },
-    { label: 'Trợ giúp' },
-  ],
-};
+} from "@ant-design/icons";
+import "./style.scss";
 
 const USER_MENU_ITEMS = [
-  { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ cá nhân' },
-  { key: 'activity', icon: <ProfileOutlined />, label: 'Lịch sử hoạt động' },
-  { key: 'language', icon: <GlobalOutlined />, label: 'Ngôn ngữ: Tiếng Việt' },
-  { type: 'divider' as const },
-  { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', danger: true },
+  { key: "profile", icon: <UserOutlined />, label: "Hồ sơ cá nhân" },
+  { key: "activity", icon: <ProfileOutlined />, label: "Lịch sử hoạt động" },
+  { key: "language", icon: <GlobalOutlined />, label: "Ngôn ngữ: Tiếng Việt" },
+  { type: "divider" as const },
+  { key: "logout", icon: <LogoutOutlined />, label: "Đăng xuất", danger: true },
 ];
 
 const NOTIF_ITEMS = [
   {
-    key: 'n1',
+    key: "n1",
     label: (
       <div className="header-notif-item">
         <div className="header-notif-item__title">Vé mới #VX-2045</div>
-        <div className="header-notif-item__subtitle">Hà Nội → Đà Nẵng · 2 phút trước</div>
+        <div className="header-notif-item__subtitle">Hà Nội - Đà Nẵng · 2 phút trước</div>
       </div>
     ),
   },
   {
-    key: 'n2',
+    key: "n2",
     label: (
       <div className="header-notif-item">
         <div className="header-notif-item__title">Chuyến BX-08 xuất phát</div>
@@ -95,7 +47,7 @@ const NOTIF_ITEMS = [
     ),
   },
   {
-    key: 'n3',
+    key: "n3",
     label: (
       <div className="header-notif-item">
         <div className="header-notif-item__title">Doanh thu vượt mục tiêu</div>
@@ -107,8 +59,8 @@ const NOTIF_ITEMS = [
   },
 ];
 
-const HeaderBreadcrumb = ({ activeKey }: { activeKey: string }) => {
-  const crumbs = ROUTE_MAP[activeKey] || ROUTE_MAP.dashboard;
+const HeaderBreadcrumb = ({ activeKey, role }: { activeKey: string; role: Role | null }) => {
+  const crumbs = getBreadcrumbs(activeKey, role);
 
   return (
     <div className="header-breadcrumb">
@@ -116,7 +68,7 @@ const HeaderBreadcrumb = ({ activeKey }: { activeKey: string }) => {
         <React.Fragment key={`${String(crumb.label)}-${idx}`}>
           {idx > 0 && <span className="header-breadcrumb__separator">›</span>}
           <span className="header-breadcrumb__item">
-            {crumb?.icon && <span className="header-breadcrumb__icon">{crumb?.icon}</span>}
+            {crumb.icon && <span className="header-breadcrumb__icon">{crumb.icon}</span>}
             {crumb.label}
           </span>
         </React.Fragment>
@@ -152,13 +104,13 @@ const HeaderNotification = () => (
   <Dropdown
     menu={{ items: NOTIF_ITEMS }}
     placement="bottomRight"
-    trigger={['click']}
+    trigger={["click"]}
     styles={{
       root: {
-        background: '#152045',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: "#152045",
+        border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 10,
-        padding: '4px',
+        padding: "4px",
       },
     }}
   >
@@ -195,8 +147,8 @@ const HeaderUser = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
-  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
-    if (key === 'logout') {
+  const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
+    if (key === "logout") {
       signOut();
       navigate(ROUTER_PATH.LOGIN, { replace: true });
     }
@@ -206,11 +158,11 @@ const HeaderUser = () => {
     <Dropdown
       menu={{ items: USER_MENU_ITEMS, onClick: handleUserMenuClick }}
       placement="bottomRight"
-      trigger={['click']}
+      trigger={["click"]}
       styles={{
         root: {
-          background: '#152045',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: "#152045",
+          border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 10,
           minWidth: 200,
         },
@@ -228,13 +180,15 @@ const HeaderUser = () => {
 const AppHeader = ({
   sidebarCollapsed,
   activeKey,
+  role,
 }: {
   sidebarCollapsed: boolean;
   activeKey: string;
+  role: Role | null;
 }) => {
   return (
-    <header className={`app-header ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
-      <HeaderBreadcrumb activeKey={activeKey} />
+    <header className={`app-header ${sidebarCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
+      <HeaderBreadcrumb activeKey={activeKey} role={role} />
       <HeaderSearch />
       <div className="header-actions">
         <HeaderStatus />

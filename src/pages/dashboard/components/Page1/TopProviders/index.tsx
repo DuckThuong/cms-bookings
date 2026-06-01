@@ -1,42 +1,57 @@
-// src/components/dashboard/TopProviders.jsx
-import React from 'react';
-import { topProviders } from '@/pages/dashboard/share';
+import type { CmsDashboardTopProvider } from "@/api/dtos/dashboard.dto";
+import { Empty } from "antd";
 
-const EMOJIS = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+const EMOJIS = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
 
-const TopProviders = () => (
-  <div className="chart-panel" style={{ minHeight: 320 }}>
-    <div className="chart-panel__header">
-      <div>
-        <div className="chart-panel__title">Top Nhà xe</div>
-        <div className="chart-panel__subtitle">Doanh thu tháng này</div>
-      </div>
-    </div>
+type TopProvidersProps = {
+  items: CmsDashboardTopProvider[];
+  scope: "platform" | "company";
+};
 
-    <div>
-      {topProviders.map((p: any, idx: number) => (
-        <div className="provider-rank-item" key={p.rank}>
-          <div className={`provider-rank-item__rank ${idx === 0 ? 'provider-rank-item__rank--top' : ''}`}>
-            {EMOJIS[idx]}
+const TopProviders = ({ items, scope }: TopProvidersProps) => {
+  const isCompanyScope = scope === "company";
+
+  return (
+    <div className="chart-panel" style={{ minHeight: 320 }}>
+      <div className="chart-panel__header">
+        <div>
+          <div className="chart-panel__title">
+            {isCompanyScope ? "Top Tuyến" : "Top Nhà xe"}
           </div>
-          <div className="provider-rank-item__logo">🚌</div>
-          <div className="provider-rank-item__info">
-            <div className="provider-rank-item__name">{p.name}</div>
-            <div className="provider-rank-item__trips">{p.trips.toLocaleString()} chuyến</div>
-          </div>
-          <div style={{ flex: 2, paddingRight: 12 }}>
-            <div className="provider-rank-item__bar-wrap">
-              <div
-                className="fill"
-                style={{ width: `${p.pct}%` }}
-              />
-            </div>
-          </div>
-          <div className="provider-rank-item__revenue">{p.revenue}</div>
+          <div className="chart-panel__subtitle">Doanh thu kỳ hiện tại</div>
         </div>
-      ))}
+      </div>
+
+      {items.length === 0 ? (
+        <Empty description="Chưa có dữ liệu xếp hạng" />
+      ) : (
+        <div>
+          {items.map((provider, idx) => (
+            <div className="provider-rank-item" key={provider.rank}>
+              <div
+                className={`provider-rank-item__rank ${idx === 0 ? "provider-rank-item__rank--top" : ""}`}
+              >
+                {EMOJIS[idx] ?? `${provider.rank}`}
+              </div>
+              <div className="provider-rank-item__logo">🚌</div>
+              <div className="provider-rank-item__info">
+                <div className="provider-rank-item__name">{provider.name}</div>
+                <div className="provider-rank-item__trips">
+                  {provider.trips.toLocaleString("vi-VN")} chuyến
+                </div>
+              </div>
+              <div style={{ flex: 2, paddingRight: 12 }}>
+                <div className="provider-rank-item__bar-wrap">
+                  <div className="fill" style={{ width: `${provider.pct}%` }} />
+                </div>
+              </div>
+              <div className="provider-rank-item__revenue">{provider.revenue}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export default TopProviders;

@@ -486,10 +486,16 @@
     font-size: 12px;
   }
 
+  .ant-picker {
+    width: 100% !important;
+  }
+
   .ant-input,
   .ant-input-affix-wrapper,
   .ant-input-number,
   .ant-picker,
+  .ant-form-item-control-input-content,
+  .ant-select,
   .ant-select-selector {
     min-height: 42px;
     background: rgba(255, 255, 255, 0.06) !important;
@@ -571,9 +577,49 @@
     padding-inline: 11px 32px !important;
   }
 
+  .ant-select-content{
+    color: white !important;
+  }
+
   .ant-select-selection-item,
   .ant-select-selection-placeholder {
     line-height: 40px !important;
+  }
+
+  .bm-select--ellipsis {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+
+    .ant-select-selector {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    .ant-select-selection-wrap,
+    .ant-select-selection-search,
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      flex: 1 1 auto !important;
+    }
+
+    .ant-select-selection-item {
+      overflow: hidden;
+    }
+  }
+
+  .bm-select-ellipsis-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    vertical-align: bottom;
   }
 
   .btn-primary,

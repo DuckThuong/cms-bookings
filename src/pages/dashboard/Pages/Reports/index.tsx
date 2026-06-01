@@ -1,108 +1,153 @@
-import React, { useMemo, useState } from 'react';
-import { Button, Drawer, Input, Select, Table, message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { DownloadOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
-import SummaryStrip from '../../components/Page2/SummaryStrip';
+import { getCmsReports } from "@/api/configs/report.config";
+import type { CmsReportItem, CmsReportType } from "@/api/dtos/report.dto";
 import {
-  REPORT_STATUS_META,
-  getReportSummary,
-  reports,
-  reportStatusOptions,
-  reportTypeOptions,
-  type ReportRecord,
-} from '../../share';
-import '../Page2/style.scss';
-import '../management.scss';
+  DownloadOutlined,
+  EyeOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Alert,
+  Button,
+  Drawer,
+  Input,
+  Select,
+  Spin,
+  Table,
+  message,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useMemo, useState } from "react";
+import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { REPORT_STATUS_META } from "../../share";
+import "../Page2/style.scss";
+import "../management.scss";
 
-const reportTypeLabel: Record<ReportRecord['type'], string> = {
-  operations: 'Vận hành',
-  finance: 'Tài chính',
-  customer: 'Khách hàng',
-  compliance: 'Tuân thủ',
+const reportTypeLabel: Record<CmsReportType, string> = {
+  operations: "Vận hành",
+  finance: "Tài chính",
+  customer: "Khách hàng",
+  compliance: "Tuân thủ",
 };
 
+const reportTypeOptions = [
+  { value: "all", label: "Tất cả loại báo cáo" },
+  { value: "operations", label: "Vận hành" },
+  { value: "finance", label: "Tài chính" },
+  { value: "customer", label: "Khách hàng" },
+  { value: "compliance", label: "Tuân thủ" },
+];
+
+const reportStatusOptions = [
+  { value: "all", label: "Tất cả trạng thái" },
+  { value: "ready", label: "Sẵn sàng" },
+  { value: "processing", label: "Đang tạo" },
+  { value: "scheduled", label: "Lên lịch" },
+];
+
 const ReportsPage = () => {
-  const [search, setSearch] = useState('');
-  const [type, setType] = useState('all');
-  const [status, setStatus] = useState('all');
-  const [selected, setSelected] = useState<ReportRecord | null>(null);
+  const [search, setSearch] = useState("");
+  const [type, setType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [selected, setSelected] = useState<CmsReportItem | null>(null);
 
-  const filtered = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    return reports.filter((report) => {
-      const matchKeyword =
-        !keyword ||
-        report.name.toLowerCase().includes(keyword) ||
-        report.id.toLowerCase().includes(keyword) ||
-        report.createdBy.toLowerCase().includes(keyword);
-      const matchType = type === 'all' || report.type === type;
-      const matchStatus = status === 'all' || report.status === status;
-      return matchKeyword && matchType && matchStatus;
-    });
-  }, [search, type, status]);
+  const reportsQuery = useQuery({
+    queryKey: ["cmsReports", search, type, status],
+    queryFn: () =>
+      getCmsReports({
+        search: search.trim() || undefined,
+        type: type === "all" ? undefined : type,
+        status: status === "all" ? undefined : status,
+      }),
+  });
 
-  const columns: ColumnsType<ReportRecord> = [
-    {
-      title: 'Báo cáo',
-      key: 'name',
-      render: (_, record) => (
-        <div>
-          <div className="report-type">{record.name}</div>
-          <div className="report-subtitle">
-            {reportTypeLabel[record.type]} · {record.period}
+  const reports = reportsQuery.data?.items ?? [];
+
+  const columns: ColumnsType<CmsReportItem> = useMemo(
+    () => [
+      {
+        title: "Báo cáo",
+        key: "name",
+        render: (_, record) => (
+          <div>
+            <div className="report-type">{record.name}</div>
+            <div className="report-subtitle">
+              {reportTypeLabel[record.type]} · {record.period}
+            </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Mã',
-      dataIndex: 'id',
-      key: 'id',
-      render: (value: string) => (
-        <span style={{ color: '#f97316', fontFamily: 'monospace', fontWeight: 700 }}>{value}</span>
-      ),
-    },
-    { title: 'Người tạo', dataIndex: 'createdBy', key: 'createdBy' },
-    { title: 'Thời điểm', dataIndex: 'createdAt', key: 'createdAt' },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (value: ReportRecord['status']) => {
-        const meta = REPORT_STATUS_META[value];
-        return (
-          <span className="booking-status" style={{ background: meta.bg, color: meta.color }}>
-            <span className="booking-status__dot" style={{ background: meta.color }} />
-            {meta.label}
-          </span>
-        );
+        ),
       },
-    },
-    {
-      title: '',
-      key: 'actions',
-      render: (_, record) => (
-        <div className="row-actions">
-          <Button
-            type="primary"
-            icon={<EyeOutlined />}
-            onClick={(event) => {
-              event.stopPropagation();
-              setSelected(record);
+      {
+        title: "Mã",
+        dataIndex: "id",
+        key: "id",
+        render: (value: string) => (
+          <span
+            style={{
+              color: "#f97316",
+              fontFamily: "monospace",
+              fontWeight: 700,
             }}
-          />
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={(event) => {
-              event.stopPropagation();
-              message.success(`Đã tạo tải xuống cho ${record.id}`);
-            }}
-          />
-        </div>
-      ),
-    },
-  ];
+          >
+            {value}
+          </span>
+        ),
+      },
+      { title: "Người tạo", dataIndex: "createdBy", key: "createdBy" },
+      { title: "Thời điểm", dataIndex: "createdAt", key: "createdAt" },
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+        render: (value: CmsReportItem["status"]) => {
+          const meta = REPORT_STATUS_META[value];
+          return (
+            <span
+              className="booking-status"
+              style={{ background: meta.bg, color: meta.color }}
+            >
+              <span
+                className="booking-status__dot"
+                style={{ background: meta.color }}
+              />
+              {meta.label}
+            </span>
+          );
+        },
+      },
+      {
+        title: "",
+        key: "actions",
+        render: (_, record) => (
+          <div className="row-actions">
+            <Button
+              type="primary"
+              icon={<EyeOutlined />}
+              onClick={(event) => {
+                event.stopPropagation();
+                setSelected(record);
+              }}
+            />
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={(event) => {
+                event.stopPropagation();
+                message.success(`Đã tạo tải xuống cho ${record.id}`);
+              }}
+            />
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const resetFilters = () => {
+    setSearch("");
+    setType("all");
+    setStatus("all");
+  };
 
   return (
     <div className="mgmt-page">
@@ -110,14 +155,24 @@ const ReportsPage = () => {
         <div className="mgmt-hero__eyebrow">Báo cáo điều hành</div>
         <div className="mgmt-hero__title">Kho báo cáo vận hành và tài chính</div>
         <div className="mgmt-hero__subtitle">
-          Quản lý báo cáo đã sẵn sàng, báo cáo lên lịch và các đầu việc đang sinh file.
+          Quản lý báo cáo đã sẵn sàng, báo cáo lên lịch và các đầu việc đang sinh
+          file.
         </div>
       </div>
+
+      {reportsQuery.isError ? (
+        <Alert
+          type="error"
+          showIcon
+          message="Không tải được danh sách báo cáo"
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
 
       <div className="bm-toolbar">
         <div className="bm-toolbar__left">
           <span className="bm-toolbar__title">Danh sách báo cáo</span>
-          <span className="bm-toolbar__count">{filtered.length} báo cáo</span>
+          <span className="bm-toolbar__count">{reports.length} báo cáo</span>
         </div>
         <div className="bm-toolbar__right">
           <Input
@@ -126,40 +181,48 @@ const ReportsPage = () => {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <Select className="bm-select" value={type} onChange={setType} options={reportTypeOptions} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={reportStatusOptions} />
+          <Select
+            className="bm-select"
+            value={type}
+            onChange={setType}
+            options={reportTypeOptions}
+          />
+          <Select
+            className="bm-select"
+            value={status}
+            onChange={setStatus}
+            options={reportStatusOptions}
+          />
           <Button
             className="btn-ghost"
             icon={<ReloadOutlined />}
-            onClick={() => {
-              setSearch('');
-              setType('all');
-              setStatus('all');
-            }}
+            onClick={resetFilters}
           />
         </div>
       </div>
 
-      <SummaryStrip items={getReportSummary(filtered)} />
+      <Spin spinning={reportsQuery.isLoading}>
+        <SummaryStrip items={reportsQuery.data?.summary ?? []} />
 
-      <div className="bm-content">
-        <div className="bm-table-wrap bm-table">
-          <Table
-            rowKey="key"
-            columns={columns}
-            dataSource={filtered}
-            pagination={{ pageSize: 6, showSizeChanger: false }}
-            onRow={(record) => ({ onClick: () => setSelected(record) })}
-          />
+        <div className="bm-content">
+          <div className="bm-table-wrap bm-table">
+            <Table
+              rowKey="key"
+              columns={columns}
+              dataSource={reports}
+              pagination={{ pageSize: 6, showSizeChanger: false }}
+              onRow={(record) => ({ onClick: () => setSelected(record) })}
+            />
+          </div>
         </div>
-      </div>
+      </Spin>
 
       <Drawer
         className="booking-drawer"
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         width={420}
-        title={selected ? `${selected.name} · ${selected.id}` : ''}
+        title={selected ? `${selected.name} · ${selected.id}` : ""}
       >
         {selected && (
           <div className="drawer-body">
@@ -168,19 +231,27 @@ const ReportsPage = () => {
               <div className="mgmt-detail-list">
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Loại</span>
-                  <span className="mgmt-detail-list__value">{reportTypeLabel[selected.type]}</span>
+                  <span className="mgmt-detail-list__value">
+                    {reportTypeLabel[selected.type]}
+                  </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Khoảng dữ liệu</span>
-                  <span className="mgmt-detail-list__value">{selected.period}</span>
+                  <span className="mgmt-detail-list__value">
+                    {selected.period}
+                  </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Người tạo</span>
-                  <span className="mgmt-detail-list__value">{selected.createdBy}</span>
+                  <span className="mgmt-detail-list__value">
+                    {selected.createdBy}
+                  </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Kích thước</span>
-                  <span className="mgmt-detail-list__value">{selected.fileSize}</span>
+                  <span className="mgmt-detail-list__value">
+                    {selected.fileSize}
+                  </span>
                 </div>
               </div>
               <div className="mgmt-note">{selected.description}</div>

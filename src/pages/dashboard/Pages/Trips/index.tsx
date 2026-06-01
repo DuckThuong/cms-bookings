@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from "react";
-import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { deleteTrip, getAllTrips } from "@/api/configs/trip.config";
+import { TripEndpoint } from "@/api/endpoints/trip.endpoint";
+import { NOTI_ERROR, NOTI_SUCCESS } from "@/common/constants/constants";
+import { useLoading } from "@/providers/loadingProvider";
+import { useNotification } from "@/providers/notificationProvider";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,22 +10,27 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, Drawer, Input, Modal, Select, Spin, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useEffect, useMemo, useState } from "react";
 import { AddTripModal } from "../../components/ManagementCreate";
 import {
   routeOptions,
   TRIP_STATUS_META,
-  trips,
   tripStatusOptions,
   vehicleOptions,
-  getTripSummary,
   type TripRecord,
 } from "../../share";
+import { mapCmsTripsToRecords } from "./mapTripRecord";
 import "../Page2/style.scss";
 import "../management.scss";
 
 const TripsPage = () => {
-  const [tripData, setTripData] = useState(trips);
+  const { setLoading } = useLoading();
+  const { showNotification } = useNotification();
+  const queryClient = useQueryClient();
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [route, setRoute] = useState("all");
@@ -31,11 +38,37 @@ const TripsPage = () => {
   const [selected, setSelected] = useState<TripRecord | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<TripRecord | null>(null);
+  const [editingTripId, setEditingTripId] = useState<number | null>(null);
+
+  const { data: tripList = [], isLoading: tripListLoading } = useQuery({
+    queryKey: [TripEndpoint.GET_ALL_TRIPS],
+    queryFn: () => getAllTrips(),
+    select: mapCmsTripsToRecords,
+  });
+
+  const deleteTripMutation = useMutation({
+    mutationFn: (id: number | string) => deleteTrip(id),
+    onSuccess: () => {
+      showNotification("Xóa chuyến xe thành công", NOTI_SUCCESS);
+      void queryClient.invalidateQueries({
+        queryKey: [TripEndpoint.GET_ALL_TRIPS],
+      });
+      setSelected(null);
+    },
+    onError: () => {
+      showNotification("Xóa chuyến xe thất bại", NOTI_ERROR);
+    },
+    onSettled: () => {
+      setLoading(false);
+    },
+    onMutate: () => {
+      setLoading(true);
+    },
+  });
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase();
-    return tripData.filter((trip) => {
+    return tripList.filter((trip) => {
       const matchKeyword =
         !keyword ||
         trip.id.toLowerCase().includes(keyword) ||
@@ -46,40 +79,20 @@ const TripsPage = () => {
       const matchVehicle = vehicle === "all" || trip.vehicle === vehicle;
       return matchKeyword && matchStatus && matchRoute && matchVehicle;
     });
-  }, [route, search, status, tripData, vehicle]);
+  }, [route, search, status, tripList, vehicle]);
+
+  useEffect(() => {
+    setLoading(tripListLoading);
+  }, [setLoading, tripListLoading]);
 
   const openEditModal = (record: TripRecord) => {
-    setEditingRecord(record);
+    setEditingTripId(Number(record.key));
     setEditModalOpen(true);
   };
 
   const closeEditModal = () => {
     setEditModalOpen(false);
-    setEditingRecord(null);
-  };
-
-  const handleAddTrip = (record: TripRecord) => {
-    setTripData((prev) => [record, ...prev]);
-    message.success(`Đã thêm trip ${record.id}`);
-  };
-
-  const handleEditTrip = (record: TripRecord) => {
-    setTripData((prev) =>
-      prev.map((item) => (item.key === record.key ? record : item)),
-    );
-    setSelected((prev) => (prev?.key === record.key ? record : prev));
-    message.success(`Đã cập nhật trip ${record.id}`);
-    closeEditModal();
-  };
-
-  const removeTrip = (record: TripRecord) => {
-    setTripData((prev) => prev.filter((item) => item.key !== record.key));
-    setSelected((prev) => (prev?.key === record.key ? null : prev));
-    setEditingRecord((prev) => (prev?.key === record.key ? null : prev));
-    setEditModalOpen((prev) =>
-      editingRecord?.key === record.key ? false : prev,
-    );
-    message.success(`Đã xóa trip ${record.id}`);
+    setEditingTripId(null);
   };
 
   const handleDeleteTrip = (record: TripRecord) => {
@@ -100,7 +113,7 @@ const TripsPage = () => {
       },
       cancelButtonProps: { style: { borderRadius: 8 } },
       onOk() {
-        removeTrip(record);
+        deleteTripMutation.mutate(record.key);
       },
     });
   };
@@ -125,7 +138,9 @@ const TripsPage = () => {
         <div className="route-cell">
           <div className="route-cell__line">{record.route}</div>
           <div className="route-cell__time">
-            {record.departure} → {record.arrival}
+            {record.departure !== "—" || record.arrival !== "—"
+              ? `${record.departure} → ${record.arrival}`
+              : "Chưa cập nhật giờ chạy"}
           </div>
         </div>
       ),
@@ -153,13 +168,13 @@ const TripsPage = () => {
         return (
           <span
             className="booking-status"
-            style={{ background: meta.bg, color: meta.color }}
+            style={{ background: meta?.bg, color: meta?.color }}
           >
             <span
               className="booking-status__dot"
-              style={{ background: meta.color }}
+              style={{ background: meta?.color }}
             />
-            {meta.label}
+            {meta?.label}
           </span>
         );
       },
@@ -171,6 +186,7 @@ const TripsPage = () => {
         <div className="row-actions">
           <button
             type="button"
+            title="Xem chi tiết"
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
@@ -180,6 +196,7 @@ const TripsPage = () => {
           </button>
           <button
             type="button"
+            title="Sửa"
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
@@ -190,6 +207,7 @@ const TripsPage = () => {
           <button
             type="button"
             className="danger"
+            title="Xóa"
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteTrip(record);
@@ -218,7 +236,7 @@ const TripsPage = () => {
       <div className="bm-toolbar">
         <div className="bm-toolbar__left">
           <span className="bm-toolbar__title">Danh sách chuyến</span>
-          <span className="bm-toolbar__count">{filtered.length} chuyến</span>
+          <span className="bm-toolbar__count">{filtered?.length} chuyến</span>
         </div>
         <div className="bm-toolbar__right">
           <Input
@@ -255,17 +273,19 @@ const TripsPage = () => {
         </div>
       </div>
 
-      <SummaryStrip items={getTripSummary(filtered)} />
+      {/* <SummaryStrip items={getTripSummary(filtered as TripRecord[])} /> */}
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
-          <Table
-            rowKey="key"
-            columns={columns}
-            dataSource={filtered}
-            pagination={{ pageSize: 6, showSizeChanger: false }}
-            onRow={(record) => ({ onClick: () => setSelected(record) })}
-          />
+          <Spin spinning={tripListLoading}>
+            <Table
+              rowKey="key"
+              columns={columns}
+              dataSource={filtered}
+              pagination={{ pageSize: 6, showSizeChanger: false }}
+              onRow={(record) => ({ onClick: () => setSelected(record) })}
+            />
+          </Spin>
         </div>
       </div>
 
@@ -355,17 +375,14 @@ const TripsPage = () => {
       </Drawer>
 
       <AddTripModal
-        mode="create"
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
-        onSubmit={handleAddTrip}
       />
       <AddTripModal
         mode="edit"
         open={editModalOpen}
+        tripId={editingTripId}
         onClose={closeEditModal}
-        initialValues={editingRecord}
-        onSubmit={handleEditTrip}
       />
     </div>
   );

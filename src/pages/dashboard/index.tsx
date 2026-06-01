@@ -4,56 +4,32 @@ import './style.scss';
 import AppSidebar from '@/components/Sidebar';
 import AppHeader from '@/components/TopBar';
 import { ROUTER_PATH } from '@/routers/Route';
-
-const MENU_PATHS: Record<string, string> = {
-  dashboard: ROUTER_PATH.DASHBOARD,
-  bookings: ROUTER_PATH.BOOKINGS,
-  trips: ROUTER_PATH.TRIPS,
-  routes: ROUTER_PATH.ROUTES,
-  vehicles: ROUTER_PATH.VEHICLES,
-  customers: ROUTER_PATH.CUSTOMERS,
-  drivers: ROUTER_PATH.DRIVERS,
-  revenue: ROUTER_PATH.REVENUE,
-  reports: ROUTER_PATH.REPORTS,
-};
-
-const getActiveKeyFromPath = (pathname: string): string => {
-  if (pathname === ROUTER_PATH.BOOKINGS || pathname.endsWith('/bookings')) {
-    return 'bookings';
-  }
-  if (pathname === ROUTER_PATH.TRIPS || pathname.endsWith('/trips')) {
-    return 'trips';
-  }
-  if (pathname === ROUTER_PATH.ROUTES || pathname.endsWith('/routes')) {
-    return 'routes';
-  }
-  if (pathname === ROUTER_PATH.VEHICLES || pathname.endsWith('/vehicles')) {
-    return 'vehicles';
-  }
-  if (pathname === ROUTER_PATH.CUSTOMERS || pathname.endsWith('/customers')) {
-    return 'customers';
-  }
-  if (pathname === ROUTER_PATH.DRIVERS || pathname.endsWith('/drivers')) {
-    return 'drivers';
-  }
-  if (pathname === ROUTER_PATH.REVENUE || pathname.endsWith('/revenue')) {
-    return 'revenue';
-  }
-  if (pathname === ROUTER_PATH.REPORTS || pathname.endsWith('/reports')) {
-    return 'reports';
-  }
-  return 'dashboard';
-};
+import { useAuth } from '@/common/contexts/authContext';
+import {
+  MENU_PATHS,
+  getActiveKeyFromPath,
+  getMenuGroupsForRole,
+  isPathAllowedForRole,
+} from '@/routers/navigation';
 
 const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { role } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [activeKey, setActiveKey] = useState(() => getActiveKeyFromPath(location.pathname));
+  const menuGroups = getMenuGroupsForRole(role);
+  const isCurrentPathAllowed = isPathAllowedForRole(location.pathname, role);
 
   useEffect(() => {
     setActiveKey(getActiveKeyFromPath(location.pathname));
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isCurrentPathAllowed) {
+      navigate(ROUTER_PATH.DASHBOARD, { replace: true });
+    }
+  }, [isCurrentPathAllowed, navigate]);
 
   const handleToggle = () => setCollapsed((prev) => !prev);
 
@@ -65,17 +41,22 @@ const AppLayout = () => {
     }
   };
 
+  if (!isCurrentPathAllowed) {
+    return null;
+  }
+
   return (
     <div className="app-layout">
       <AppSidebar
         collapsed={collapsed}
         onToggle={handleToggle}
         activeKey={activeKey}
+        menuGroups={menuGroups}
         onMenuSelect={handleMenuSelect}
       />
 
       <div className={`app-layout__content ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
-        <AppHeader sidebarCollapsed={collapsed} activeKey={activeKey} />
+        <AppHeader sidebarCollapsed={collapsed} activeKey={activeKey} role={role} />
         <main className="app-layout__main">
           <Outlet />
         </main>

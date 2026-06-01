@@ -1,5 +1,6 @@
 import {
   createContext,
+  createElement,
   useCallback,
   useContext,
   useEffect,
@@ -73,9 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [token, role, isAuthResolved, setAuthSession, signOut],
   );
 
-  return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-  );
+  return createElement(AuthContext.Provider, { value }, children);
 };
 
 export const useAuth = (): AuthContextValue => {

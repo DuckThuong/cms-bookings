@@ -1,53 +1,101 @@
 import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Select,
-} from "antd";
-import { useEffect, useState } from "react";
-import {
-  drivers,
-  fleetStatusOptions,
-  fleetTypeOptions,
-  routeOptions,
-  type FleetVehicleRecord,
-} from "../../share";
-import { numberFieldProps } from "@/common/contexts/format";
-import {
   fieldStyle,
   formLabel,
   renderModalFooter,
 } from "@/common/contexts/UserContext";
+import { numberFieldProps } from "@/common/contexts/format";
+import type { IVehicle } from "@/api/dtos/vehicle.dto";
+import { Col, Form, Input, InputNumber, Modal, Row, Select } from "antd";
+import { useEffect } from "react";
 
-type AddVehicleModalProps = {
-  id?: string;
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (record: FleetVehicleRecord) => void;
+export type VehicleFormValues = {
+  vehicleName: string;
+  vehicleCode: string;
+  seatType: string;
+  seatCount: number;
+  vehicleType: string;
+  vehicleStatus: string;
+  schedule?: string;
+  description?: string;
 };
 
+type AddVehicleModalProps = {
+  open: boolean;
+  initialRecord?: IVehicle | null;
+  onClose: () => void;
+  onSubmit: (values: VehicleFormValues) => void;
+};
+
+const VEHICLE_STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Đang hoạt động" },
+  { value: "INACTIVE", label: "Ngừng hoạt động" },
+  { value: "MAINTENANCE", label: "Bảo dưỡng" },
+];
+
+const VEHICLE_TYPE_OPTIONS = [
+  { value: "SLEEPER", label: "Xe giường nằm" },
+  { value: "LIMOUSINE", label: "Xe Limousine" },
+  { value: "COACH", label: "Xe Khách" },
+];
+
+const SEAT_TYPE_OPTIONS = [
+  { value: "BED", label: "Giường nằm" },
+  { value: "SEAT", label: "Ghế ngồi" },
+];
+
+const toFormRecord = (record: IVehicle): VehicleFormValues => ({
+  vehicleName: record.name,
+  vehicleCode: record.code,
+  seatType: record.seatType || "BED",
+  seatCount: record.seatCount > 0 ? record.seatCount : 34,
+  vehicleType: record.type,
+  vehicleStatus: record.status,
+  schedule: record.schedule ?? "",
+  description: record.description ?? "",
+});
+
 const AddVehicleModal = ({
-  id,
   open,
+  initialRecord,
   onClose,
   onSubmit,
 }: AddVehicleModalProps) => {
-  const [form] = Form.useForm();
-  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [form] = Form.useForm<VehicleFormValues>();
+  const isEdit = Boolean(initialRecord);
 
   useEffect(() => {
-    if (id || id != "") {
-      setIsEdit(true);
-    } else {
-      setIsEdit(false);
+    if (!open) {
+      return;
     }
-  }, [id]);
+
+    if (initialRecord) {
+      form.setFieldsValue(toFormRecord(initialRecord));
+      return;
+    }
+
+    form.setFieldsValue({
+      vehicleName: "",
+      vehicleCode: "",
+      seatType: "BED",
+      seatCount: 34,
+      vehicleType: "SLEEPER",
+      vehicleStatus: "ACTIVE",
+      schedule: "",
+      description: "",
+    });
+  }, [form, initialRecord, open]);
 
   const handleSubmit = async () => {
+    const values = await form.validateFields();
+    onSubmit({
+      ...values,
+      schedule: values.schedule?.trim() || undefined,
+      description: values.description?.trim() || undefined,
+    });
+  };
+
+  const handleClose = () => {
+    form.resetFields();
     onClose();
   };
 
@@ -56,72 +104,40 @@ const AddVehicleModal = ({
       className="bm-modal mgmt-modal"
       title={isEdit ? "Cập nhật phương tiện" : "Thêm phương tiện mới"}
       open={open}
-      onCancel={onClose}
+      onCancel={handleClose}
       width={620}
       footer={renderModalFooter({
         cancelText: "Hủy",
         submitText: isEdit ? "Lưu thay đổi" : "Thêm phương tiện",
-        onCancel: onClose,
+        onCancel: handleClose,
         onSubmit: handleSubmit,
       })}
     >
-      <Form form={form} layout="vertical" style={{ padding: "8px 0" }}>
+      <Form<VehicleFormValues>
+        form={form}
+        layout="vertical"
+        style={{ padding: "8px 0" }}
+      >
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="name"
+              name="vehicleName"
               label={formLabel("Tên xe")}
               rules={[{ required: true, message: "Nhập tên xe" }]}
             >
-              <Input
-                placeholder="Tên xe"
-                style={fieldStyle}
-                disabled={isEdit}
-              />
+              <Input placeholder="Xe giường nằm cao cấp" style={fieldStyle} />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="name"
-              label={formLabel("Biển số xe")}
-              rules={[{ required: true, message: "Nhập biển số xe" }]}
+              name="vehicleCode"
+              label={formLabel("Biển số")}
+              rules={[{ required: true, message: "Nhập biển số" }]}
             >
               <Input
-                placeholder="Biển số xe"
+                placeholder="29B-2325"
                 style={fieldStyle}
                 disabled={isEdit}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="seatType"
-              label={formLabel("Loại ghế")}
-              rules={[{ required: true, message: "Nhập loại ghế " }]}
-            >
-              <Select
-                className="bm-select"
-                options={fleetStatusOptions.filter(
-                  (item) => item.value !== "all",
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="status"
-              label={formLabel("Trạng thái")}
-              rules={[{ required: true, message: "Chọn trạng thái" }]}
-            >
-              <Select
-                className="bm-select"
-                options={fleetStatusOptions.filter(
-                  (item) => item.value !== "all",
-                )}
               />
             </Form.Item>
           </Col>
@@ -130,27 +146,43 @@ const AddVehicleModal = ({
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
-              name="type"
+              name="vehicleType"
               label={formLabel("Loại xe")}
               rules={[{ required: true, message: "Chọn loại xe" }]}
             >
-              <Select
-                className="bm-select"
-                options={fleetTypeOptions.filter(
-                  (item) => item.value !== "all",
-                )}
-              />
+              <Select className="bm-select" options={VEHICLE_TYPE_OPTIONS} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="seats"
+              name="vehicleStatus"
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
+            >
+              <Select className="bm-select" options={VEHICLE_STATUS_OPTIONS} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={12}>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="seatType"
+              label={formLabel("Loại ghế")}
+              rules={[{ required: true, message: "Chọn loại ghế" }]}
+            >
+              <Select className="bm-select" options={SEAT_TYPE_OPTIONS} />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="seatCount"
               label={formLabel("Số ghế")}
               rules={[{ required: true, message: "Nhập số ghế" }]}
             >
               <InputNumber
                 min={1}
-                max={60}
+                max={100}
                 style={{ ...fieldStyle, width: "100%" }}
                 {...numberFieldProps}
               />
@@ -158,86 +190,10 @@ const AddVehicleModal = ({
           </Col>
         </Row>
 
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="assignedRoute"
-              label={formLabel("Tuyến phụ trách")}
-              rules={[{ required: true, message: "Chọn tuyến phụ trách" }]}
-            >
-              <Select
-                className="bm-select"
-                options={routeOptions.filter((item) => item.value !== "all")}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="primaryDriver"
-              label={formLabel("Tài xế chính")}
-              rules={[{ required: true, message: "Chọn tài xế chính" }]}
-            >
-              <Select
-                className="bm-select"
-                options={drivers.map((driver) => ({
-                  value: driver.name,
-                  label: driver.name,
-                }))}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item
-          name="utilizationRate"
-          label={formLabel("Tỷ lệ sử dụng")}
-          rules={[{ required: true, message: "Nhập tỷ lệ sử dụng" }]}
-        >
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ ...fieldStyle, width: "100%" }}
-            {...numberFieldProps}
-          />
-        </Form.Item>
-
-        <Row gutter={12}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="lastMaintenance"
-              label={formLabel("Bảo dưỡng gần nhất")}
-              rules={[
-                { required: true, message: "Chọn ngày bảo dưỡng gần nhất" },
-              ]}
-            >
-              <DatePicker
-                className="bm-date-picker"
-                style={{ width: "100%" }}
-                format="DD/MM/YYYY"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="nextMaintenance"
-              label={formLabel("Bảo dưỡng kế tiếp")}
-              rules={[
-                { required: true, message: "Chọn ngày bảo dưỡng kế tiếp" },
-              ]}
-            >
-              <DatePicker
-                className="bm-date-picker"
-                style={{ width: "100%" }}
-                format="DD/MM/YYYY"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item name="note" label={formLabel("Ghi chú")}>
+        <Form.Item name="description" label={formLabel("Mô tả")}>
           <Input.TextArea
             rows={3}
-            placeholder="Ghi chú xe..."
+            placeholder="Mô tả xe..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>

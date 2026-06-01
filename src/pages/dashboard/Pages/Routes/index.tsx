@@ -1,6 +1,22 @@
-import React, { useMemo, useState } from "react";
-import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import {
+  createRoad,
+  deleteRoad,
+  getRoads,
+  updateRoad,
+} from "@/api/configs/route.config";
+import type {
+  CreateRoadPayloadDto,
+  IRoad,
+  UpdateRoadPayloadDto,
+} from "@/api/dtos/route.dto";
+import { ROAD_ENDPOINTS } from "@/api/endpoints/route.endpoint";
+import {
+  DEFAULT_MESSAGE,
+  NOTI_ERROR,
+  NOTI_SUCCESS,
+} from "@/common/constants/constants";
+import { useLoading } from "@/providers/loadingProvider";
+import { useNotification } from "@/providers/notificationProvider";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,114 +24,291 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, Drawer, Input, Modal, Select, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { isAxiosError } from "axios";
+import { useMemo, useState } from "react";
 import { AddRouteModal } from "../../components/ManagementCreate";
+import type { RouteFormValues } from "../../components/ManagementCreate/AddRouteModal";
+import SummaryStrip from "../../components/Page2/SummaryStrip";
 import {
-  drivers,
-  fleetVehicles,
-  getRouteSummary,
-  operationRoutes,
   ROUTE_STATUS_META,
   routeStatusOptions,
-  trips,
-  type RouteRecord,
+  type RouteStatusKey,
+  type SummaryItem,
 } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
 
-const formatMoney = (value: number) => `${value.toLocaleString("vi-VN")}₫`;
+const formatMoney = (value?: number | null) =>
+  `${(value ?? 0).toLocaleString("vi-VN")}d`;
+
+const normalizeSearchText = (value: unknown) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const toDisplayText = (value: unknown, fallback = "-") => {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return toDisplayText(
+      record.name ?? record.code ?? record.id ?? record.label,
+      fallback,
+    );
+  }
+
+  return fallback;
+};
+
+const toDisplayNumber = (value: unknown, fallback = 0) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
+const getApiErrorMessage = (error: unknown) => {
+  if (!isAxiosError(error)) {
+    return DEFAULT_MESSAGE;
+  }
+
+  const apiMessage = error.response?.data?.message;
+
+  if (typeof apiMessage === "string") {
+    return apiMessage;
+  }
+
+  if (Array.isArray(apiMessage) && apiMessage[0]) {
+    return toDisplayText(apiMessage[0], DEFAULT_MESSAGE);
+  }
+
+  if (apiMessage && typeof apiMessage === "object") {
+    return toDisplayText(apiMessage, DEFAULT_MESSAGE);
+  }
+
+  return DEFAULT_MESSAGE;
+};
+
+const toCreatePayload = (values: RouteFormValues): CreateRoadPayloadDto => ({
+  name: values.name,
+  length: values.length,
+  pickUpPoint: values.pickUpPoint,
+  dropOffPoint: values.dropOffPoint,
+  status: values.status,
+  standardDuration: values.standardDuration,
+  tripsPerDay: values.tripsPerDay,
+  averageOccupancy: values.averageOccupancy,
+  estimatedRevenue: values.estimatedRevenue,
+  leadVehicle: values.leadVehicle || null,
+  demandLevel: values.demandLevel || null,
+  note: values.note || null,
+});
+
+const toUpdatePayload = (
+  values: RouteFormValues,
+  record: IRoad,
+): UpdateRoadPayloadDto => ({
+  id: record.id,
+  ...toCreatePayload(values),
+});
+
+const getRoadSummary = (data: IRoad[]): SummaryItem[] => {
+  const occupancy =
+    data.length > 0
+      ? Math.round(
+          data.reduce(
+            (sum, item) => sum + toDisplayNumber(item.averageOccupancy),
+            0,
+          ) /
+            data.length,
+        )
+      : 0;
+
+  return [
+    {
+      key: "routes",
+      label: "Tổng tuyến",
+      color: "#3b82f6",
+      value: data.length,
+    },
+    {
+      key: "peak",
+      label: "Nhu cầu cao",
+      color: "#f97316",
+      value: data.filter((item) => item.status === "peak").length,
+    },
+    {
+      key: "tripsPerDay",
+      label: "Chuyến/ngày",
+      color: "#22c55e",
+      value: data.reduce(
+        (sum, item) => sum + toDisplayNumber(item.tripsPerDay),
+        0,
+      ),
+    },
+    {
+      key: "occupancy",
+      label: "Lấp đầy TB",
+      color: "#eab308",
+      value: `${occupancy}%`,
+    },
+  ];
+};
+
+const renderStatus = (status: string) => {
+  const meta = ROUTE_STATUS_META[status as RouteStatusKey];
+
+  if (!meta) {
+    return status || "-";
+  }
+
+  return (
+    <span
+      className="booking-status"
+      style={{ background: meta.bg, color: meta.color }}
+    >
+      <span
+        className="booking-status__dot"
+        style={{ background: meta.color }}
+      />
+      {meta.label}
+    </span>
+  );
+};
 
 const RoutesPage = () => {
-  const [routeData, setRouteData] = useState(operationRoutes);
+  const { showNotification } = useNotification();
+  const { setLoading } = useLoading();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [selected, setSelected] = useState<RouteRecord | null>(null);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<RouteRecord | null>(null);
+  const [selected, setSelected] = useState<IRoad | null>(null);
+  const [routeModalOpen, setRouteModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<IRoad | null>(null);
 
-  const filtered = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    return routeData.filter((routeItem) => {
-      const matchKeyword =
-        !keyword ||
-        routeItem.id.toLowerCase().includes(keyword) ||
-        routeItem.route.toLowerCase().includes(keyword) ||
-        routeItem.leadVehicle.toLowerCase().includes(keyword);
-      const matchStatus = status === "all" || routeItem.status === status;
-      return matchKeyword && matchStatus;
+  const invalidateRoads = () => {
+    queryClient.invalidateQueries({
+      queryKey: [ROAD_ENDPOINTS.list.path],
     });
-  }, [routeData, search, status]);
-
-  const openEditModal = (record: RouteRecord) => {
-    setEditingRecord(record);
-    setEditModalOpen(true);
   };
 
-  const closeEditModal = () => {
-    setEditModalOpen(false);
+  const closeRouteModal = () => {
+    setRouteModalOpen(false);
     setEditingRecord(null);
   };
 
-  const handleAddRoute = (record: RouteRecord) => {
-    setRouteData((prev) => [record, ...prev]);
-    message.success(`Đã thêm route ${record.id}`);
+  const createRoadMutation = useMutation({
+    mutationFn: (payload: CreateRoadPayloadDto) => createRoad(payload),
+    onSuccess: () => {
+      showNotification("Thêm tuyến đường thành công", NOTI_SUCCESS);
+      invalidateRoads();
+      closeRouteModal();
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const updateRoadMutation = useMutation({
+    mutationFn: (payload: UpdateRoadPayloadDto) => updateRoad(payload),
+    onSuccess: (data) => {
+      showNotification("Cập nhật tuyến đường thành công", NOTI_SUCCESS);
+      invalidateRoads();
+      setSelected((prev) => (prev?.id === data.id ? data : prev));
+      closeRouteModal();
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const deleteRoadMutation = useMutation({
+    mutationFn: (id: number) => deleteRoad(id),
+    onSuccess: (_data, id) => {
+      showNotification("Xóa tuyến đường thành công", NOTI_SUCCESS);
+      invalidateRoads();
+      setSelected((prev) => (prev?.id === id ? null : prev));
+      setEditingRecord((prev) => (prev?.id === id ? null : prev));
+      setRouteModalOpen((prev) => (editingRecord?.id === id ? false : prev));
+    },
+    onError: (error) => {
+      showNotification(getApiErrorMessage(error), NOTI_ERROR);
+    },
+    onSettled: () => setLoading(false),
+    onMutate: () => setLoading(true),
+  });
+
+  const { data: roadData } = useQuery({
+    queryKey: [ROAD_ENDPOINTS.list.path],
+    queryFn: () => getRoads(),
+  });
+
+  const filtered = useMemo(() => {
+    const keyword = normalizeSearchText(search.trim());
+    const data = roadData ?? [];
+
+    return data.filter((road) => {
+      const searchableText = [
+        road.code,
+        road.name,
+        road.startPoint,
+        road.endPoint,
+        road.leadVehicle,
+        road.demandLevel,
+      ]
+        .map(normalizeSearchText)
+        .join(" ");
+      const matchKeyword = !keyword || searchableText.includes(keyword);
+      const matchStatus = status === "all" || road.status === status;
+
+      return matchKeyword && matchStatus;
+    });
+  }, [roadData, search, status]);
+
+  const openCreateModal = () => {
+    setEditingRecord(null);
+    setRouteModalOpen(true);
   };
 
-  const handleEditRoute = (record: RouteRecord) => {
-    setRouteData((prev) =>
-      prev.map((item) => (item.key === record.key ? record : item)),
-    );
-    setSelected((prev) => (prev?.key === record.key ? record : prev));
-    message.success(`Đã cập nhật route ${record.id}`);
-    closeEditModal();
+  const openEditModal = (record: IRoad) => {
+    setEditingRecord(record);
+    setRouteModalOpen(true);
   };
 
-  const getDeleteBlockReason = (record: RouteRecord) => {
-    const activeTrip = trips.find((trip) => trip.route === record.route);
-    if (activeTrip) {
-      return `Không thể xóa tuyến ${record.id} vì đang được dùng bởi chuyến ${activeTrip.id}.`;
-    }
-
-    const assignedVehicle = fleetVehicles.find(
-      (vehicle) => vehicle.assignedRoute === record.route,
-    );
-    if (assignedVehicle) {
-      return `Không thể xóa tuyến ${record.id} vì đang được gán cho xe ${assignedVehicle.plateNumber}.`;
-    }
-
-    const assignedDriver = drivers.find(
-      (driver) => driver.mainRoute === record.route,
-    );
-    if (assignedDriver) {
-      return `Không thể xóa tuyến ${record.id} vì đang là tuyến chính của tài xế ${assignedDriver.id}.`;
-    }
-
-    return null;
-  };
-
-  const removeRoute = (record: RouteRecord) => {
-    setRouteData((prev) => prev.filter((item) => item.key !== record.key));
-    setSelected((prev) => (prev?.key === record.key ? null : prev));
-    setEditingRecord((prev) => (prev?.key === record.key ? null : prev));
-    setEditModalOpen((prev) =>
-      editingRecord?.key === record.key ? false : prev,
-    );
-    message.success(`Đã xóa route ${record.id}`);
-  };
-
-  const handleDeleteRoute = (record: RouteRecord) => {
-    const blockReason = getDeleteBlockReason(record);
-    if (blockReason) {
-      message.warning(blockReason);
+  const handleSubmitRoute = (values: RouteFormValues) => {
+    if (editingRecord) {
+      updateRoadMutation.mutate(toUpdatePayload(values, editingRecord));
       return;
     }
 
+    createRoadMutation.mutate(toCreatePayload(values));
+  };
+
+  const handleDeleteRoute = (record: IRoad) => {
     Modal.confirm({
       className: "bm-modal",
       title: "Xóa tuyến đường",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: `Bạn chắc chắn muốn xóa tuyến ${record.id}?`,
+      content: `Bạn chắc chắn muốn xóa tuyến ${toDisplayText(
+        record.code,
+        String(record.id),
+      )}?`,
       okText: "Xóa tuyến",
       cancelText: "Hủy",
       okButtonProps: {
@@ -128,112 +321,89 @@ const RoutesPage = () => {
       },
       cancelButtonProps: { style: { borderRadius: 8 } },
       onOk() {
-        removeRoute(record);
+        deleteRoadMutation.mutate(record.id);
       },
     });
   };
 
-  const columns: ColumnsType<RouteRecord> = [
+  const columns: ColumnsType<IRoad> = [
     {
-      title: "Mã tuyến",
-      dataIndex: "id",
-      key: "id",
-      render: (value: string) => (
+      title: "Mã tuyến đường",
+      key: "code",
+      render: (_, record) => (
         <span
           style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}
         >
-          {value}
+          {toDisplayText(record.code, String(record.id))}
         </span>
       ),
     },
-    { title: "Tuyến đường", dataIndex: "route", key: "route" },
+    {
+      title: "Tên tuyến đường",
+      key: "name",
+      render: (_, record) => toDisplayText(record.name),
+    },
+    {
+      title: "Điểm đón khách",
+      key: "pickUpPoint",
+      render: (_, record) => toDisplayText(record.pickUpPoint),
+    },
+    {
+      title: "Điểm trả khách",
+      key: "dropOffPoint",
+      render: (_, record) => toDisplayText(record.dropOffPoint),
+    },
     {
       title: "Thông số",
       key: "specs",
       render: (_, record) => (
         <div>
-          <div className="cust-cell__name">{record.distanceKm} km</div>
-          <div className="cust-cell__phone">
-            {record.standardDuration} tiêu chuẩn
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Khai thác",
-      key: "ops",
-      render: (_, record) => (
-        <div>
           <div className="cust-cell__name">
-            {record.tripsPerDay} chuyến/ngày
+            {toDisplayNumber(record.length)} km
           </div>
           <div className="cust-cell__phone">
-            {record.averageOccupancy}% lấp đầy
+            {toDisplayText(record.standardDuration)} tiêu chuẩn
           </div>
         </div>
-      ),
-    },
-    {
-      title: "Doanh thu ước tính",
-      dataIndex: "estimatedRevenue",
-      key: "estimatedRevenue",
-      render: (value: number) => (
-        <span className="amount-cell">{formatMoney(value)}</span>
       ),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (value: RouteRecord["status"]) => {
-        const meta = ROUTE_STATUS_META[value];
-        return (
-          <span
-            className="booking-status"
-            style={{ background: meta.bg, color: meta.color }}
-          >
-            <span
-              className="booking-status__dot"
-              style={{ background: meta.color }}
-            />
-            {meta.label}
-          </span>
-        );
-      },
+      render: (value: string) => renderStatus(toDisplayText(value, "")),
     },
     {
       title: "",
       key: "actions",
       render: (_, record) => (
         <div className="row-actions">
-          <button
-            type="button"
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               setSelected(record);
             }}
-          >
-            <EyeOutlined />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
             onClick={(event) => {
               event.stopPropagation();
               openEditModal(record);
             }}
-          >
-            <EditOutlined />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
             className="danger"
             onClick={(event) => {
               event.stopPropagation();
               handleDeleteRoute(record);
             }}
-          >
-            <DeleteOutlined />
-          </button>
+          />
         </div>
       ),
     },
@@ -244,11 +414,11 @@ const RoutesPage = () => {
       <div className="mgmt-hero">
         <div className="mgmt-hero__eyebrow">Vận hành tuyến đường</div>
         <div className="mgmt-hero__title">
-          Năng lực khai thác theo từng tuyến trọng điểm
+          Năng lực khai thác theo từng tuyến trong điểm
         </div>
         <div className="mgmt-hero__subtitle">
           Theo dõi tuyến có nhu cầu cao, tuyến giảm chuyến và sức kéo doanh thu
-          của từng hành lang vận chuyển.
+          cua tung hanh lang van chuyen.
         </div>
       </div>
 
@@ -273,19 +443,19 @@ const RoutesPage = () => {
           <Button
             className="btn-primary"
             icon={<PlusOutlined />}
-            onClick={() => setAddModalOpen(true)}
+            onClick={openCreateModal}
           >
             Thêm tuyến đường
           </Button>
         </div>
       </div>
 
-      <SummaryStrip items={getRouteSummary(filtered)} />
+      <SummaryStrip items={getRoadSummary(filtered)} />
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
           <Table
-            rowKey="key"
+            rowKey={(record) => String(record.id)}
             columns={columns}
             dataSource={filtered}
             pagination={{ pageSize: 6, showSizeChanger: false }}
@@ -299,8 +469,11 @@ const RoutesPage = () => {
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         width={420}
-        title={selected ? `${selected.id} · ${selected.route}` : ""}
-        
+        title={
+          selected
+            ? `${toDisplayText(selected.code, String(selected.id))} - ${toDisplayText(selected.name)}`
+            : ""
+        }
       >
         {selected && (
           <div className="drawer-body">
@@ -310,27 +483,34 @@ const RoutesPage = () => {
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Quãng đường</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.distanceKm} km
+                    {toDisplayNumber(selected.length)} km
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">
-                    Thời lượng chuẩn
+                    Thời gian chuẩn
                   </span>
                   <span className="mgmt-detail-list__value">
-                    {selected.standardDuration}
+                    {toDisplayText(selected.standardDuration)}
+                  </span>
+                </div>
+                <div className="mgmt-detail-list__item">
+                  <span className="mgmt-detail-list__label">Điểm đầu/cuối</span>
+                  <span className="mgmt-detail-list__value">
+                    {toDisplayText(selected.startPoint)} -{" "}
+                    {toDisplayText(selected.endPoint)}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Xe chủ lực</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.leadVehicle}
+                    {toDisplayText(selected.leadVehicle)}
                   </span>
                 </div>
                 <div className="mgmt-detail-list__item">
                   <span className="mgmt-detail-list__label">Nhu cầu</span>
                   <span className="mgmt-detail-list__value">
-                    {selected.demandLevel}
+                    {toDisplayText(selected.demandLevel)}
                   </span>
                 </div>
               </div>
@@ -345,7 +525,7 @@ const RoutesPage = () => {
                   <div className="mgmt-card__body">
                     <div className="mgmt-card__subtitle">Chuyến/ngày</div>
                     <div className="revenue-metric-card__value">
-                      {selected.tripsPerDay}
+                      {toDisplayNumber(selected.tripsPerDay)}
                     </div>
                   </div>
                 </div>
@@ -353,12 +533,12 @@ const RoutesPage = () => {
                   <div className="mgmt-card__body">
                     <div className="mgmt-card__subtitle">Lấp đầy TB</div>
                     <div className="revenue-metric-card__value">
-                      {selected.averageOccupancy}%
+                      {toDisplayNumber(selected.averageOccupancy)}%
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="mgmt-note">{selected.note}</div>
+              <div className="mgmt-note">{toDisplayText(selected.note)}</div>
             </div>
             <div style={{ justifySelf: "center", marginTop: 24 }}>
               <div style={{ display: "flex", gap: 8 }}>
@@ -383,17 +563,11 @@ const RoutesPage = () => {
       </Drawer>
 
       <AddRouteModal
-        mode="create"
-        open={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        onSubmit={handleAddRoute}
-      />
-      <AddRouteModal
-        mode="edit"
-        open={editModalOpen}
-        onClose={closeEditModal}
+        mode={editingRecord ? "edit" : "create"}
+        open={routeModalOpen}
+        onClose={closeRouteModal}
         initialValues={editingRecord}
-        onSubmit={handleEditRoute}
+        onSubmit={handleSubmitRoute}
       />
     </div>
   );

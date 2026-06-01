@@ -1,24 +1,27 @@
-// src/components/dashboard/RevenueChart.jsx
-import React, { useState } from "react";
+import type {
+  CmsDashboardRevenuePoint,
+  DashboardPeriod,
+} from "@/api/dtos/dashboard.dto";
+import { CHART_COLORS } from "@/pages/dashboard/share";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
-import { revenueData, CHART_COLORS } from "@/pages/dashboard/share";
 
 interface CustomTooltipProps {
-  active: boolean;
-  payload: any[];
-  label: string;
+  active?: boolean;
+  payload?: { dataKey: string; value: number; color: string; name: string }[];
+  label?: string;
 }
+
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-  if (!active || !payload || !payload.length) return null;
+  if (!active || !payload?.length) return null;
   return (
     <div className="custom-tooltip">
       <div className="custom-tooltip__label">Tháng {label}</div>
@@ -37,10 +40,25 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   );
 };
 
-const PERIODS = ["7N", "1T", "3T", "1N"];
+const PERIODS: DashboardPeriod[] = ["7N", "1T", "3T", "1N"];
 
-const RevenueChart = () => {
-  const [period, setPeriod] = useState("1N");
+type RevenueChartProps = {
+  period: DashboardPeriod;
+  onPeriodChange: (period: DashboardPeriod) => void;
+  revenueSeries: CmsDashboardRevenuePoint[];
+  revenueMomPercent: number;
+};
+
+const RevenueChart = ({
+  period,
+  onPeriodChange,
+  revenueSeries,
+  revenueMomPercent,
+}: RevenueChartProps) => {
+  const momLabel =
+    revenueMomPercent >= 0
+      ? `↑ ${revenueMomPercent}% MoM`
+      : `↓ ${Math.abs(revenueMomPercent)}% MoM`;
 
   return (
     <div className="chart-panel" style={{ minHeight: 320 }}>
@@ -50,13 +68,14 @@ const RevenueChart = () => {
           <div className="chart-panel__subtitle">Xu hướng theo tháng</div>
         </div>
         <div className="chart-panel__actions">
-          <span className="chart-panel__badge">↑ 18.3% MoM</span>
+          <span className="chart-panel__badge">{momLabel}</span>
           <div className="period-selector">
             {PERIODS.map((p) => (
               <button
                 key={p}
+                type="button"
                 className={period === p ? "active" : ""}
-                onClick={() => setPeriod(p)}
+                onClick={() => onPeriodChange(p)}
               >
                 {p}
               </button>
@@ -67,13 +86,21 @@ const RevenueChart = () => {
 
       <ResponsiveContainer width="100%" height={240}>
         <AreaChart
-          data={revenueData}
+          data={revenueSeries}
           margin={{ top: 4, right: 8, left: -10, bottom: 0 }}
         >
           <defs>
             <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={CHART_COLORS.accent} stopOpacity={0.25} />
-              <stop offset="95%" stopColor={CHART_COLORS.accent} stopOpacity={0} />
+              <stop
+                offset="5%"
+                stopColor={CHART_COLORS.accent}
+                stopOpacity={0.25}
+              />
+              <stop
+                offset="95%"
+                stopColor={CHART_COLORS.accent}
+                stopOpacity={0}
+              />
             </linearGradient>
             <linearGradient id="gradBookings" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={CHART_COLORS.info} stopOpacity={0.2} />
@@ -108,9 +135,7 @@ const RevenueChart = () => {
             tickLine={false}
           />
 
-          <Tooltip
-            content={<CustomTooltip active={true} payload={[]} label="" /> as any}
-          />
+          <Tooltip content={<CustomTooltip />} />
 
           <Legend
             wrapperStyle={{ fontSize: 12, color: "#64748b", paddingTop: 12 }}
