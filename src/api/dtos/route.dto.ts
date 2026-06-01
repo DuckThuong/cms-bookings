@@ -1,8 +1,8 @@
 export interface CreateRoadPayloadDto {
   name: string;
   length: number;
-  startPoint: string;
-  endPoint: string;
+  pickUpPoint: string;
+  dropOffPoint: string;
   status: string;
   totalTurn?: number;
   standardDuration?: string;
@@ -35,6 +35,8 @@ export interface IRoad {
   status: string;
   startPoint: string;
   endPoint: string;
+  pickUpPoint: string;
+  dropOffPoint: string;
   totalTurn: number;
   standardDuration: string;
   tripsPerDay: number;
