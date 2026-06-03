@@ -8,6 +8,15 @@ export type BookingStatusKey =
   | 'pending'
   | 'no_show';
 
+export type BookingStatusFilterKey = BookingStatusKey | 'all';
+
+export type BookingStatusTab = {
+  key: BookingStatusFilterKey;
+  label: string;
+  color: string;
+  count: number;
+};
+
 export type VehicleRecord = {
   id: string;
   label: string;
@@ -307,9 +316,9 @@ export const seatMap = {
   },
 };
 
-export const getBookingStatusTabs = (data: BookingRecord[]) => [
+export const getBookingStatusTabs = (data: BookingRecord[]): BookingStatusTab[] => [
   { key: 'all', label: 'Tất cả', color: '#94a3b8', count: data.length },
-  ...Object.entries(BOOKING_STATUSES).map(([key, meta]) => ({
+  ...(Object.entries(BOOKING_STATUSES) as [BookingStatusKey, StatusMeta][]).map(([key, meta]) => ({
     key,
     label: meta.label,
     color: meta.color,

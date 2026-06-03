@@ -8,7 +8,7 @@ interface Notification {
 }
 
 interface NotificationContextType {
-  showNotification: (message: string, type: "error" | "success") => void;
+  showNotification: (message: unknown, type: "error" | "success") => void;
   hideNotification: (id: string) => void;
 }
 
@@ -24,15 +24,38 @@ export const useNotification = () => {
   return context;
 };
 
+const normalizeMessage = (message: unknown) => {
+  if (typeof message === "string") {
+    return message;
+  }
+
+  if (message instanceof Error) {
+    return message.message;
+  }
+
+  if (message && typeof message === "object") {
+    const apiMessage = (message as { message?: unknown }).message;
+    if (typeof apiMessage === "string") {
+      return apiMessage;
+    }
+  }
+
+  return "Đã xảy ra lỗi.";
+};
+
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const showNotification = useCallback(
-    (message: string, type: "error" | "success") => {
+    (message: unknown, type: "error" | "success") => {
       const id = Date.now().toString() + Math.random().toString(36);
-      const newNotification: Notification = { id, message, type };
+      const newNotification: Notification = {
+        id,
+        message: normalizeMessage(message),
+        type,
+      };
 
       setNotifications((prev) => [...prev, newNotification]);
 

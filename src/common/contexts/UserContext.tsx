@@ -62,7 +62,20 @@ type ModalFooterProps = {
   cancelText: string;
   submitText: string;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<void>;
+};
+
+const isAntdValidationError = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  Array.isArray((error as { errorFields?: unknown }).errorFields);
+
+const handleFooterSubmitError = (error: unknown) => {
+  if (isAntdValidationError(error)) {
+    return;
+  }
+
+  console.error(error);
 };
 
 export const renderModalFooter = ({
@@ -70,20 +83,34 @@ export const renderModalFooter = ({
   submitText,
   onCancel,
   onSubmit,
-}: ModalFooterProps) => (
-  <div
-    style={{
-      display: "flex",
-      gap: 8,
-      justifyContent: "flex-end",
-      flexWrap: "wrap",
-    }}
-  >
-    <Button className="btn-ghost" onClick={onCancel}>
-      {cancelText}
-    </Button>
-    <Button className="btn-primary" onClick={onSubmit}>
-      {submitText}
-    </Button>
-  </div>
-);
+}: ModalFooterProps) => {
+  const handleSubmitClick = () => {
+    try {
+      const result = onSubmit();
+
+      if (result) {
+        void result.catch(handleFooterSubmitError);
+      }
+    } catch (error) {
+      handleFooterSubmitError(error);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        justifyContent: "flex-end",
+        flexWrap: "wrap",
+      }}
+    >
+      <Button className="btn-ghost" onClick={onCancel}>
+        {cancelText}
+      </Button>
+      <Button className="btn-primary" onClick={handleSubmitClick}>
+        {submitText}
+      </Button>
+    </div>
+  );
+};

@@ -58,8 +58,8 @@ const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
   {
     label: "Vận hành",
     items: [
-      { key: "bookings", icon: <ScheduleOutlined />, label: "Đặt vé", badge: { text: "24", type: "orange" } },
-      { key: "trips", icon: <CarOutlined />, label: "Chuyến xe", badge: { text: "8", type: "green" } },
+      { key: "bookings", icon: <ScheduleOutlined />, label: "Đặt vé", badge: null },
+      { key: "trips", icon: <CarOutlined />, label: "Chuyến xe", badge: null },
       { key: "routes", icon: <EnvironmentOutlined />, label: "Tuyến đường", badge: null },
       { key: "vehicles", icon: <ApartmentOutlined />, label: "Phương tiện", badge: null },
     ],
@@ -67,7 +67,7 @@ const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
   {
     label: "Quản lý",
     items: [
-      { key: "customers", icon: <TeamOutlined />, label: "Khách hàng", badge: { text: "120", type: "blue" } },
+      { key: "customers", icon: <TeamOutlined />, label: "Khách hàng", badge: null },
       { key: "drivers", icon: <CarOutlined />, label: "Tài xế", badge: null },
       { key: "revenue", icon: <DollarOutlined />, label: "Doanh thu", badge: null },
       { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo", badge: null },
@@ -91,7 +91,7 @@ const ADMIN_MENU_GROUPS: AppMenuGroup[] = [
     label: "Quản lý",
     items: [
       { key: "providers", icon: <ApartmentOutlined />, label: "Quản lý nhà xe", badge: null },
-      { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng", badge: { text: "120", type: "blue" } },
+      { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng", badge: null },
     ],
   },
 ];
