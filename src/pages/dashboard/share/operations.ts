@@ -120,8 +120,8 @@ export const tripStatusOptions: FilterOption[] = [
 
 export const routeStatusOptions: FilterOption[] = [
   { value: "all", label: "Tất cả tuyến" },
-  { value: "ACTIVE", label: "Đang khai thác" },
-  { value: "INACTIVE", label: "Tạm dừng" },
+  { value: "ACTIVE", label: "Đang hoạt động" },
+  { value: "INACTIVE", label: "Ngừng hoạt động" },
 ];
 
 export const fleetStatusOptions: FilterOption[] = [

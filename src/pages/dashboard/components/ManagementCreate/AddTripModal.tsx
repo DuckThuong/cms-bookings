@@ -1,6 +1,6 @@
-import { createTrip, getTripById, updateTrip } from "@/api/configs/trip.config";
 import { getDrivers } from "@/api/configs/driver.config";
 import { getRoads } from "@/api/configs/route.config";
+import { createTrip, getTripById, updateTrip } from "@/api/configs/trip.config";
 import { getVehicles } from "@/api/configs/vehicle.config";
 import type { CmsTripItem } from "@/api/dtos/trip.dto";
 import { TripEndpoint } from "@/api/endpoints/trip.endpoint";
@@ -15,7 +15,6 @@ import { useNotification } from "@/providers/notificationProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Col,
-  DatePicker,
   Form,
   Input,
   InputNumber,
@@ -23,13 +22,14 @@ import {
   Row,
   Select,
   Spin,
+  TimePicker,
 } from "antd";
-import EllipsisSelect from "./EllipsisSelect";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useMemo } from "react";
 import type { ManagementModalMode } from "../../share";
+import EllipsisSelect from "./EllipsisSelect";
 
 dayjs.extend(customParseFormat);
 
@@ -75,7 +75,7 @@ const parseDateValue = (value?: string | null) => {
 
 const formatDateValue = (value?: Dayjs | null) => {
   if (!value) return "";
-  return value.format("DD/MM/YYYY HH:mm");
+  return value.format("HH:mm");
 };
 
 const parseDurationToMinutes = (value?: string | null) => {
@@ -253,10 +253,7 @@ const AddTripModal = ({
       const serverMessage =
         error.response?.data?.message ||
         (isEdit ? "Cập nhật chuyến xe thất bại" : "Thêm chuyến xe thất bại");
-      showNotification(
-        serverMessage,
-        NOTI_ERROR,
-      );
+      showNotification(serverMessage, NOTI_ERROR);
     },
   });
 
@@ -419,11 +416,11 @@ const AddTripModal = ({
                         );
                       }
 
-                      if (parseDurationToMinutes(road.standardDuration) === null) {
+                      if (
+                        parseDurationToMinutes(road.standardDuration) === null
+                      ) {
                         return Promise.reject(
-                          new Error(
-                            "Tuyến chưa có thời gian di chuyển hợp lệ",
-                          ),
+                          new Error("Tuyến chưa có thời gian di chuyển hợp lệ"),
                         );
                       }
 
@@ -501,10 +498,10 @@ const AddTripModal = ({
                 label={formLabel("Giờ khởi hành")}
                 rules={[{ required: true, message: "Chọn giờ khởi hành" }]}
               >
-                <DatePicker
+                <TimePicker
                   className="bm-date-picker"
-                  showTime
-                  format="DD/MM/YYYY HH:mm"
+                  type="time"
+                  format="HH:mm"
                   style={{ width: "100%" }}
                 />
               </Form.Item>
@@ -518,9 +515,7 @@ const AddTripModal = ({
                     ? ` ${formatDateValue(value)}`
                     : "Vui lòng chọn tuyến và giờ khởi hành ",
                 })}
-                rules={[
-                  { required: true, message: "Giờ đến sẽ được tự tính" },
-                ]}
+                rules={[{ required: true, message: "Giờ đến sẽ được tự tính" }]}
               >
                 <Input disabled style={fieldStyle} />
               </Form.Item>

@@ -178,26 +178,22 @@ const AddRouteModal = ({
           </Col>
         </Row>
 
-        {mode === "edit" && (
-          <Row gutter={12}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="status"
-                label={formLabel("Trạng thái")}
-                rules={[
-                  { required: true, message: "Vui lòng chọn trạng thái" },
-                ]}
-              >
-                <Select
-                  className="bm-select"
-                  options={routeStatusOptions.filter(
-                    (item) => item.value !== "all",
-                  )}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        )}
+        <Row gutter={12}>
+          <Col xs={24} md={24}>
+            <Form.Item
+              name="status"
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
+            >
+              <Select
+                className="bm-select"
+                options={routeStatusOptions.filter(
+                  (item) => item.value !== "all",
+                )}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item name="note" label={formLabel("Ghi chú")}>
           <Input.TextArea

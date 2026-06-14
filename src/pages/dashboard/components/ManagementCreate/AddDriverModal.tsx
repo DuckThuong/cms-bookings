@@ -169,11 +169,7 @@ const AddDriverModal = ({
               label={formLabel("Số bằng lái")}
               rules={[{ required: true, message: "Nhap so bang lai" }]}
             >
-              <Input
-                placeholder="123456"
-                style={fieldStyle}
-                disabled={isEdit}
-              />
+              <Input placeholder="123456" style={fieldStyle} />
             </Form.Item>
           </Col>
         </Row>

@@ -41,9 +41,6 @@ import {
 import "../Page2/style.scss";
 import "../management.scss";
 
-const formatMoney = (value?: number | null) =>
-  `${(value ?? 0).toLocaleString("vi-VN")}d`;
-
 const normalizeSearchText = (value: unknown) =>
   String(value ?? "")
     .normalize("NFD")
