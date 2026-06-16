@@ -12,6 +12,7 @@ import CustomersPage from "@/pages/dashboard/Pages/Customers";
 import DriversPage from "@/pages/dashboard/Pages/Drivers";
 import RevenuePage from "@/pages/dashboard/Pages/Revenue";
 import ReportsPage from "@/pages/dashboard/Pages/Reports";
+import { ChatLayout, ChatPage, ChatDetailPage } from "@/pages/chat";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -48,6 +49,12 @@ export const WebRouter = () => (
       </Route>
       <Route path={ROUTER_PATH.REPORTS} element={<AppLayout />}>
         <Route index element={<ReportsPage />} />
+      </Route>
+      <Route path={ROUTER_PATH.CHAT} element={<AppLayout />}>
+        <Route element={<ChatLayout />}>
+          <Route index element={<ChatPage />} />
+          <Route path=":id" element={<ChatDetailPage />} />
+        </Route>
       </Route>
     </Route>
     <Route path={ROUTER_PATH.NOT_FOUND} element={<NotFoundPage />} />

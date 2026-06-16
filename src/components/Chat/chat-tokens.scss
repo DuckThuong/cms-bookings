@@ -1,0 +1,96 @@
+// Shared design tokens for the admin chat feature.
+// Slightly darker / more contrastive than fe-bookings version to fit the
+// GoRide CMS dark-navy + orange admin theme.
+
+@use "sass:color";
+
+// ─── Color tokens ────────────────────────────────────────
+$chat-night: #0b1426;
+$chat-night-soft: #101d38;
+$chat-night-2: #152045;
+$chat-amber: #f97316;
+$chat-amber-2: #fb923c;
+$chat-amber-pale: rgba(249, 115, 22, 0.12);
+$chat-amber-soft: rgba(249, 115, 22, 0.18);
+
+$chat-text: #0b1426;
+$chat-text-soft: #475569;
+$chat-text-muted: #64748b;
+$chat-text-faint: #94a3b8;
+$chat-text-on-dark: #f1f5f9;
+
+$chat-surface: #ffffff;
+$chat-surface-soft: #f8fafc;
+$chat-surface-muted: #f1f5f9;
+
+$chat-border: rgba(15, 23, 42, 0.08);
+$chat-border-strong: rgba(15, 23, 42, 0.16);
+$chat-border-dark: rgba(255, 255, 255, 0.08);
+
+$chat-success: #22c55e;
+$chat-success-soft: rgba(34, 197, 94, 0.14);
+$chat-info: #3b82f6;
+$chat-info-soft: rgba(59, 130, 246, 0.12);
+$chat-warning: #eab308;
+$chat-warning-soft: rgba(234, 179, 8, 0.16);
+$chat-danger: #ef4444;
+$chat-danger-soft: rgba(239, 68, 68, 0.14);
+$chat-purple: #a855f7;
+$chat-purple-soft: rgba(168, 85, 247, 0.14);
+
+// ─── Shadows ─────────────────────────────────────────────
+$chat-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+$chat-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.07);
+$chat-shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.12);
+$chat-shadow-pop: 0 8px 28px rgba(15, 23, 42, 0.18);
+
+// ─── Radius ──────────────────────────────────────────────
+$chat-radius-sm: 8px;
+$chat-radius-md: 12px;
+$chat-radius-lg: 18px;
+$chat-radius-xl: 22px;
+$chat-radius-pill: 999px;
+
+// ─── Spacing ─────────────────────────────────────────────
+$chat-space-1: 4px;
+$chat-space-2: 8px;
+$chat-space-3: 12px;
+$chat-space-4: 16px;
+$chat-space-5: 20px;
+$chat-space-6: 24px;
+$chat-space-7: 32px;
+$chat-space-8: 40px;
+
+// ─── Animation ───────────────────────────────────────────
+$chat-ease: cubic-bezier(0.22, 1, 0.36, 1);
+$chat-fast: 0.18s;
+$chat-medium: 0.28s;
+$chat-slow: 0.42s;
+
+// ─── Mixins ──────────────────────────────────────────────
+@mixin chat-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.32);
+  }
+}
+
+@mixin chat-bp($key) {
+  @if $key == sm {
+    @media (max-width: 640px) { @content; }
+  } @else if $key == md {
+    @media (max-width: 960px) { @content; }
+  } @else if $key == lg {
+    @media (max-width: 1280px) { @content; }
+  }
+}

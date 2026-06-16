@@ -9,6 +9,7 @@ import {
   DollarOutlined,
   EnvironmentOutlined,
   HomeOutlined,
+  MessageOutlined,
   QuestionCircleOutlined,
   ScheduleOutlined,
   SettingOutlined,
@@ -48,6 +49,7 @@ export const MENU_PATHS: Record<string, string> = {
   drivers: ROUTER_PATH.DRIVERS,
   revenue: ROUTER_PATH.REVENUE,
   reports: ROUTER_PATH.REPORTS,
+  chat: ROUTER_PATH.CHAT,
 };
 
 const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
@@ -76,6 +78,7 @@ const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
   {
     label: "Hệ thống",
     items: [
+      { key: "chat", icon: <MessageOutlined />, label: "Hội thoại", badge: { text: "5", type: "danger" } },
       { key: "settings", icon: <SettingOutlined />, label: "Cài đặt", badge: null },
       { key: "help", icon: <QuestionCircleOutlined />, label: "Trợ giúp", badge: null },
     ],
@@ -92,11 +95,17 @@ const ADMIN_MENU_GROUPS: AppMenuGroup[] = [
     items: [
       { key: "providers", icon: <ApartmentOutlined />, label: "Quản lý nhà xe", badge: null },
       { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng", badge: null },
+      { key: "chat", icon: <MessageOutlined />, label: "Hội thoại", badge: { text: "5", type: "danger" } },
     ],
   },
 ];
 
-export const ADMIN_ALLOWED_MENU_KEYS = new Set(["dashboard", "providers", "customers"]);
+export const ADMIN_ALLOWED_MENU_KEYS = new Set([
+  "dashboard",
+  "providers",
+  "customers",
+  "chat",
+]);
 
 export const getMenuGroupsForRole = (role: Role | null): AppMenuGroup[] => {
   if (role === Role.ADMIN) {
@@ -133,6 +142,7 @@ export const getBreadcrumbs = (activeKey: string, role: Role | null): Breadcrumb
     drivers: [{ label: "Quản lý" }, { label: "Tài xế" }],
     revenue: [{ label: "Quản lý" }, { label: "Doanh thu" }],
     reports: [{ label: "Quản lý" }, { label: "Báo cáo" }],
+    chat: [{ label: "Hệ thống" }, { label: "Hội thoại" }],
     settings: [{ label: "Hệ thống" }, { label: "Cài đặt" }],
     help: [{ label: "Hệ thống" }, { label: "Trợ giúp" }],
   };

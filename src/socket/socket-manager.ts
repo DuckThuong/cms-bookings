@@ -41,14 +41,16 @@ class SocketManager {
     event: string,
     payload: TPayload,
   ): Promise<SocketAck<TAck>> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.connect();
       this.socket.timeout(10000).emit(
         event,
         payload,
         (error: Error | null, response: SocketAck<TAck>) => {
           if (error) {
-            reject(error);
+            // socket gateway chưa sẵn sàng / timeout - resolve với success=false
+            // để caller tự quyết định fallback thay vì để unhandled rejection
+            resolve({ success: false, message: error.message });
             return;
           }
 

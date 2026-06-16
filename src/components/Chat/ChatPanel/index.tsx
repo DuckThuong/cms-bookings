@@ -264,10 +264,14 @@ export const ChatPanel = (props: ChatPanelProps) => {
   useEffect(() => {
     if (!props.data?.conversationId) return;
 
-    void chatSocket.joinConversation(props.data.conversationId);
+    chatSocket
+      .joinConversation(props.data.conversationId)
+      .catch(() => undefined);
 
     return () => {
-      void chatSocket.leaveConversation(props.data!.conversationId);
+      chatSocket
+        .leaveConversation(props.data!.conversationId)
+        .catch(() => undefined);
     };
   }, [props.data?.conversationId]);
 
@@ -442,10 +446,12 @@ export const ChatPanel = (props: ChatPanelProps) => {
     if (latestMessage.senderId === props.currentUserId) return;
     if (latestMessage.status === "READ") return;
 
-    void chatSocket.markConversationAsRead({
-      conversationId: props.data.conversationId,
-      messageId: latestMessage.id,
-    });
+    chatSocket
+      .markConversationAsRead({
+        conversationId: props.data.conversationId,
+        messageId: latestMessage.id,
+      })
+      .catch(() => undefined);
   }, [latestMessage, props.currentUserId, props.data?.conversationId]);
 
   useEffect(() => {

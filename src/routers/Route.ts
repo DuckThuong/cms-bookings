@@ -12,6 +12,7 @@ export const ROUTER_NAME = {
   DRIVERS: "drivers",
   REVENUE: "revenue",
   REPORTS: "reports",
+  CHAT: "chat",
   NOT_FOUND: "*",
 };
 
@@ -27,5 +28,6 @@ export const ROUTER_PATH = {
   DRIVERS: `${ROUTER}/${ROUTER_NAME.DRIVERS}`,
   REVENUE: `${ROUTER}/${ROUTER_NAME.REVENUE}`,
   REPORTS: `${ROUTER}/${ROUTER_NAME.REPORTS}`,
+  CHAT: `${ROUTER}/${ROUTER_NAME.CHAT}`,
   NOT_FOUND: `${ROUTER}/${ROUTER_NAME.NOT_FOUND}`,
 };

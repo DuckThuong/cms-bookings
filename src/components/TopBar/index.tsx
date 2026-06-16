@@ -11,6 +11,7 @@ import {
   DownOutlined,
   GlobalOutlined,
   LogoutOutlined,
+  MessageOutlined,
   ProfileOutlined,
   QuestionCircleOutlined,
   SearchOutlined,
@@ -143,6 +144,28 @@ const HeaderHelp = () => (
   </Tooltip>
 );
 
+const HeaderChat = () => {
+  const navigate = useNavigate();
+  return (
+    <Tooltip title="Hội thoại hỗ trợ">
+      <div
+        className="header-action-btn"
+        onClick={() => navigate(ROUTER_PATH.CHAT)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            navigate(ROUTER_PATH.CHAT);
+          }
+        }}
+      >
+        <MessageOutlined />
+        <span className="header-action-btn__dot" />
+      </div>
+    </Tooltip>
+  );
+};
+
 const HeaderUser = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -193,6 +216,7 @@ const AppHeader = ({
       <div className="header-actions">
         <HeaderStatus />
         <div className="header-divider" />
+        <HeaderChat />
         <HeaderNotification />
         <HeaderSettings />
         <HeaderHelp />
