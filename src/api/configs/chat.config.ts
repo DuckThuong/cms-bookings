@@ -23,7 +23,8 @@ import {
   type ConversationFilter,
 } from "./mocks/chat.mock";
 
-export const USE_MOCK = true;
+export const USE_REAL = true;
+export const USE_MOCK = false;
 
 const tryRealOrMock = async <T>(
   real: () => Promise<T>,
@@ -159,9 +160,12 @@ export const muteConversation = async (payload: {
 }): Promise<void> => {
   return tryRealOrMock<void>(
     async () => {
-      await axiosClient.post(CHAT_API_PATH.CONVERSATION_MUTE(payload.conversationId), {
-        preset: payload.preset,
-      });
+      await axiosClient.post(
+        CHAT_API_PATH.CONVERSATION_MUTE(payload.conversationId),
+        {
+          preset: payload.preset,
+        },
+      );
     },
     () => undefined,
   );

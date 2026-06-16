@@ -49,16 +49,16 @@ const mutePresetItems: {
   preset: MuteConversationPreset;
   label: string;
 }[] = [
-  { key: "mute-15m", preset: "15m", label: "15 phút" },
-  { key: "mute-1h", preset: "1h", label: "1 giờ" },
-  { key: "mute-8h", preset: "8h", label: "8 giờ" },
-  { key: "mute-24h", preset: "24h", label: "24 giờ" },
-  {
-    key: "mute-no-end-time-yet",
-    preset: "no end time yet",
-    label: "Cho đến khi tôi bật lại",
-  },
-];
+    { key: "mute-15m", preset: "15m", label: "15 phút" },
+    { key: "mute-1h", preset: "1h", label: "1 giờ" },
+    { key: "mute-8h", preset: "8h", label: "8 giờ" },
+    { key: "mute-24h", preset: "24h", label: "24 giờ" },
+    {
+      key: "mute-no-end-time-yet",
+      preset: "no end time yet",
+      label: "Cho đến khi tôi bật lại",
+    },
+  ];
 
 export const ChatPanel = (props: ChatPanelProps) => {
   const queryClient = useQueryClient();
@@ -168,8 +168,8 @@ export const ChatPanel = (props: ChatPanelProps) => {
     () =>
       props.currentUserId != null
         ? props.data?.participants.find(
-            (participant) => participant.userId === props.currentUserId,
-          )
+          (participant) => participant.userId === props.currentUserId,
+        )
         : undefined,
     [props.currentUserId, props.data?.participants],
   );
@@ -406,10 +406,10 @@ export const ChatPanel = (props: ChatPanelProps) => {
             currentMessages.map((item) =>
               item.id === event.data.messageId
                 ? {
-                    ...item,
-                    status: event.data.status,
-                    updatedAt: event.data.updatedAt,
-                  }
+                  ...item,
+                  status: event.data.status,
+                  updatedAt: event.data.updatedAt,
+                }
                 : item,
             ),
         );
@@ -644,8 +644,8 @@ export const ChatPanel = (props: ChatPanelProps) => {
                     onOpenImageViewer={openImageViewer}
                     messageStatus={
                       item.status === "SENT" ||
-                      item.status === "DELIVERED" ||
-                      item.status === "READ"
+                        item.status === "DELIVERED" ||
+                        item.status === "READ"
                         ? item.status
                         : undefined
                     }

@@ -163,9 +163,9 @@ export const ChatWindow = ({
   );
 
   useEffect(() => {
-    if (!data.conversationId || USE_MOCK) return;
+    if (!data.conversationId) return;
     chatSocket.joinConversation(data.conversationId).catch(() => {
-      // socket gateway chưa sẵn sàng - bỏ qua im lặng
+      // socket chưa sẵn sàng - bỏ qua im lặng
     });
     return () => {
       chatSocket.leaveConversation(data.conversationId).catch(() => undefined);
@@ -215,7 +215,6 @@ export const ChatWindow = ({
     if (!latestMessage) return;
     if (latestMessage.senderId === currentUserId) return;
     if (latestMessage.status === "READ") return;
-    if (USE_MOCK) return;
     chatSocket
       .markConversationAsRead({
         conversationId: data.conversationId,
