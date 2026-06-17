@@ -64,6 +64,7 @@ class SocketManager {
     event: string,
     handler: EventHandler<TPayload>,
   ): () => void {
+    this.connect();
     const wrappedHandler = (payload: TPayload) => {
       handler(payload);
     };

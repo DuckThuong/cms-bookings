@@ -26,6 +26,7 @@ import {
   getOperatorHotlines,
 } from "@/api/configs/chat.config";
 import { CHAT_QUERY_KEYS } from "@/api/endpoints/chat.endpoint";
+import { chatSocket } from "@/socket/domains/chat.socket";
 import type { ConversationResponseDto } from "@/api/dtos/chat.dto";
 import {
   ChatInfoPanel,
@@ -114,6 +115,52 @@ export const ChatPage = () => {
   const startConversationWith = (toUserId: number, type: ConversationResponseDto["type"]) => {
     startConversationMutation.mutate({ toUserId, type });
   };
+
+  // Keep conversations list live via socket
+  useEffect(() => {
+    const unsubConversation = chatSocket.subscribeConversationUpdated((event) => {
+      const updated = event.data;
+      queryClient.setQueryData<ConversationResponseDto[]>(
+        [CHAT_QUERY_KEYS.CONVERSATIONS],
+        (current = []) => {
+          const exists = current.some(
+            (c) => c.conversationId === updated.conversationId,
+          );
+          if (exists) {
+            return current.map((c) =>
+              c.conversationId === updated.conversationId ? updated : c,
+            );
+          }
+          return [updated, ...current];
+        },
+      );
+    });
+
+    const unsubMessage = chatSocket.subscribeMessageSent((event) => {
+      const incoming = event.data;
+      queryClient.setQueryData<ConversationResponseDto[]>(
+        [CHAT_QUERY_KEYS.CONVERSATIONS],
+        (current = []) => {
+          return current.map((c) =>
+            c.conversationId === incoming.conversationId
+              ? {
+                  ...c,
+                  lastMessagePreview: incoming.content ?? "(đính kèm)",
+                  lastMessageAt: incoming.createdAt,
+                  unreadCount:
+                    c.unreadCount !== undefined ? c.unreadCount + 1 : 1,
+                }
+              : c,
+          );
+        },
+      );
+    });
+
+    return () => {
+      unsubConversation();
+      unsubMessage();
+    };
+  }, [queryClient]);
 
   const filteredConversations = useMemo(() => {
     let items = conversations;

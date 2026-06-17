@@ -12,7 +12,7 @@ import { formatLastMessageAt } from "@/common/contexts/format";
 import {
   priorityLabel,
   statusLabel,
-} from "@/api/configs/mocks/chat.mock";
+} from "@/common/constants/chat";
 import type {
   ConversationPriority,
   ConversationResponseDto,

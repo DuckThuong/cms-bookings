@@ -22,7 +22,7 @@ import type {
 import {
   priorityLabel,
   statusLabel,
-} from "@/api/configs/mocks/chat.mock";
+} from "@/common/constants/chat";
 import { formatDateDDMMYYYY } from "@/common/contexts/format";
 
 export interface ChatInfoPanelProps {

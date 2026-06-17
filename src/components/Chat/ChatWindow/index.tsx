@@ -31,7 +31,6 @@ import {
   setConversationNickname,
   updateConversationStatus,
 } from "@/api/configs/chat.config";
-import { USE_MOCK } from "@/api/configs/chat.config";
 import { CHAT_QUERY_KEYS } from "@/api/endpoints/chat.endpoint";
 import type {
   ConversationPriority,
@@ -44,7 +43,7 @@ import type {
 import {
   priorityLabel,
   statusLabel,
-} from "@/api/configs/mocks/chat.mock";
+} from "@/common/constants/chat";
 import { chatSocket } from "@/socket/domains/chat.socket";
 import "../style.scss";
 
