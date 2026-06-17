@@ -9,22 +9,27 @@ import {
   ExclamationCircleOutlined,
   EyeOutlined,
   PlusOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Drawer, Input, Modal, Select, Spin, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useMemo, useState } from "react";
 import { AddTripModal } from "../../components/ManagementCreate";
+import { TripOperationStatusModal } from "../../components/Page2/TripOperationStatusModal";
 import {
+  OPERATION_STATUS_META,
   routeOptions,
   TRIP_STATUS_META,
   tripStatusOptions,
   vehicleOptions,
   type TripRecord,
+  type OperationStatusKey,
 } from "../../share";
 import { mapCmsTripsToRecords } from "./mapTripRecord";
 import "../Page2/style.scss";
 import "../management.scss";
+import type { CmsTripItem } from "@/api/dtos/trip.dto";
 
 const TripsPage = () => {
   const { setLoading } = useLoading();
@@ -39,12 +44,17 @@ const TripsPage = () => {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingTripId, setEditingTripId] = useState<number | null>(null);
+  const [operationStatusModalOpen, setOperationStatusModalOpen] = useState(false);
+  const [operationStatusTrip, setOperationStatusTrip] = useState<CmsTripItem | null>(null);
 
-  const { data: tripList = [], isLoading: tripListLoading } = useQuery({
+  // Raw trip data query
+  const { data: tripListQuery, isLoading: tripListLoading } = useQuery({
     queryKey: [TripEndpoint.GET_ALL_TRIPS],
     queryFn: () => getAllTrips(),
-    select: mapCmsTripsToRecords,
   });
+
+  // Mapped trip records for table display
+  const tripRecords = tripListQuery ? mapCmsTripsToRecords(tripListQuery) : [];
 
   const deleteTripMutation = useMutation({
     mutationFn: (id: number | string) => deleteTrip(id),
@@ -68,7 +78,7 @@ const TripsPage = () => {
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase();
-    return tripList.filter((trip) => {
+    return tripRecords.filter((trip) => {
       const matchKeyword =
         !keyword ||
         trip.id.toLowerCase().includes(keyword) ||
@@ -79,7 +89,7 @@ const TripsPage = () => {
       const matchVehicle = vehicle === "all" || trip.vehicle === vehicle;
       return matchKeyword && matchStatus && matchRoute && matchVehicle;
     });
-  }, [route, search, status, tripList, vehicle]);
+  }, [route, search, status, tripRecords, vehicle]);
 
   useEffect(() => {
     setLoading(tripListLoading);
@@ -180,10 +190,52 @@ const TripsPage = () => {
       },
     },
     {
+      title: "Trạng thái vận hành",
+      key: "operationStatus",
+      width: 180,
+      render: (_, record) => {
+        if (!record.operationStatus) {
+          return (
+            <span style={{ color: "#94a3b8", fontSize: 12 }}>
+              Chưa cập nhật
+            </span>
+          );
+        }
+        const meta = OPERATION_STATUS_META[record.operationStatus as OperationStatusKey];
+        return (
+          <span
+            className="booking-status"
+            style={{ background: meta?.bg, color: meta?.color }}
+          >
+            <span
+              className="booking-status__dot"
+              style={{ background: meta?.color }}
+            />
+            {meta?.label}
+          </span>
+        );
+      },
+    },
+    {
       title: "",
       key: "actions",
+      width: 150,
       render: (_, record) => (
         <div className="row-actions">
+          <button
+            type="button"
+            title="Cập nhật trạng thái vận hành"
+            onClick={(event) => {
+              event.stopPropagation();
+              const tripItem = tripList.find((t) => String(t.id) === record.key);
+              if (tripItem) {
+                setOperationStatusTrip(tripItem);
+                setOperationStatusModalOpen(true);
+              }
+            }}
+          >
+            <SyncOutlined />
+          </button>
           <button
             type="button"
             title="Xem chi tiết"
@@ -219,6 +271,9 @@ const TripsPage = () => {
       ),
     },
   ];
+
+  // Raw trip data for operation status modal
+  const tripList = tripListQuery ?? [];
 
   return (
     <div className="mgmt-page">
@@ -383,6 +438,14 @@ const TripsPage = () => {
         open={editModalOpen}
         tripId={editingTripId}
         onClose={closeEditModal}
+      />
+      <TripOperationStatusModal
+        open={operationStatusModalOpen}
+        trip={operationStatusTrip}
+        onClose={() => {
+          setOperationStatusModalOpen(false);
+          setOperationStatusTrip(null);
+        }}
       />
     </div>
   );

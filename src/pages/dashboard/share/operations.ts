@@ -1,13 +1,26 @@
 import type { FilterOption, StatusMeta, SummaryItem } from "./types";
 
+export type RouteStatusKey = "ACTIVE" | "INACTIVE";
+export type VehicleStatusKey = "ready" | "in_service" | "maintenance" | "idle";
+
+export type OperationStatusKey =
+  | "SCHEDULED"
+  | "PREPARING"
+  | "BOARDING"
+  | "DEPARTED"
+  | "APPROACHING"
+  | "MOVING"
+  | "ARRIVED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "DELAYED";
+
 export type TripStatusKey =
   | "scheduled"
   | "boarding"
   | "running"
   | "completed"
   | "delayed";
-export type RouteStatusKey = "ACTIVE" | "INACTIVE";
-export type VehicleStatusKey = "ready" | "in_service" | "maintenance" | "idle";
 
 export type TripRecord = {
   key: string;
@@ -21,6 +34,7 @@ export type TripRecord = {
   capacity: number;
   occupancyRate: number;
   status: TripStatusKey;
+  operationStatus?: OperationStatusKey;
   note: string;
 };
 
@@ -108,6 +122,73 @@ export const VEHICLE_STATUS_META: Record<VehicleStatusKey, StatusMeta> = {
     bg: "rgba(245,158,11,0.12)",
   },
 };
+
+export const OPERATION_STATUS_META: Record<OperationStatusKey, StatusMeta> = {
+  SCHEDULED: {
+    label: "Đã lên lịch",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,0.12)",
+  },
+  PREPARING: {
+    label: "Chuẩn bị khởi hành",
+    color: "#8b5cf6",
+    bg: "rgba(139,92,246,0.12)",
+  },
+  BOARDING: {
+    label: "Đang đón khách",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.12)",
+  },
+  DEPARTED: {
+    label: "Đã khởi hành",
+    color: "#22c55e",
+    bg: "rgba(34,197,94,0.12)",
+  },
+  APPROACHING: {
+    label: "Sắp đến điểm đón",
+    color: "#06b6d4",
+    bg: "rgba(6,182,212,0.12)",
+  },
+  MOVING: {
+    label: "Đang di chuyển",
+    color: "#10b981",
+    bg: "rgba(16,185,129,0.12)",
+  },
+  ARRIVED: {
+    label: "Đã đến điểm đón",
+    color: "#14b8a6",
+    bg: "rgba(20,184,166,0.12)",
+  },
+  COMPLETED: {
+    label: "Hoàn thành",
+    color: "#64748b",
+    bg: "rgba(100,116,139,0.12)",
+  },
+  CANCELLED: {
+    label: "Đã hủy",
+    color: "#ef4444",
+    bg: "rgba(239,68,68,0.12)",
+  },
+  DELAYED: {
+    label: "Trễ chuyến",
+    color: "#f97316",
+    bg: "rgba(249,115,22,0.12)",
+  },
+};
+
+export const operationStatusOptions: FilterOption[] = [
+  { value: "all", label: "Tất cả trạng thái" },
+  { value: "SCHEDULED", label: "Đã lên lịch" },
+  { value: "PREPARING", label: "Chuẩn bị khởi hành" },
+  { value: "BOARDING", label: "Đang đón khách" },
+  { value: "DEPARTED", label: "Đã khởi hành" },
+  { value: "APPROACHING", label: "Sắp đến điểm đón" },
+  { value: "MOVING", label: "Đang di chuyển" },
+  { value: "ARRIVED", label: "Đã đến điểm đón" },
+  { value: "COMPLETED", label: "Hoàn thành" },
+  { value: "CANCELLED", label: "Đã hủy" },
+  { value: "DELAYED", label: "Trễ chuyến" },
+];
 
 export const tripStatusOptions: FilterOption[] = [
   { value: "all", label: "Tất cả trạng thái" },

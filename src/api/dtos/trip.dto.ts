@@ -7,6 +7,7 @@ export interface CmsTripItem {
   driverId: number;
   vehicleId: number;
   status: string;
+  operationStatus?: string;
   description?: string;
   departure: string;
   arrival: string;
@@ -24,6 +25,11 @@ export interface CmsTripListResponse {
   total: number;
 }
 
+export interface UpdateOperationStatusResponse {
+  message: string;
+  trip: CmsTripItem;
+}
+
 export class CreateTripPayloadDto {
   code: string;
   name: string;
@@ -31,6 +37,7 @@ export class CreateTripPayloadDto {
   driverId: number;
   vehicleId: number;
   status: string;
+  operationStatus?: string;
   description: string;
   departure: string;
   arrival: string;
@@ -46,9 +53,15 @@ export class UpdateTripPayloadDto {
   driverId: number;
   vehicleId: number;
   status: string;
+  operationStatus?: string;
   description: string;
   departure: string;
   arrival: string;
   seatPrice: string;
   bookedSeats: number;
+}
+
+export class UpdateOperationStatusPayloadDto {
+  id: number;
+  operationStatus: string;
 }

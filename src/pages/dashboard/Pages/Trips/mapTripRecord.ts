@@ -2,6 +2,7 @@ import type { CmsTripItem } from "@/api/dtos/trip.dto";
 import type {
   TripRecord,
   TripStatusKey,
+  OperationStatusKey,
 } from "@/pages/dashboard/share/operations";
 
 const displayText = (value?: string | null, fallback = "—") => {
@@ -25,6 +26,19 @@ const mapTripStatus = (status: string): TripStatusKey => {
   return "scheduled";
 };
 
+const VALID_OPERATION_STATUSES: OperationStatusKey[] = [
+  "SCHEDULED",
+  "PREPARING",
+  "BOARDING",
+  "DEPARTED",
+  "APPROACHING",
+  "MOVING",
+  "ARRIVED",
+  "COMPLETED",
+  "CANCELLED",
+  "DELAYED",
+];
+
 export const mapCmsTripToRecord = (trip: CmsTripItem): TripRecord => {
   const capacity = trip.capacity ?? 0;
   const bookedSeats = trip.bookedSeats ?? 0;
@@ -36,6 +50,9 @@ export const mapCmsTripToRecord = (trip: CmsTripItem): TripRecord => {
 
   const departure = displayText(trip.departure);
   const arrival = displayText(trip.arrival);
+
+  const operationStatus = trip.operationStatus as OperationStatusKey;
+  const isValidOperationStatus = VALID_OPERATION_STATUSES.includes(operationStatus);
 
   return {
     key: String(trip.id),
@@ -49,6 +66,7 @@ export const mapCmsTripToRecord = (trip: CmsTripItem): TripRecord => {
     capacity,
     occupancyRate,
     status: mapTripStatus(trip.status),
+    operationStatus: isValidOperationStatus ? operationStatus : undefined,
     note: trip.description?.trim() ?? "",
   };
 };

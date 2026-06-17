@@ -4,6 +4,8 @@ import type {
   CmsTripListResponse,
   CreateTripPayloadDto,
   UpdateTripPayloadDto,
+  UpdateOperationStatusPayloadDto,
+  UpdateOperationStatusResponse,
 } from "../dtos/trip.dto";
 import { TripEndpoint } from "../endpoints/trip.endpoint";
 
@@ -32,6 +34,16 @@ export const updateTrip = async (
 
 export const deleteTrip = async (id: number | string): Promise<void> => {
   await axiosClient.delete(withId(TripEndpoint.DELETE_TRIP, id));
+};
+
+export const updateOperationStatus = async (
+  payload: UpdateOperationStatusPayloadDto,
+): Promise<UpdateOperationStatusResponse> => {
+  const response = await axiosClient.patch<UpdateOperationStatusResponse>(
+    TripEndpoint.UPDATE_OPERATION_STATUS,
+    payload,
+  );
+  return response.data;
 };
 
 export const getTripById = async (id: number | string): Promise<CmsTripItem> => {
