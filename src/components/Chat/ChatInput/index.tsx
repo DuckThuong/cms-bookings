@@ -2,6 +2,7 @@ import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAxiosError } from "axios";
 import { Button, Input, Tooltip, Upload } from "antd";
+import type { TextAreaRef } from "antd/es/input/TextArea";
 import {
   AudioOutlined,
   CloseOutlined,
@@ -62,7 +63,7 @@ export const ChatInput = (props: ChatInputProps) => {
   const [isSending, setIsSending] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textareaRef = useRef<TextAreaRef | null>(null);
   const cursorPositionRef = useRef<number>(0);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const isBusy = props.disabled || isSending || isUploading;
@@ -107,7 +108,7 @@ export const ChatInput = (props: ChatInputProps) => {
   };
 
   const handleEmojiClick = (emojiData: EmojiClickData) => {
-    const textarea = textareaRef.current;
+    const textarea = textareaRef.current?.resizableTextArea?.textArea;
     if (!textarea) return;
     const start = cursorPositionRef.current;
     const newMessage =
