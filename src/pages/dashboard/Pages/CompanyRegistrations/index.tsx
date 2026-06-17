@@ -1,20 +1,19 @@
-import { useMemo, useState } from "react";
-import { Button, Drawer, Input, message, Modal, Select, Table, Tag } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  EyeOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { RegistrationStatus, type CompanyRegistrationResponseDto } from "@/api/dtos/company-registration.dto";
 import {
   fetchCompanyRegistrations,
   updateCompanyRegistrationStatus,
 } from "@/api/configs/company-registration.config";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { RegistrationStatus, type CompanyRegistrationResponseDto } from "@/api/dtos/company-registration.dto";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  ReloadOutlined,
+  SearchOutlined
+} from "@ant-design/icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, Drawer, Input, message, Modal, Select, Table, Tag } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useMemo, useState } from "react";
 import "./style.scss";
 
 type CompanyRegistrationRecord = CompanyRegistrationResponseDto & {
@@ -99,7 +98,7 @@ const CompanyRegistrationsPage = () => {
   const handleApprove = (record: CompanyRegistrationRecord) => {
     Modal.confirm({
       title: "Phê duyệt đăng ký",
-      content: `Bạn có chắc chắn phê duyệt đăng ký của nhà xe "${record.companyName}"? Tài khoản người dùng sẽ được cập nhật vai trò OWNER.`,
+      content: `Bạn có chắc chắn phê duyệt đăng ký của nhà xe "${record.companyName}"?`,
       okText: "Phê duyệt",
       cancelText: "Hủy",
       onOk: () => {
