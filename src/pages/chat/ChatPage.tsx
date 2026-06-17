@@ -15,7 +15,6 @@ import {
   CheckCircleOutlined,
   InboxOutlined,
   CustomerServiceOutlined,
-  ShopOutlined,
   ClockCircleOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
@@ -24,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import {
   createChatConversation,
   getChatConversations,
+  getOperatorHotlines,
 } from "@/api/configs/chat.config";
 import { CHAT_QUERY_KEYS } from "@/api/endpoints/chat.endpoint";
 import type { ConversationResponseDto } from "@/api/dtos/chat.dto";
@@ -83,21 +83,37 @@ export const ChatPage = () => {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [infoOpen, setInfoOpen] = useState(true);
+  const [pendingConversation, setPendingConversation] =
+    useState<ConversationResponseDto | null>(null);
 
   const conversationsQuery = useQuery({
     queryKey: [CHAT_QUERY_KEYS.CONVERSATIONS],
     queryFn: () => getChatConversations("all"),
   });
 
+  const operatorHotlinesQuery = useQuery({
+    queryKey: [CHAT_QUERY_KEYS.OPERATORS],
+    queryFn: () => getOperatorHotlines(),
+  });
+
   const startConversationMutation = useMutation({
     mutationFn: createChatConversation,
     onSuccess: (conversation) => {
-      queryClient.invalidateQueries({ queryKey: CHAT_QUERY_KEYS.CONVERSATIONS });
+      setPendingConversation(conversation);
       setSelectedId(conversation.conversationId);
+      queryClient.invalidateQueries({ queryKey: CHAT_QUERY_KEYS.CONVERSATIONS });
+      queryClient.invalidateQueries({
+        queryKey: [CHAT_QUERY_KEYS.CONVERSATION_MESSAGES, conversation.conversationId],
+      });
     },
   });
 
   const conversations = conversationsQuery.data ?? [];
+  const operatorHotlines = operatorHotlinesQuery.data ?? [];
+
+  const startConversationWith = (toUserId: number, type: ConversationResponseDto["type"]) => {
+    startConversationMutation.mutate({ toUserId, type });
+  };
 
   const filteredConversations = useMemo(() => {
     let items = conversations;
@@ -127,12 +143,18 @@ export const ChatPage = () => {
 
   // Auto-select first conversation
   const activeConversation = useMemo(() => {
-    if (filteredConversations.length === 0) return null;
-    const found = filteredConversations.find(
-      (c) => c.conversationId === selectedId,
-    );
-    return found ?? filteredConversations[0];
-  }, [filteredConversations, selectedId]);
+    const baseList = pendingConversation
+      ? [
+        pendingConversation,
+        ...filteredConversations.filter(
+          (c) => c.conversationId !== pendingConversation.conversationId,
+        ),
+      ]
+      : filteredConversations;
+    if (baseList.length === 0) return null;
+    const found = baseList.find((c) => c.conversationId === selectedId);
+    return found ?? baseList[0];
+  }, [filteredConversations, pendingConversation, selectedId]);
 
   const stats = useMemo(() => {
     const total = conversations.length;
@@ -143,6 +165,18 @@ export const ChatPage = () => {
     ).length;
     return { total, unread, assigned, urgent };
   }, [conversations]);
+
+  // Khi conversation vừa tạo đã xuất hiện trong list, clear pending.
+  useEffect(() => {
+    if (
+      pendingConversation &&
+      conversations.some(
+        (c) => c.conversationId === pendingConversation.conversationId,
+      )
+    ) {
+      setPendingConversation(null);
+    }
+  }, [conversations, pendingConversation]);
 
   // Sync selectedId
   useEffect(() => {
@@ -155,11 +189,11 @@ export const ChatPage = () => {
   const isEmpty = !isLoading && filteredConversations.length === 0;
 
   const quickReplies = activeConversation
-    ? QUICK_REPLY_BY_TYPE[activeConversation.type].map((label, index) => ({
-        id: `${activeConversation.type}-${index}`,
-        label: label.slice(0, 40) + (label.length > 40 ? "…" : ""),
-        payload: label,
-      }))
+    ? QUICK_REPLY_BY_TYPE[activeConversation.type]?.map((label, index) => ({
+      id: `${activeConversation.type}-${index}`,
+      label: label.slice(0, 40) + (label.length > 40 ? "…" : ""),
+      payload: label,
+    }))
     : [];
 
   const handleQuickReply = (reply: { payload?: string }) => {
@@ -210,9 +244,8 @@ export const ChatPage = () => {
       </header>
 
       <div
-        className={`chat-window-layout ${
-          activeConversation && infoOpen ? "" : "chat-window-layout--no-info"
-        }`}
+        className={`chat-window-layout ${activeConversation && infoOpen ? "" : "chat-window-layout--no-info"
+          }`}
       >
         <aside className="chat-window-layout__list">
           <div className="chat-page__list-toolbar">
@@ -233,9 +266,8 @@ export const ChatPage = () => {
                   <button
                     key={key}
                     type="button"
-                    className={`chat-page__list-filter ${
-                      filter === key ? "chat-page__list-filter--active" : ""
-                    }`}
+                    className={`chat-page__list-filter ${filter === key ? "chat-page__list-filter--active" : ""
+                      }`}
                     onClick={() => setFilter(key)}
                   >
                     {meta.icon}
@@ -286,90 +318,52 @@ export const ChatPage = () => {
             <h4 className="chat-page__list-hotlines-title">
               Bắt đầu hội thoại
             </h4>
-            <button
-              type="button"
-              className="chat-page__list-hotline"
-              disabled={startConversationMutation.isPending}
-              onClick={() =>
-                startConversationMutation.mutate({
-                  toUserId: 201,
-                  type: "CUSTOMER",
-                })
-              }
-            >
-              <Avatar
-                size={32}
-                style={{ background: "#3b82f6" }}
-                icon={<CustomerServiceOutlined />}
-              />
-              <div className="chat-page__list-hotline-info">
-                <span className="chat-page__list-hotline-name">
-                  Hỗ trợ khách hàng
-                </span>
-                <span className="chat-page__list-hotline-role">
-                  Khách hàng mới
-                </span>
+            {operatorHotlinesQuery.isLoading ? (
+              <div className="chat-page__list-hotline chat-page__list-hotline--loading">
+                <Spin size="small" />
+                <span>Đang tải danh sách admin…</span>
               </div>
-              <Tooltip title="Tạo hội thoại">
-                <UserAddOutlined className="chat-page__list-hotline-icon" />
-              </Tooltip>
-            </button>
-            <button
-              type="button"
-              className="chat-page__list-hotline chat-page__list-hotline--op"
-              disabled={startConversationMutation.isPending}
-              onClick={() =>
-                startConversationMutation.mutate({
-                  toUserId: 401,
-                  type: "OPERATOR",
-                })
-              }
-            >
-              <Avatar
-                size={32}
-                style={{ background: "#a855f7" }}
-                icon={<ShopOutlined />}
-              />
-              <div className="chat-page__list-hotline-info">
-                <span className="chat-page__list-hotline-name">
-                  Liên hệ nhà xe
-                </span>
-                <span className="chat-page__list-hotline-role">
-                  Đối tác vận hành
-                </span>
+            ) : operatorHotlines.length === 0 ? (
+              <div className="chat-page__list-hotline chat-page__list-hotline--empty">
+                <InfoCircleOutlined />
+                <span>Chưa có admin/owner nào trong hệ thống.</span>
               </div>
-              <Tooltip title="Tạo hội thoại">
-                <UserAddOutlined className="chat-page__list-hotline-icon" />
-              </Tooltip>
-            </button>
-            <button
-              type="button"
-              className="chat-page__list-hotline chat-page__list-hotline--admin"
-              disabled={startConversationMutation.isPending}
-              onClick={() =>
-                startConversationMutation.mutate({
-                  toUserId: 999,
-                  type: "ADMIN",
-                })
-              }
-            >
-              <Avatar
-                size={32}
-                style={{ background: "#22c55e" }}
-                icon={<CheckCircleOutlined />}
-              />
-              <div className="chat-page__list-hotline-info">
-                <span className="chat-page__list-hotline-name">
-                  Quản trị viên
-                </span>
-                <span className="chat-page__list-hotline-role">
-                  Hỗ trợ nội bộ
-                </span>
-              </div>
-              <Tooltip title="Tạo hội thoại">
-                <UserAddOutlined className="chat-page__list-hotline-icon" />
-              </Tooltip>
-            </button>
+            ) : (
+              operatorHotlines.map((op) => {
+                const role = op.toUser?.role ?? "ADMIN";
+                const icon =
+                  role === "ADMIN" ? <CheckCircleOutlined /> : <CustomerServiceOutlined />;
+                const color = role === "ADMIN" ? "#22c55e" : "#3b82f6";
+                return (
+                  <button
+                    key={op.toUser?.userId ?? op.conversationId}
+                    type="button"
+                    className="chat-page__list-hotline"
+                    disabled={startConversationMutation.isPending}
+                    onClick={() =>
+                      startConversationWith(op.toUser!.userId, "CUSTOMER")
+                    }
+                  >
+                    <Avatar
+                      size={32}
+                      style={{ background: color }}
+                      icon={icon}
+                    />
+                    <div className="chat-page__list-hotline-info">
+                      <span className="chat-page__list-hotline-name">
+                        {op.toUser?.fullName ?? "Admin"}
+                      </span>
+                      <span className="chat-page__list-hotline-role">
+                        Liên hệ admin ({role === "ADMIN" ? "Quản trị" : "Điều hành"})
+                      </span>
+                    </div>
+                    <Tooltip title="Tạo hội thoại">
+                      <UserAddOutlined className="chat-page__list-hotline-icon" />
+                    </Tooltip>
+                  </button>
+                );
+              })
+            )}
           </div>
         </aside>
 
@@ -406,12 +400,15 @@ export const ChatPage = () => {
               <Button
                 type="primary"
                 icon={<UserAddOutlined />}
-                onClick={() =>
-                  startConversationMutation.mutate({
-                    toUserId: 201,
-                    type: "CUSTOMER",
-                  })
+                disabled={
+                  startConversationMutation.isPending ||
+                  operatorHotlines.length === 0
                 }
+                onClick={() => {
+                  const first = operatorHotlines[0];
+                  if (!first?.toUser) return;
+                  startConversationWith(first.toUser.userId, "CUSTOMER");
+                }}
               >
                 Tạo hội thoại mới
               </Button>

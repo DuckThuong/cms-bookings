@@ -152,7 +152,7 @@ export const ChatInfoPanel = ({
       <div className="chat__info-section">
         <h4 className="chat__info-section-title">Thông tin liên hệ</h4>
         <ul className="chat__info-list">
-          {conversation.toUser?.email ? (
+          {conversation?.toUser?.email ? (
             <li className="chat__info-item">
               <span className="chat__info-item-icon">
                 <MailOutlined />

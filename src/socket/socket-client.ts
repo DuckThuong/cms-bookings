@@ -20,7 +20,7 @@ export const getSocketClient = () => {
 
   const token = getStoredToken();
 
-  socketInstance = io(resolveSocketUrl(), {
+  socketInstance = io(resolveSocketUrl() + "/chat", {
     autoConnect: false,
     transports: ["websocket", "polling"],
     auth: {
