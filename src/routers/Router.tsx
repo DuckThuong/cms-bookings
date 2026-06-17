@@ -15,6 +15,7 @@ import ReportsPage from "@/pages/dashboard/Pages/Reports";
 import { ChatLayout, ChatPage, ChatDetailPage } from "@/pages/chat";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFoundPage from "@/pages/NotFoundPage";
+import CompanyRegistrationsPage from "@/pages/dashboard/Pages/CompanyRegistrations";
 
 export const WebRouter = () => (
   <Routes>
@@ -55,6 +56,9 @@ export const WebRouter = () => (
           <Route index element={<ChatPage />} />
           <Route path=":id" element={<ChatDetailPage />} />
         </Route>
+      </Route>
+      <Route path={ROUTER_PATH.COMPANY_REGISTRATIONS} element={<AppLayout />}>
+        <Route index element={<CompanyRegistrationsPage />} />
       </Route>
     </Route>
     <Route path={ROUTER_PATH.NOT_FOUND} element={<NotFoundPage />} />

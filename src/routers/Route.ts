@@ -13,6 +13,7 @@ export const ROUTER_NAME = {
   REVENUE: "revenue",
   REPORTS: "reports",
   CHAT: "chat",
+  COMPANY_REGISTRATIONS: "company-registrations",
   NOT_FOUND: "*",
 };
 
@@ -29,5 +30,6 @@ export const ROUTER_PATH = {
   REVENUE: `${ROUTER}/${ROUTER_NAME.REVENUE}`,
   REPORTS: `${ROUTER}/${ROUTER_NAME.REPORTS}`,
   CHAT: `${ROUTER}/${ROUTER_NAME.CHAT}`,
+  COMPANY_REGISTRATIONS: `${ROUTER}/${ROUTER_NAME.COMPANY_REGISTRATIONS}`,
   NOT_FOUND: `${ROUTER}/${ROUTER_NAME.NOT_FOUND}`,
 };

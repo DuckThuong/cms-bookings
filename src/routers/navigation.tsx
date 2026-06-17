@@ -14,6 +14,7 @@ import {
   ScheduleOutlined,
   SettingOutlined,
   TeamOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 
 export type MenuBadge = {
@@ -50,6 +51,7 @@ export const MENU_PATHS: Record<string, string> = {
   revenue: ROUTER_PATH.REVENUE,
   reports: ROUTER_PATH.REPORTS,
   chat: ROUTER_PATH.CHAT,
+  "company-registrations": ROUTER_PATH.COMPANY_REGISTRATIONS,
 };
 
 const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
@@ -93,6 +95,7 @@ const ADMIN_MENU_GROUPS: AppMenuGroup[] = [
   {
     label: "Quản lý",
     items: [
+      { key: "company-registrations", icon: <UserAddOutlined />, label: "Đăng ký nhà xe", badge: null },
       { key: "providers", icon: <ApartmentOutlined />, label: "Quản lý nhà xe", badge: null },
       { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng", badge: null },
       { key: "chat", icon: <MessageOutlined />, label: "Hội thoại", badge: { text: "5", type: "danger" } },
@@ -102,6 +105,7 @@ const ADMIN_MENU_GROUPS: AppMenuGroup[] = [
 
 export const ADMIN_ALLOWED_MENU_KEYS = new Set([
   "dashboard",
+  "company-registrations",
   "providers",
   "customers",
   "chat",
@@ -134,6 +138,7 @@ export const getBreadcrumbs = (activeKey: string, role: Role | null): Breadcrumb
   const routeMap: Record<string, BreadcrumbCrumb[]> = {
     dashboard: [{ icon: <HomeOutlined />, label: "Dashboard" }],
     bookings: [{ label: "Vận hành" }, { label: "Đặt vé" }],
+    "company-registrations": [{ label: "Quản lý" }, { label: "Đăng ký nhà xe" }],
     providers: [{ label: "Quản lý" }, { label: "Nhà xe" }],
     trips: [{ label: "Vận hành" }, { label: "Chuyến xe" }],
     routes: [{ label: "Vận hành" }, { label: "Tuyến đường" }],
