@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Dropdown, Input, type MenuProps } from "antd";
 import {
-  type CSSProperties,
   useCallback,
   useEffect,
   useMemo,
@@ -72,7 +71,6 @@ export const ChatPanel = (props: ChatPanelProps) => {
     limit: 20,
   });
   const [isBodyDragActive, setIsBodyDragActive] = useState(false);
-  const [composerHeight, setComposerHeight] = useState(60);
   const [droppedFilesPayload, setDroppedFilesPayload] = useState<{
     id: number;
     files: File[];
@@ -91,17 +89,6 @@ export const ChatPanel = (props: ChatPanelProps) => {
     dragCounterRef.current = 0;
     setIsBodyDragActive(false);
   }, []);
-
-  const handleComposerHeightChange = useCallback((height: number) => {
-    const normalizedHeight = Math.max(60, Math.ceil(height));
-    setComposerHeight((currentHeight) =>
-      currentHeight === normalizedHeight ? currentHeight : normalizedHeight,
-    );
-  }, []);
-
-  const panelStyle: CSSProperties = {
-    ["--chat-footer-height" as string]: `${composerHeight}px`,
-  };
 
   const currentLightboxImage = lightboxState
     ? lightboxState.images[lightboxState.index]
@@ -577,7 +564,6 @@ export const ChatPanel = (props: ChatPanelProps) => {
         <div
           ref={panelRef}
           className={`chat__panel ${isBodyDragActive ? "is-drag-active" : ""}`}
-          style={panelStyle}
         >
           <div className="chat__panel-header">
             <div className="chat__panel-header-left">
@@ -671,7 +657,6 @@ export const ChatPanel = (props: ChatPanelProps) => {
           <div className="chat__panel-footer">
             <ChatInput
               conversationId={props.data.conversationId}
-              onComposerHeightChange={handleComposerHeightChange}
               droppedFilesPayload={droppedFilesPayload}
             />
           </div>

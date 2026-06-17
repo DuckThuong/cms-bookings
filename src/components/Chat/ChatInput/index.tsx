@@ -27,7 +27,6 @@ export interface ChatInputProps {
   disabled?: boolean;
   placeholder?: string;
   onMessageSent?: (message: MessageResponseDto) => void;
-  onComposerHeightChange?: (height: number) => void;
   droppedFilesPayload?: {
     id: number;
     files: File[];
@@ -63,7 +62,6 @@ export const ChatInput = (props: ChatInputProps) => {
   const [isSending, setIsSending] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const composerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const cursorPositionRef = useRef<number>(0);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
@@ -85,22 +83,6 @@ export const ChatInput = (props: ChatInputProps) => {
     if (!props.droppedFilesPayload?.files?.length) return;
     addSelectedFiles(props.droppedFilesPayload.files);
   }, [addSelectedFiles, props.droppedFilesPayload]);
-
-  useEffect(() => {
-    if (!props.onComposerHeightChange) return;
-    const composerElement = composerRef.current;
-    if (!composerElement) return;
-
-    const emitHeight = () =>
-      props.onComposerHeightChange?.(
-        composerElement.getBoundingClientRect().height,
-      );
-    emitHeight();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(emitHeight);
-    observer.observe(composerElement);
-    return () => observer.disconnect();
-  }, [props.onComposerHeightChange, files.length, message.length]);
 
   useEffect(() => {
     if (!showEmojiPicker) return;
@@ -202,7 +184,6 @@ export const ChatInput = (props: ChatInputProps) => {
 
   return (
     <div
-      ref={composerRef}
       className={`chat__composer ${files.length > 0 ? "chat__composer--has-files" : ""}`}
     >
       {files.length > 0 ? (

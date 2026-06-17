@@ -111,7 +111,6 @@ export const ChatWindow = ({
   const endRef = useRef<HTMLDivElement | null>(null);
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [composerHeight, setComposerHeight] = useState(120);
   const [lightbox, setLightbox] = useState<{
     images: MessageAttachmentResponseDto[];
     index: number;
@@ -406,14 +405,7 @@ export const ChatWindow = ({
   const priorityMeta = PRIORITY_OPTIONS.find((p) => p.value === data.priority);
 
   return (
-    <div
-      className="chat__window"
-      style={
-        {
-          ["--chat-footer-height" as string]: `${composerHeight}px`,
-        } as React.CSSProperties
-      }
-    >
+    <div className="chat__window">
       <header className="chat__window-header">
         <div className="chat__window-header-main">
           <Avatar
@@ -699,7 +691,6 @@ export const ChatWindow = ({
       <div className="chat__window-footer">
         <ChatInput
           conversationId={data.conversationId}
-          onComposerHeightChange={setComposerHeight}
           placeholder={`Phản hồi cho ${displayName}...`}
         />
       </div>
