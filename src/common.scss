@@ -5,12 +5,39 @@ $night: #0a0e1a;
 $night-2: #151b2e;
 $navy: #0f1629;
 
+// CMS-specific primary colors
+$primary-dark: #0b1426;
+$primary-navy: #101d38;
+$primary-navy-2: #152045;
+$sidebar-bg: #0d1b35;
+$sidebar-hover: #1a2d52;
+$sidebar-active: #1e3460;
+$header-bg: #0f1e38;
+
 $amber: #f5a623;
 $amber-light: #fdc96a;
 $amber-pale: #fff8ec;
 
+// Accent
+$accent-orange: #f97316;
+$accent-orange-2: #fb923c;
+$accent-orange-light: rgba(249, 115, 22, 0.12);
+$accent-glow: rgba(249, 115, 22, 0.25);
+
 $muted: #6b7280;
 $muted-on-dark: rgba(255, 255, 255, 0.55);
+
+// Text
+$text-primary: #f1f5f9;
+$text-secondary: #94a3b8;
+$text-muted: #64748b;
+$text-white: #ffffff;
+
+// Status
+$status-success: #22c55e;
+$status-warning: #eab308;
+$status-error: #ef4444;
+$status-info: #3b82f6;
 
 $border: #e5e7eb;
 $bg: #f4f5f7;
@@ -24,6 +51,28 @@ $red: #ef4444;
 $radius-sm: 10px;
 $radius-md: 16px;
 $radius-lg: 24px;
+
+// Additional text colors
+$text_color_1: #00293a;
+$text_color_2: #f0f2f5;
+$text_color_3: #147ba7;
+$text_color_4: #015e86a1;
+$color-text-primary: #333333;
+$color-border: #d9d9d9;
+$color-blue-5: #1890ff;
+$color-blue-4: #40a9ff;
+$color-blue-6: #096dd9;
+$color-red-5: #ff4d4f;
+$color-orange-5: #faad14;
+$color-gray-2: #f5f5f5;
+$color-gray-6: #bfbfbf;
+$color-white: #ffffff;
+$background-color: #f7f8f9;
+
+// Shadows
+$shadow-focus-blue: rgba(24, 144, 255, 0.2);
+$shadow-error-red: rgba(255, 77, 79, 0.2);
+$shadow-warning-orange: rgba(250, 173, 20, 0.2);
 
 
 @keyframes fadeUp {
@@ -184,6 +233,58 @@ $radius-lg: 24px;
   }
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+// Additional keyframes
+@keyframes chat-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chat-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 

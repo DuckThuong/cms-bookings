@@ -1,11 +1,6 @@
 @use "../../components/Chat/chat-tokens.scss" as *;
 @import "../../color.scss";
 
-@keyframes chat-fade-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 // ─── Page wrapper ────────────────────────────────────────
 .chat-layout {
   width: 100%;
