@@ -91,7 +91,7 @@ export const TRIP_STATUS_META: Record<TripStatusKey, StatusMeta> = {
   },
 };
 
-export const ROUTE_STATUS_META: Record<RouteStatusKey, StatusMeta> = {
+export const TRIP_ROUTE_STATUS_META: Record<RouteStatusKey, StatusMeta> = {
   ACTIVE: {
     label: "Đang khai thác",
     color: "#22c55e",
@@ -104,7 +104,7 @@ export const ROUTE_STATUS_META: Record<RouteStatusKey, StatusMeta> = {
   },
 };
 
-export const VEHICLE_STATUS_META: Record<VehicleStatusKey, StatusMeta> = {
+export const TRIP_VEHICLE_STATUS_META: Record<VehicleStatusKey, StatusMeta> = {
   ready: { label: "Sẵn sàng", color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
   in_service: {
     label: "Đang khai thác",
@@ -199,7 +199,7 @@ export const tripStatusOptions: FilterOption[] = [
   { value: "delayed", label: "Trễ chuyến" },
 ];
 
-export const routeStatusOptions: FilterOption[] = [
+export const tripRouteStatusOptions: FilterOption[] = [
   { value: "all", label: "Tất cả tuyến" },
   { value: "ACTIVE", label: "Đang hoạt động" },
   { value: "INACTIVE", label: "Ngừng hoạt động" },
