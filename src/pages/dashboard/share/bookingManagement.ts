@@ -17,6 +17,43 @@ export type BookingStatusTab = {
   count: number;
 };
 
+export type RefundStatusKey = 'pending' | 'approved' | 'rejected';
+
+export type RefundRecord = {
+  key: string;
+  id: number;
+  refundId: number;
+  refundCode: string;
+  customer: string;
+  phone: string;
+  route: string;
+  departure: string;
+  bookingCode: string;
+  ticketCode: string;
+  seats: string[];
+  seatCount: number;
+  paidAmount: number;
+  refundAmount: number;
+  refundPercentage: number;
+  status: RefundStatusKey;
+  reason?: string;
+  requestedAt: string;
+  expiresAt?: string;
+  processedAt?: string;
+};
+
+export const REFUND_STATUSES: Record<RefundStatusKey, StatusMeta> = {
+  pending: { label: 'Chờ duyệt', color: '#eab308', bg: 'rgba(234,179,8,0.12)' },
+  approved: { label: 'Đã duyệt', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+  rejected: { label: 'Từ chối', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+};
+
+export const REFUND_POLICY = {
+  BEFORE_24H: { percentage: 80, label: 'Hoàn 80%' },
+  BEFORE_6H: { percentage: 50, label: 'Hoàn 50%' },
+  UNDER_6H: { percentage: 0, label: 'Không hoàn' },
+} as const;
+
 export type VehicleRecord = {
   id: string;
   label: string;

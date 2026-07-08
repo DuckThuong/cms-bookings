@@ -14,6 +14,7 @@ import {
   ScheduleOutlined,
   SettingOutlined,
   TeamOutlined,
+  UndoOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
 
@@ -50,6 +51,7 @@ export const MENU_PATHS: Record<string, string> = {
   drivers: ROUTER_PATH.DRIVERS,
   revenue: ROUTER_PATH.REVENUE,
   reports: ROUTER_PATH.REPORTS,
+  refunds: ROUTER_PATH.REFUNDS,
   chat: ROUTER_PATH.CHAT,
   "company-registrations": ROUTER_PATH.COMPANY_REGISTRATIONS,
 };
@@ -74,6 +76,7 @@ const CUSTOMER_MENU_GROUPS: AppMenuGroup[] = [
       { key: "customers", icon: <TeamOutlined />, label: "Khách hàng", badge: null },
       { key: "drivers", icon: <CarOutlined />, label: "Tài xế", badge: null },
       { key: "revenue", icon: <DollarOutlined />, label: "Doanh thu", badge: null },
+      { key: "refunds", icon: <UndoOutlined />, label: "Hoàn tiền", badge: null },
       { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo", badge: null },
     ],
   },
@@ -146,6 +149,7 @@ export const getBreadcrumbs = (activeKey: string, role: Role | null): Breadcrumb
     customers: [{ label: "Quản lý" }, { label: "Khách hàng" }],
     drivers: [{ label: "Quản lý" }, { label: "Tài xế" }],
     revenue: [{ label: "Quản lý" }, { label: "Doanh thu" }],
+    refunds: [{ label: "Quản lý" }, { label: "Hoàn tiền" }],
     reports: [{ label: "Quản lý" }, { label: "Báo cáo" }],
     chat: [{ label: "Hệ thống" }, { label: "Hội thoại" }],
     settings: [{ label: "Hệ thống" }, { label: "Cài đặt" }],

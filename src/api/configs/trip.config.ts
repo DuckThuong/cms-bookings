@@ -46,6 +46,16 @@ export const updateOperationStatus = async (
   return response.data;
 };
 
+export const resetOperationStatus = async (
+  id: number,
+): Promise<UpdateOperationStatusResponse> => {
+  const response = await axiosClient.patch<UpdateOperationStatusResponse>(
+    TripEndpoint.RESET_OPERATION_STATUS,
+    { id },
+  );
+  return response.data;
+};
+
 export const getTripById = async (id: number | string): Promise<CmsTripItem> => {
   const response = await axiosClient.get<CmsTripItem>(
     withId(TripEndpoint.GET_TRIP, id),

@@ -31,6 +31,7 @@ import {
   toDriverCreatePayload,
   toDriverUpdatePayload,
   type SummaryItem,
+  driverLicenseOptions,
 } from "../../share";
 import type { DriverResponseDto } from "@/api/dtos/driver.dto";
 import "../Page2/style.scss";
@@ -170,32 +171,40 @@ const DriversPage = () => {
   };
 
   const columns: ColumnsType<DriverResponseDto> = [
-    { title: "Mã tài xế", key: "code", render: (_, record) => (
-      <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{record.code ?? record.id}</span>
-    )},
-    { title: "Tài xế", key: "name", render: (_, record) => (
-      <div className="cust-cell">
-        <div className="cust-cell__avatar">{record?.name?.charAt(0)}</div>
-        <div>
-          <div className="cust-cell__name">{record?.name}</div>
-          <div className="cust-cell__phone">{record?.phone}</div>
+    {
+      title: "Mã tài xế", key: "code", render: (_, record) => (
+        <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{record.code ?? record.id}</span>
+      )
+    },
+    {
+      title: "Tài xế", key: "name", render: (_, record) => (
+        <div className="cust-cell">
+          <div className="cust-cell__avatar">{record?.name?.charAt(0)}</div>
+          <div>
+            <div className="cust-cell__name">{record?.name}</div>
+            <div className="cust-cell__phone">{record?.phone}</div>
+          </div>
         </div>
-      </div>
-    )},
+      )
+    },
     { title: "Bằng lái", dataIndex: "license", key: "license" },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Số chuyến", dataIndex: "totalTurn", key: "totalTurn", render: (value: number) => value ?? 0 },
-    { title: "Đánh giá", dataIndex: "rate", key: "rate", render: (value: number) => (
-      <span className="amount-cell">{(value ?? 0).toFixed(1)}*</span>
-    )},
+    {
+      title: "Đánh giá", dataIndex: "rate", key: "rate", render: (value: number) => (
+        <span className="amount-cell">{(value ?? 0).toFixed(1)}*</span>
+      )
+    },
     { title: "Trạng thái", dataIndex: "status", key: "status", render: renderDriverStatus },
-    { title: "", key: "actions", render: (_, record) => (
-      <div className="row-actions">
-        <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
-        <Button type="primary" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditModal(record); }} />
-        <Button type="primary" danger icon={<DeleteOutlined />} className="danger" onClick={(e) => { e.stopPropagation(); handleDeleteDriver(record); }} />
-      </div>
-    )},
+    {
+      title: "", key: "actions", render: (_, record) => (
+        <div className="row-actions">
+          <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
+          <Button type="primary" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditModal(record); }} />
+          <Button type="primary" danger icon={<DeleteOutlined />} className="danger" onClick={(e) => { e.stopPropagation(); handleDeleteDriver(record); }} />
+        </div>
+      )
+    },
   ];
 
   return (

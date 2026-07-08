@@ -5,4 +5,5 @@ export const TripEndpoint = {
   UPDATE_TRIP: "/cms/trip",
   DELETE_TRIP: "/cms/trip/:id",
   UPDATE_OPERATION_STATUS: "/cms/trip/operation-status",
+  RESET_OPERATION_STATUS: "/cms/trip/operation-status/reset",
 };

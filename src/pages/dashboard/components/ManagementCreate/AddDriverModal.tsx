@@ -6,7 +6,7 @@ import {
 import type { DriverResponseDto } from "@/api/dtos/driver.dto";
 import { Col, Form, Input, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
-import { driverLicenseOptions } from "../../share";
+import { driverLicenseOptions, driverStatusOptions } from "../../share";
 
 export type DriverFormValues = {
   name: string;
@@ -24,12 +24,6 @@ type AddDriverModalProps = {
   onClose: () => void;
   onSubmit: (values: DriverFormValues) => void;
 };
-
-const DRIVER_STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Dang hoat dong" },
-  { value: "INACTIVE", label: "Ngung hoat dong" },
-  { value: "MAINTENANCE", label: "Bao duong" },
-];
 
 const toFormRecord = (record: DriverResponseDto): DriverFormValues => ({
   licenseNum: record.licenseNum ?? "",
@@ -87,13 +81,13 @@ const AddDriverModal = ({
   return (
     <Modal
       className="bm-modal mgmt-modal"
-      title={isEdit ? "Cap nhat tai xe" : "Them tai xe moi"}
+      title={isEdit ? "Cập nhật tài xế" : "Thêm tài xế mới"}
       open={open}
       onCancel={handleClose}
       width={620}
       footer={renderModalFooter({
         cancelText: "Huy",
-        submitText: isEdit ? "Luu thay doi" : "Them tai xe",
+        submitText: isEdit ? "Lưu thay đổi" : "Thêm tài xế",
         onCancel: handleClose,
         onSubmit: handleSubmit,
       })}
@@ -107,8 +101,8 @@ const AddDriverModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="name"
-              label={formLabel("Ho ten")}
-              rules={[{ required: true, message: "Nhap ho ten" }]}
+              label={formLabel("Họ tên")}
+              rules={[{ required: true, message: "Nhập họ tên" }]}
             >
               <Input placeholder="Nguyen Van A" style={fieldStyle} />
             </Form.Item>
@@ -116,8 +110,8 @@ const AddDriverModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="phone"
-              label={formLabel("So dien thoai")}
-              rules={[{ required: true, message: "Nhap so dien thoai" }]}
+              label={formLabel("Số điện thoại")}
+              rules={[{ required: true, message: "Nhập số điện thoại" }]}
             >
               <Input placeholder="0903000999" style={fieldStyle} />
             </Form.Item>
@@ -130,8 +124,8 @@ const AddDriverModal = ({
               name="email"
               label={formLabel("Email")}
               rules={[
-                { required: true, message: "Nhap email" },
-                { type: "email", message: "Email khong hop le" },
+                { required: true, message: "Nhập email" },
+                { type: "email", message: "Email không hợp lệ" },
               ]}
             >
               <Input placeholder="driver@example.com" style={fieldStyle} />
@@ -140,10 +134,10 @@ const AddDriverModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="status"
-              label={formLabel("Trang thai")}
-              rules={[{ required: true, message: "Chon trang thai" }]}
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
-              <Select className="bm-select" options={DRIVER_STATUS_OPTIONS} />
+              <Select className="bm-select" options={driverStatusOptions} />
             </Form.Item>
           </Col>
         </Row>
@@ -152,8 +146,8 @@ const AddDriverModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="license"
-              label={formLabel("Bang lai")}
-              rules={[{ required: true, message: "Chon bang lai" }]}
+              label={formLabel("Bằng lái")}
+              rules={[{ required: true, message: "Chọn bằng lái" }]}
             >
               <Select
                 className="bm-select"
@@ -167,17 +161,17 @@ const AddDriverModal = ({
             <Form.Item
               name="licenseNum"
               label={formLabel("Số bằng lái")}
-              rules={[{ required: true, message: "Nhap so bang lai" }]}
+              rules={[{ required: true, message: "Nhập số bằng lái" }]}
             >
               <Input placeholder="123456" style={fieldStyle} />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item name="description" label={formLabel("Mo ta")}>
+        <Form.Item name="description" label={formLabel("Mô tả")}>
           <Input.TextArea
             rows={3}
-            placeholder="Mo ta tai xe..."
+            placeholder="Mô tả tài xế..."
             style={{ ...fieldStyle, resize: "none" }}
           />
         </Form.Item>

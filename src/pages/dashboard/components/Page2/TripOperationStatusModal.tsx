@@ -5,12 +5,13 @@ import {
 } from "../../share";
 import { CmsTripItem } from "@/api/dtos/trip.dto";
 import { NOTI_ERROR, NOTI_SUCCESS } from "@/common/constants/constants";
-import { updateOperationStatus } from "@/api/configs/trip.config";
+import { updateOperationStatus, resetOperationStatus } from "@/api/configs/trip.config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TripEndpoint } from "@/api/endpoints/trip.endpoint";
 import { useNotification } from "@/providers/notificationProvider";
-import { Modal, Select, Spin } from "antd";
+import { Modal, Select, Spin, Button } from "antd";
 import { useEffect } from "react";
+import { SyncOutlined, ReloadOutlined } from "@ant-design/icons";
 
 type TripOperationStatusModalProps = {
   open: boolean;
@@ -28,6 +29,9 @@ const MAIN_STATUS_ORDER: OperationStatusKey[] = [
   "ARRIVED",
   "COMPLETED",
 ];
+
+// Trạng thái cho phép restart
+const TRIP_STATUSES_ALLOW_RESTART: OperationStatusKey[] = ["COMPLETED", "CANCELLED"];
 
 const ALL_STATUSES: OperationStatusKey[] = [
   ...MAIN_STATUS_ORDER,
@@ -70,6 +74,20 @@ export const TripOperationStatusModal = ({
     },
   });
 
+  const resetMutation = useMutation({
+    mutationFn: () => resetOperationStatus(trip!.id),
+    onSuccess: () => {
+      showNotification("Bắt đầu lại chuyến xe thành công", NOTI_SUCCESS);
+      void queryClient.invalidateQueries({
+        queryKey: [TripEndpoint.GET_ALL_TRIPS],
+      });
+      onClose();
+    },
+    onError: () => {
+      showNotification("Bắt đầu lại chuyến xe thất bại", NOTI_ERROR);
+    },
+  });
+
   const handleOk = () => {
     if (!selectedStatus || selectedStatus === trip?.operationStatus) {
       onClose();
@@ -77,6 +95,15 @@ export const TripOperationStatusModal = ({
     }
     updateMutation.mutate(selectedStatus);
   };
+
+  const handleRestart = () => {
+    resetMutation.mutate();
+  };
+
+  // Kiểm tra xem có thể restart không
+  const canRestart = trip?.operationStatus
+    ? TRIP_STATUSES_ALLOW_RESTART.includes(trip.operationStatus as OperationStatusKey)
+    : false;
 
   if (!trip) return null;
 
@@ -108,13 +135,13 @@ export const TripOperationStatusModal = ({
       onCancel={onClose}
       okText="Cập nhật"
       cancelText="Hủy"
-      confirmLoading={updateMutation.isPending}
+      confirmLoading={updateMutation.isPending || resetMutation.isPending}
       okButtonProps={{
         disabled:
           !selectedStatus || selectedStatus === trip.operationStatus,
       }}
     >
-      <Spin spinning={updateMutation.isPending}>
+      <Spin spinning={updateMutation.isPending || resetMutation.isPending}>
         <div style={{ marginBottom: 16 }}>
           <p style={{ marginBottom: 16, color: "#64748b", fontSize: 13 }}>
             Trạng thái hiện tại:{" "}
@@ -131,6 +158,35 @@ export const TripOperationStatusModal = ({
               ]?.label || "Chưa cập nhật"}
             </span>
           </p>
+
+          {canRestart && (
+            <div
+              style={{
+                marginBottom: 16,
+                padding: 12,
+                background: "rgba(34,197,94,0.08)",
+                borderRadius: 8,
+                border: "1px solid rgba(34,197,94,0.2)",
+              }}
+            >
+              <p style={{ fontSize: 13, color: "#166534", marginBottom: 12 }}>
+                Chuyến xe đã hoàn thành hoặc bị hủy. Bạn có thể bắt đầu lại để khai thác tiếp.
+              </p>
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                onClick={handleRestart}
+                loading={resetMutation.isPending}
+                style={{
+                  background: "#22c55e",
+                  borderColor: "#22c55e",
+                  borderRadius: 8,
+                }}
+              >
+                Bắt đầu lại
+              </Button>
+            </div>
+          )}
 
           <div
             style={{
