@@ -1,10 +1,6 @@
 import { getCmsCustomers } from "@/api/configs/customer.config";
 import SummaryStrip from "../../components/Page2/SummaryStrip";
-import {
-  CUSTOMER_STATUS_META,
-  customerStatusOptions,
-  customerTierOptions,
-} from "../../share";
+import { useCustomerStatuses } from "@/common/hooks/useMasterData";
 import type { CustomerRecord } from "../../share";
 import { EyeOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
@@ -16,16 +12,11 @@ import "../management.scss";
 
 const formatMoney = (value: number) => value.toLocaleString("vi-VN");
 
-const getTierLabel = (tier: CustomerRecord["tier"]) => {
-  switch (tier) {
-    case "vip": return "VIP";
-    case "than-thiet": return "Thân thiết";
-    default: return "Phổ thông";
-  }
-};
-
-export const renderCustomerStatus = (value: CustomerRecord["status"]) => {
-  const meta = CUSTOMER_STATUS_META[value];
+export const renderCustomerStatus = (
+  value: string,
+  statusMeta: Record<string, { label: string; color: string; bg: string }>
+) => {
+  const meta = statusMeta[value];
   if (!meta) return value || "-";
   return (
     <span className="booking-status" style={{ background: meta.bg, color: meta.color }}>
@@ -40,6 +31,17 @@ const CustomersPage = () => {
   const [tier, setTier] = useState("all");
   const [status, setStatus] = useState("all");
   const [selected, setSelected] = useState<CustomerRecord | null>(null);
+
+  const { customerStatusOptions, customerStatusMeta, customerTierOptions, customerTiers, loading: masterDataLoading } = useCustomerStatuses();
+
+  // Convert customer tiers to label map
+  const customerTierLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const ct of customerTiers) {
+      map[ct.code] = ct.name;
+    }
+    return map;
+  }, [customerTiers]);
 
   const listQuery = useQuery({
     queryKey: ["cmsCustomers", search, tier, status],
@@ -84,15 +86,15 @@ const CustomersPage = () => {
         </div>
       </div>
     )},
-    { title: "Hạng", dataIndex: "tier", key: "tier", render: (value: CustomerRecord["tier"]) => (
-      <span className="seat-badge">{getTierLabel(value)}</span>
+    { title: "Hạng", dataIndex: "tier", key: "tier", render: (value: string) => (
+      <span className="seat-badge">{customerTierLabelMap[value] ?? value}</span>
     )},
     { title: "Tuyến ưa thích", dataIndex: "preferredRoute", key: "preferredRoute" },
     { title: "Số booking", dataIndex: "bookingCount", key: "bookingCount" },
     { title: "Tổng chi tiêu", dataIndex: "totalSpent", key: "totalSpent", render: (value: number) => (
       <span className="amount-cell">{formatMoney(value)}₫</span>
     )},
-    { title: "Trạng thái", dataIndex: "status", key: "status", render: renderCustomerStatus },
+    { title: "Trạng thái", dataIndex: "status", key: "status", render: (value: string) => renderCustomerStatus(value, customerStatusMeta) },
     { title: "", key: "actions", render: (_, record) => (
       <div className="row-actions">
         <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
@@ -115,8 +117,8 @@ const CustomersPage = () => {
         </div>
         <div className="bm-toolbar__right">
           <Input className="bm-search" placeholder="Tìm tên, SĐT, mã khách..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select className="bm-select" value={tier} onChange={setTier} options={customerTierOptions} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={customerStatusOptions} />
+          <Select className="bm-select" value={tier} onChange={setTier} options={customerTierOptions} disabled={masterDataLoading} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={customerStatusOptions} disabled={masterDataLoading} />
           <Button className="btn-ghost" icon={<ReloadOutlined />} onClick={() => { setSearch(""); setTier("all"); setStatus("all"); void listQuery.refetch(); }} />
           <Button className="btn-primary" icon={<PlusOutlined />}>Tạo phân nhóm</Button>
         </div>
@@ -142,7 +144,7 @@ const CustomersPage = () => {
               <div className="mgmt-detail-list">
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Điện thoại</span><span className="mgmt-detail-list__value">{selected.phone}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Email</span><span className="mgmt-detail-list__value">{selected.email}</span></div>
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Hạng khách</span><span className="mgmt-detail-list__value">{getTierLabel(selected.tier)}</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Hạng khách</span><span className="mgmt-detail-list__value">{customerTierLabelMap[selected.tier] ?? selected.tier}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Booking gần nhất</span><span className="mgmt-detail-list__value">{selected.lastBooking}</span></div>
               </div>
               {selected.note && <div className="mgmt-note">{selected.note}</div>}

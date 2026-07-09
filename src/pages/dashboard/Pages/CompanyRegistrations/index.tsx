@@ -8,15 +8,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Drawer, Input, message, Modal, Select, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMemo, useState } from "react";
-import { REGISTRATION_STATUS_META, registrationStatusOptions } from "../../share";
+import { useRegistrationStatuses } from "@/common/hooks/useMasterData";
 import "./style.scss";
 
 export type CompanyRegistrationRecord = CompanyRegistrationResponseDto & {
   key: string;
 };
 
-export const renderRegistrationStatus = (value: RegistrationStatus) => {
-  const meta = REGISTRATION_STATUS_META[value];
+export const renderRegistrationStatus = (
+  value: RegistrationStatus,
+  statusMeta: Record<string, { label: string; color: string; bg: string }>
+) => {
+  const meta = statusMeta[value];
   if (!meta) return value || "-";
   return (
     <Tag style={{ background: meta.bg, color: meta.color, border: "none" }}>
@@ -33,6 +36,8 @@ const CompanyRegistrationsPage = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+
+  const { registrationStatusOptions, registrationStatusMeta, loading: masterDataLoading } = useRegistrationStatuses();
 
   const { data: registrations = [], isLoading, refetch } = useQuery({
     queryKey: ["company-registrations", status],
@@ -110,7 +115,7 @@ const CompanyRegistrationsPage = () => {
         <div style={{ fontSize: 12, color: "#94a3b8" }}>{record.userPhone}</div>
       </div>
     )},
-    { title: "Trạng thái", dataIndex: "status", key: "status", width: 140, render: renderRegistrationStatus },
+    { title: "Trạng thái", dataIndex: "status", key: "status", width: 140, render: (value: RegistrationStatus) => renderRegistrationStatus(value, registrationStatusMeta) },
     { title: "Ngày tạo", dataIndex: "createdAt", key: "createdAt", width: 160, render: (value: string) => new Date(value).toLocaleDateString("vi-VN") },
     { title: "", key: "actions", width: 180, render: (_, record) => (
       <div className="row-actions">
@@ -140,7 +145,7 @@ const CompanyRegistrationsPage = () => {
         </div>
         <div className="bm-toolbar__right">
           <Input className="bm-search" placeholder="Tìm tên nhà xe, người đăng ký..." prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select className="bm-select" value={status} onChange={setStatus} style={{ width: 160 }} options={registrationStatusOptions} />
+          <Select className="bm-select" value={status} onChange={setStatus} style={{ width: 160 }} options={registrationStatusOptions} disabled={masterDataLoading} />
           <Button className="btn-ghost" icon={<ReloadOutlined />} onClick={() => refetch()} />
         </div>
       </div>
@@ -170,7 +175,7 @@ const CompanyRegistrationsPage = () => {
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Ngày cấp GPKD</span><span className="mgmt-detail-list__value">{selectedRecord.businessLicenseDate ? new Date(selectedRecord.businessLicenseDate).toLocaleDateString("vi-VN") : "Chưa cập nhật"}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Giấy phép KD</span><span className="mgmt-detail-list__value">{selectedRecord.businessLicenseUrl ? <a href={selectedRecord.businessLicenseUrl} target="_blank" rel="noreferrer">Xem file</a> : "Chưa cập nhật"}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">CMND/CCCD</span><span className="mgmt-detail-list__value">{selectedRecord.idCardUrl ? <a href={selectedRecord.idCardUrl} target="_blank" rel="noreferrer">Xem file</a> : "Chưa cập nhật"}</span></div>
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{renderRegistrationStatus(selectedRecord.status)}</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{renderRegistrationStatus(selectedRecord.status, registrationStatusMeta)}</span></div>
                 {selectedRecord.rejectionReason && (
                   <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Lý do từ chối</span><span className="mgmt-detail-list__value" style={{ color: "#ef4444" }}>{selectedRecord.rejectionReason}</span></div>
                 )}

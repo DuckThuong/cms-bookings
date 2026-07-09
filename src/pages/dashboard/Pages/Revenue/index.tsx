@@ -37,7 +37,7 @@ import {
   YAxis,
 } from "recharts";
 import SummaryStrip from "../../components/Page2/SummaryStrip";
-import { REVENUE_STATUS_META } from "../../share";
+import { useRevenueStatuses } from "@/common/hooks/useMasterData";
 import "../Page2/style.scss";
 import "../management.scss";
 
@@ -51,6 +51,8 @@ const RevenuePage = () => {
   const [route, setRoute] = useState("all");
   const [vehicle, setVehicle] = useState("all");
   const [dateRange, setDateRange] = useState<[string, string]>(["", ""]);
+
+  const { revenueStatusMeta } = useRevenueStatuses();
 
   const revenueQuery = useQuery({
     queryKey: ["cmsRevenue", route, vehicle, dateRange],
@@ -132,21 +134,21 @@ const RevenuePage = () => {
       dataIndex: "status",
       key: "status",
       render: (value: CmsRevenueTransaction["status"]) => {
-        const meta = REVENUE_STATUS_META[value];
+        const meta = revenueStatusMeta[value];
         return (
           <span
             className="booking-status"
             style={{
-              background: `${meta.color}33`,
-              color: meta.color,
+              background: `${meta?.color ?? '#64748b'}33`,
+              color: meta?.color ?? '#64748b',
               boxSizing: "border-box",
             }}
           >
             <span
               className="booking-status__dot"
-              style={{ background: meta.color }}
+              style={{ background: meta?.color ?? '#64748b' }}
             />
-            {meta.label}
+            {meta?.label ?? value}
           </span>
         );
       },
@@ -267,7 +269,7 @@ const RevenuePage = () => {
         item.vehicle,
         item.bookings,
         item.revenue,
-        REVENUE_STATUS_META[item.status].label,
+        REVENUE_STATUS_META[item.status]?.label ?? item.status,
         item.createdAt,
       ]),
     ];

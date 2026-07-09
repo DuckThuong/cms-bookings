@@ -17,12 +17,11 @@ import type { ColumnsType } from "antd/es/table";
 import { useEffect, useMemo, useState } from "react";
 import { AddTripModal } from "../../components/ManagementCreate";
 import { TripOperationStatusModal } from "../../components/Page2/TripOperationStatusModal";
+import { useRoutes, useVehicles } from "@/common/hooks/useMasterData";
 import {
   OPERATION_STATUS_META,
-  routeOptions,
   TRIP_STATUS_META,
   tripStatusOptions,
-  vehicleOptions,
   type TripRecord,
   type OperationStatusKey,
 } from "../../share";
@@ -46,6 +45,9 @@ const TripsPage = () => {
   const [editingTripId, setEditingTripId] = useState<number | null>(null);
   const [operationStatusModalOpen, setOperationStatusModalOpen] = useState(false);
   const [operationStatusTrip, setOperationStatusTrip] = useState<CmsTripItem | null>(null);
+
+  const { routeOptions, loading: routesLoading } = useRoutes();
+  const { vehicleOptions, loading: vehiclesLoading } = useVehicles();
 
   // Raw trip data query
   const { data: tripListQuery, isLoading: tripListLoading } = useQuery({

@@ -1,7 +1,7 @@
 import type { FilterOption, StatusMeta, SummaryItem } from "./types";
 
 export type RouteStatusKey = "ACTIVE" | "INACTIVE";
-export type VehicleStatusKey = "ready" | "in_service" | "maintenance" | "idle";
+export type VehicleStatusKey = "READY" | "IN_SERVICE" | "MAINTENANCE" | "IDLE";
 
 export type OperationStatusKey =
   | "SCHEDULED"
@@ -199,19 +199,7 @@ export const tripStatusOptions: FilterOption[] = [
   { value: "delayed", label: "Trễ chuyến" },
 ];
 
-export const tripRouteStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả tuyến" },
-  { value: "ACTIVE", label: "Đang hoạt động" },
-  { value: "INACTIVE", label: "Ngừng hoạt động" },
-];
-
-export const fleetStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "ready", label: "Sẵn sàng" },
-  { value: "in_service", label: "Đang khai thác" },
-  { value: "maintenance", label: "Bảo dưỡng" },
-  { value: "idle", label: "Chờ phân công" },
-];
+// fleetStatusOptions - use useVehicleStatuses hook instead
 
 export const fleetTypeOptions: FilterOption[] = [
   { value: "all", label: "Tất cả loại xe" },
@@ -397,7 +385,7 @@ export const fleetVehicles: FleetVehicleRecord[] = [
     seats: 45,
     assignedRoute: "HCM → Đà Lạt",
     primaryDriver: "Nguyễn Quốc Huy",
-    status: "ready",
+    status: "READY",
     lastMaintenance: "2026-05-05",
     nextMaintenance: "2026-06-05",
     utilizationRate: 86,
@@ -410,7 +398,7 @@ export const fleetVehicles: FleetVehicleRecord[] = [
     seats: 16,
     assignedRoute: "HCM → Nha Trang",
     primaryDriver: "Trần Văn Hậu",
-    status: "in_service",
+    status: "IN_SERVICE",
     lastMaintenance: "2026-05-11",
     nextMaintenance: "2026-06-10",
     utilizationRate: 92,
@@ -533,10 +521,16 @@ export const getVehicleFleetSummary = (
 ): SummaryItem[] => [
   { key: "vehicles", label: "Tổng xe", color: "#3b82f6", value: data.length },
   {
-    key: "active",
-    label: "Đang hoạt động",
+    key: "ready",
+    label: "Sẵn sàng",
     color: "#22c55e",
-    value: data.filter((item) => item.status === "ACTIVE").length,
+    value: data.filter((item) => item.status === "READY").length,
+  },
+  {
+    key: "in_service",
+    label: "Đang khai thác",
+    color: "#3b82f6",
+    value: data.filter((item) => item.status === "IN_SERVICE").length,
   },
   {
     key: "maintenance",

@@ -1,4 +1,6 @@
-import type { FilterOption, StatusMeta, SummaryItem } from "./types";
+import type { DriverFormValues } from "../components/ManagementCreate/AddDriverModal";
+import type { RouteFormValues } from "../components/ManagementCreate/AddRouteModal";
+import type { SummaryItem } from "./types";
 
 // ─── Common Helpers ────────────────────────────────────────────
 export const DEFAULT_MESSAGE = "Đã xảy ra lỗi. Vui lòng thử lại.";
@@ -56,12 +58,12 @@ export type CustomerRecord = {
   name: string;
   phone: string;
   email: string;
-  tier: "vip" | "than-thiet" | "pho-thong";
+  tier: string;
   bookingCount: number;
   totalSpent: number;
   lastBooking: string;
   preferredRoute: string;
-  status: "active" | "at-risk" | "inactive";
+  status: string;
   note: string;
   recentTrips: CustomerTrip[];
 };
@@ -71,12 +73,12 @@ export type DriverRecord = {
   id: string;
   name: string;
   phone: string;
-  license: "B2" | "C" | "D" | "E";
+  license: string;
   assignedVehicle: string;
   mainRoute: string;
   tripCount: number;
   rating: number;
-  status: "available" | "on-trip" | "off-duty" | "leave";
+  status: string;
   shift: string;
   note: string;
 };
@@ -102,277 +104,23 @@ export type RevenueTransactionRecord = {
   createdAt: string;
   bookings: number;
   revenue: number;
-  status: "settled" | "processing" | "refunded";
+  status: string;
 };
 export type ReportRecord = {
   key: string;
   id: string;
   name: string;
-  type: "operations" | "finance" | "customer" | "compliance";
+  type: string;
   period: string;
   createdBy: string;
   createdAt: string;
-  status: "ready" | "processing" | "scheduled";
+  status: string;
   fileSize: string;
   description: string;
 };
 
-// ─── Status META ──────────────────────────────────────────────
-export const CUSTOMER_STATUS_META: Record<string, StatusMeta> = {
-  active: {
-    label: "Đang hoạt động",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  "at-risk": {
-    label: "Cần chăm sóc",
-    color: "#f97316",
-    bg: "rgba(249,115,22,0.12)",
-  },
-  inactive: {
-    label: "Ngừng giao dịch",
-    color: "#64748b",
-    bg: "rgba(100,116,139,0.14)",
-  },
-};
-
-export const DRIVER_STATUS_META: Record<string, StatusMeta> = {
-  available: {
-    label: "Sẵn sàng",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  "on-trip": {
-    label: "Đang chạy tuyến",
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.12)",
-  },
-  "off-duty": {
-    label: "Ngoài ca",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
-  },
-  leave: { label: "Nghỉ phép", color: "#a855f7", bg: "rgba(168,85,247,0.12)" },
-};
-
-export const REVENUE_STATUS_META: Record<string, StatusMeta> = {
-  settled: {
-    label: "Đã đối soát",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  processing: {
-    label: "Đang xử lý",
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.12)",
-  },
-  refunded: {
-    label: "Hoàn tiền",
-    color: "#ef4444",
-    bg: "rgba(239,68,68,0.12)",
-  },
-};
-
-export const REPORT_STATUS_META: Record<string, StatusMeta> = {
-  ready: { label: "Sẵn sàng", color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-  processing: {
-    label: "Đang tạo",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
-  },
-  scheduled: {
-    label: "Lên lịch",
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.12)",
-  },
-};
-
-export type ReportType = "operations" | "finance" | "customer" | "compliance";
-export const REPORT_TYPE_LABEL: Record<ReportType, string> = {
-  operations: "Vận hành",
-  finance: "Tài chính",
-  customer: "Khách hàng",
-  compliance: "Tuân thủ",
-};
-
-// ─── API-driven Status ────────────────────────────────────────
-export const ROUTE_STATUS_META: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  peak: { label: "Nhu cầu cao", color: "#f97316", bg: "rgba(249,115,22,0.12)" },
-  normal: {
-    label: "Bình thường",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  low: { label: "Thấp", color: "#64748b", bg: "rgba(100,116,139,0.12)" },
-};
-export type RouteStatusKey = keyof typeof ROUTE_STATUS_META;
-
-export const VEHICLE_STATUS_META: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  ACTIVE: {
-    label: "Đang hoạt động",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  INACTIVE: {
-    label: "Ngừng hoạt động",
-    color: "#64748b",
-    bg: "rgba(100,116,139,0.12)",
-  },
-  MAINTENANCE: {
-    label: "Bảo dưỡng",
-    color: "#ef4444",
-    bg: "rgba(239,68,68,0.12)",
-  },
-};
-
-export const VEHICLE_TYPE_LABEL: Record<string, string> = {
-  SLEEPER: "Xe giường nằm",
-  LIMOUSINE: "Xe Limousine",
-  COACH: "Xe Khách",
-};
-
-export const SEAT_TYPE_LABEL: Record<string, string> = {
-  BED: "Giường nằm",
-  SEAT: "Ghế ngồi",
-  STANDARD: "Tiêu chuẩn",
-};
-
-export const DRIVER_STATUS_META_API: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  ACTIVE: {
-    label: "Đang hoạt động",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  INACTIVE: {
-    label: "Ngừng hoạt động",
-    color: "#64748b",
-    bg: "rgba(100,116,139,0.12)",
-  },
-  MAINTENANCE: {
-    label: "Bảo dưỡng",
-    color: "#ef4444",
-    bg: "rgba(239,68,68,0.12)",
-  },
-};
-export type DriverStatusKey = keyof typeof DRIVER_STATUS_META_API;
-
-export const REGISTRATION_STATUS_META: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  PENDING: {
-    label: "Chờ phê duyệt",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
-  },
-  APPROVED: {
-    label: "Đã phê duyệt",
-    color: "#22c55e",
-    bg: "rgba(34,197,94,0.12)",
-  },
-  REJECTED: {
-    label: "Đã từ chối",
-    color: "#ef4444",
-    bg: "rgba(239,68,68,0.12)",
-  },
-};
-
-// ─── Filter Options ────────────────────────────────────────────
-export const customerTierOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả hạng" },
-  { value: "vip", label: "VIP" },
-  { value: "than-thiet", label: "Thân thiết" },
-  { value: "pho-thong", label: "Phổ thông" },
-];
-export const customerStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "active", label: "Đang hoạt động" },
-  { value: "at-risk", label: "Cần chăm sóc" },
-  { value: "inactive", label: "Ngừng giao dịch" },
-];
-export const driverLicenseOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả bằng lái" },
-  { value: "B2", label: "B2" },
-  { value: "C", label: "C" },
-  { value: "D", label: "D" },
-  { value: "E", label: "E" },
-];
-export const driverStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "available", label: "Sẵn sàng" },
-  { value: "on-trip", label: "Đang chạy tuyến" },
-  { value: "off-duty", label: "Ngoài ca" },
-  { value: "leave", label: "Nghỉ phép" },
-];
-export const driverShiftOptions: FilterOption[] = [
-  { value: "Ca sáng", label: "Ca sáng" },
-  { value: "Ca chiều", label: "Ca chiều" },
-  { value: "Ca đêm", label: "Ca đêm" },
-  { value: "Ca linh hoạt", label: "Ca linh hoạt" },
-];
-export const routeOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả tuyến" },
-  { value: "HCM → Đà Lạt", label: "HCM → Đà Lạt" },
-  { value: "HCM → Nha Trang", label: "HCM → Nha Trang" },
-  { value: "HCM → Cần Thơ", label: "HCM → Cần Thơ" },
-  { value: "HCM → Hà Nội", label: "HCM → Hà Nội" },
-];
-export const vehicleOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả phương tiện" },
-  { value: "51B-123.45", label: "51B-123.45" },
-  { value: "51B-456.78", label: "51B-456.78" },
-  { value: "51B-789.01", label: "51B-789.01" },
-  { value: "51B-234.56", label: "51B-234.56" },
-];
-export const reportTypeOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả loại báo cáo" },
-  { value: "operations", label: "Vận hành" },
-  { value: "finance", label: "Tài chính" },
-  { value: "customer", label: "Khách hàng" },
-  { value: "compliance", label: "Tuân thủ" },
-];
-export const reportStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "ready", label: "Sẵn sàng" },
-  { value: "processing", label: "Đang tạo" },
-  { value: "scheduled", label: "Lên lịch" },
-];
-export const routeStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "peak", label: "Nhu cầu cao" },
-  { value: "normal", label: "Bình thường" },
-  { value: "low", label: "Thấp" },
-];
-export const vehicleStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "ACTIVE", label: "Đang hoạt động" },
-  { value: "INACTIVE", label: "Ngừng hoạt động" },
-  { value: "MAINTENANCE", label: "Bảo dưỡng" },
-];
-export const vehicleTypeOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả loại xe" },
-  { value: "SLEEPER", label: "Xe giường nằm" },
-  { value: "LIMOUSINE", label: "Xe limousine" },
-  { value: "COACH", label: "Xe khách" },
-];
-export const registrationStatusOptions: FilterOption[] = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "PENDING", label: "Chờ phê duyệt" },
-  { value: "APPROVED", label: "Đã phê duyệt" },
-  { value: "REJECTED", label: "Đã từ chối" },
-];
-
 // ─── Payload Helpers ───────────────────────────────────────────
-export const toRouteCreatePayload = (values: Record<string, unknown>) => ({
+export const toRouteCreatePayload = (values: RouteFormValues) => ({
   name: values.name,
   length: values.length,
   pickUpPoint: values.pickUpPoint,
@@ -387,7 +135,7 @@ export const toRouteCreatePayload = (values: Record<string, unknown>) => ({
   note: values.note || null,
 });
 export const toRouteUpdatePayload = (
-  values: Record<string, unknown>,
+  values: RouteFormValues,
   record: { id: number },
 ) => ({ id: record.id, ...toRouteCreatePayload(values) });
 
@@ -408,7 +156,7 @@ export const toVehicleUpdatePayload = (
   record: { id: unknown },
 ) => ({ id: record.id, ...toVehicleCreatePayload(values) });
 
-export const toDriverCreatePayload = (values: Record<string, unknown>) => ({
+export const toDriverCreatePayload = (values: DriverFormValues) => ({
   name: values.name,
   license: values.license,
   licenseNum: values.licenseNum,
@@ -418,7 +166,7 @@ export const toDriverCreatePayload = (values: Record<string, unknown>) => ({
   description: values.description,
 });
 export const toDriverUpdatePayload = (
-  values: Record<string, unknown>,
+  values: DriverFormValues,
   record: { id: unknown },
 ) => ({
   id: Number(record.id),

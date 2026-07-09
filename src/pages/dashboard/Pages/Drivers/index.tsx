@@ -24,28 +24,39 @@ import { AddDriverModal } from "../../components/ManagementCreate";
 import type { DriverFormValues } from "../../components/ManagementCreate/AddDriverModal";
 import SummaryStrip from "../../components/Page2/SummaryStrip";
 import {
-  DRIVER_STATUS_META_API,
-  driverStatusOptions,
   normalizeSearchText,
   getApiErrorMessage,
   toDriverCreatePayload,
   toDriverUpdatePayload,
   type SummaryItem,
-  driverLicenseOptions,
 } from "../../share";
 import type { DriverResponseDto } from "@/api/dtos/driver.dto";
+import { useDriverStatuses } from "@/common/hooks/useMasterData";
+import type { MasterDataItem } from "@/api/dtos/master-data.dto";
 import "../Page2/style.scss";
 import "../management.scss";
 
-const getDriverSummary = (data: DriverResponseDto[]): SummaryItem[] => [
-  { key: "drivers", label: "Tổng tài xế", color: "#3b82f6", value: data.length },
-  { key: "active", label: "Đang hoạt động", color: "#22c55e", value: data.filter((item) => item.status === "ACTIVE").length },
-  { key: "maintenance", label: "Bảo dưỡng", color: "#ef4444", value: data.filter((item) => item.status === "MAINTENANCE").length },
-  { key: "e-license", label: "Bằng E", color: "#a855f7", value: data.filter((item) => item.license === "E").length },
-];
+const getDriverSummary = (data: DriverResponseDto[], driverStatuses: MasterDataItem[]): SummaryItem[] => {
+  const statusCodes = driverStatuses.map(s => s.code);
+  return [
+    { key: "drivers", label: "Tổng tài xế", color: "#3b82f6", value: data.length },
+    ...driverStatuses.slice(0, 2).map((s, i) => ({
+      key: s.code,
+      label: s.name,
+      color: s.rule || (i === 0 ? "#22c55e" : "#f97316"),
+      value: data.filter((item) => item.status === s.code).length,
+    })),
+    {
+      key: "e-license",
+      label: "Bằng E",
+      color: "#a855f7",
+      value: data.filter((item) => item.license === "E").length,
+    },
+  ];
+};
 
-export const renderDriverStatus = (status: string) => {
-  const meta = DRIVER_STATUS_META_API[status];
+export const renderDriverStatus = (status: string, statusMeta: Record<string, { label: string; color: string; bg: string }>) => {
+  const meta = statusMeta[status];
   if (!meta) return status || "-";
   return (
     <span className="booking-status" style={{ background: meta.bg, color: meta.color }}>
@@ -65,6 +76,8 @@ const DriversPage = () => {
   const [selected, setSelected] = useState<DriverResponseDto | null>(null);
   const [driverModalOpen, setDriverModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DriverResponseDto | null>(null);
+
+  const { driverStatuses, driverStatusFilterOptions, driverStatusMeta, driverLicenseOptions, loading: masterDataLoading } = useDriverStatuses();
 
   const invalidateDrivers = () => {
     void queryClient.invalidateQueries({ queryKey: [DriverEndPoints.GET_DRIVERS] });
@@ -195,7 +208,7 @@ const DriversPage = () => {
         <span className="amount-cell">{(value ?? 0).toFixed(1)}*</span>
       )
     },
-    { title: "Trạng thái", dataIndex: "status", key: "status", render: renderDriverStatus },
+    { title: "Trạng thái", dataIndex: "status", key: "status", render: (value: string) => renderDriverStatus(value, driverStatusMeta) },
     {
       title: "", key: "actions", render: (_, record) => (
         <div className="row-actions">
@@ -222,14 +235,14 @@ const DriversPage = () => {
         </div>
         <div className="bm-toolbar__right">
           <Input className="bm-search" placeholder="Tìm tên, SĐT, email, mã tài xế..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select className="bm-select" value={license} onChange={setLicense} options={driverLicenseOptions} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={driverStatusOptions} />
+          <Select className="bm-select" value={license} onChange={setLicense} options={driverLicenseOptions} disabled={masterDataLoading} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={driverStatusFilterOptions} disabled={masterDataLoading} />
           <Button className="btn-ghost" icon={<ReloadOutlined />} onClick={() => { setSearch(""); setLicense("all"); setStatus("all"); }} />
           <Button className="btn-primary" icon={<PlusOutlined />} onClick={openCreateModal}>Thêm tài xế</Button>
         </div>
       </div>
 
-      <SummaryStrip items={getDriverSummary(filtered)} />
+      <SummaryStrip items={getDriverSummary(filtered, driverStatuses)} />
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
@@ -246,7 +259,7 @@ const DriversPage = () => {
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Điện thoại</span><span className="mgmt-detail-list__value">{selected.phone}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Email</span><span className="mgmt-detail-list__value">{selected.email}</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Bằng lái</span><span className="mgmt-detail-list__value">{selected.license}</span></div>
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{DRIVER_STATUS_META_API[selected.status]?.label ?? selected.status}</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{driverStatusMeta[selected.status]?.label ?? selected.status}</span></div>
               </div>
               <div className="mgmt-note">{selected.description || "Chưa có mô tả"}</div>
             </div>

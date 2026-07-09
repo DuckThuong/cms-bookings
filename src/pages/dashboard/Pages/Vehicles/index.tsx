@@ -25,21 +25,17 @@ import AddVehicleModal, {
 import SummaryStrip from "../../components/Page2/SummaryStrip";
 import { getVehicleFleetSummary } from "../../share";
 import {
-  VEHICLE_STATUS_META,
-  VEHICLE_TYPE_LABEL,
-  SEAT_TYPE_LABEL,
-  vehicleStatusOptions,
-  vehicleTypeOptions,
   getApiErrorMessage,
   toVehicleCreatePayload,
   toVehicleUpdatePayload,
 } from "../../share";
+import { useVehicleStatuses } from "@/common/hooks/useMasterData";
 import type { IVehicle } from "@/api/dtos/vehicle.dto";
 import "../Page2/style.scss";
 import "../management.scss";
 
-export const renderVehicleStatus = (status: string) => {
-  const meta = VEHICLE_STATUS_META[status];
+export const renderVehicleStatus = (status: string, statusMeta: Record<string, { label: string; color: string; bg: string }>) => {
+  const meta = statusMeta[status];
   if (!meta) return status || "-";
   return (
     <span className="booking-status" style={{ background: meta.bg, color: meta.color }}>
@@ -59,6 +55,17 @@ const FleetVehiclesPage = () => {
   const [selected, setSelected] = useState<IVehicle | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<IVehicle | null>(null);
+
+  const { vehicleStatusOptions, vehicleStatusMeta, vehicleTypeOptions, vehicleTypes, loading: masterDataLoading } = useVehicleStatuses();
+
+  // Convert vehicle types to label map
+  const vehicleTypeLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const vt of vehicleTypes) {
+      map[vt.code] = vt.name;
+    }
+    return map;
+  }, [vehicleTypes]);
 
   const invalidateVehicles = () => {
     void queryClient.invalidateQueries({ queryKey: [VehicleEndPoints.GET_VEHICLES] });
@@ -173,10 +180,10 @@ const FleetVehiclesPage = () => {
       <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{record.code}</span>
     )},
     { title: "Tên xe", key: "name", render: (_, record) => record.name },
-    { title: "Loại xe", key: "type", render: (_, record) => VEHICLE_TYPE_LABEL[record.type] ?? record.type },
-    { title: "Loại ghế", key: "seatType", render: (_, record) => SEAT_TYPE_LABEL[record.seatType] ?? record.seatType },
+    { title: "Loại xe", key: "type", render: (_, record) => vehicleTypeLabelMap[record.type] ?? record.type },
+    { title: "Loại ghế", key: "seatType", render: (_, record) => record.seatType },
     { title: "Sức chứa", key: "seatCount", render: (_, record) => `${record.seatCount} chỗ` },
-    { title: "Trạng thái", key: "status", render: (_, record) => renderVehicleStatus(record.status) },
+    { title: "Trạng thái", key: "status", render: (_, record) => renderVehicleStatus(record.status, vehicleStatusMeta) },
     { title: "", key: "actions", render: (_, record) => (
       <div className="row-actions">
         <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
@@ -201,8 +208,8 @@ const FleetVehiclesPage = () => {
         </div>
         <div className="bm-toolbar__right">
           <Input className="bm-search" placeholder="Tìm biển số, tên xe, lịch trình..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={vehicleStatusOptions} />
-          <Select className="bm-select" value={type} onChange={setType} options={vehicleTypeOptions} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={vehicleStatusOptions} disabled={masterDataLoading} />
+          <Select className="bm-select" value={type} onChange={setType} options={vehicleTypeOptions} disabled={masterDataLoading} />
           <Button className="btn-primary" icon={<PlusOutlined />} onClick={openCreateModal}>Thêm phương tiện</Button>
         </div>
       </div>
@@ -221,10 +228,10 @@ const FleetVehiclesPage = () => {
             <div className="drawer-body__section">
               <div className="drawer-body__section-title">Hồ sơ phương tiện</div>
               <div className="mgmt-detail-list">
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Loại xe</span><span className="mgmt-detail-list__value">{VEHICLE_TYPE_LABEL[selected.type] ?? selected.type}</span></div>
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Sức chứa</span><span className="mgmt-detail-list__value">{selected.seatCount} chỗ ({SEAT_TYPE_LABEL[selected.seatType] ?? selected.seatType})</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Loại xe</span><span className="mgmt-detail-list__value">{vehicleTypeLabelMap[selected.type] ?? selected.type}</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Sức chứa</span><span className="mgmt-detail-list__value">{selected.seatCount} chỗ</span></div>
                 <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Lịch trình</span><span className="mgmt-detail-list__value">{selected.schedule || "-"}</span></div>
-                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{VEHICLE_STATUS_META[selected.status]?.label ?? selected.status}</span></div>
+                <div className="mgmt-detail-list__item"><span className="mgmt-detail-list__label">Trạng thái</span><span className="mgmt-detail-list__value">{vehicleStatusMeta[selected.status]?.label ?? selected.status}</span></div>
               </div>
             </div>
             <div className="drawer-body__section">

@@ -11,6 +11,7 @@ import type {
 } from "@/api/dtos/vehicle.dto";
 import { Col, Form, Input, InputNumber, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
+import { useVehicleStatuses } from "@/common/hooks/useMasterData";
 
 export type VehicleFormValues = {
   vehicleName: string;
@@ -32,31 +33,19 @@ type AddVehicleModalProps = {
   onSubmit: (values: VehicleFormValues) => void;
 };
 
-const VEHICLE_STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Dang hoat dong" },
-  { value: "INACTIVE", label: "Ngung hoat dong" },
-  { value: "MAINTENANCE", label: "Bao duong" },
-];
-
-const VEHICLE_TYPE_OPTIONS = [
-  { value: "SLEEPER", label: "Xe giuong nam" },
-  { value: "LIMOUSINE", label: "Xe Limousine" },
-  { value: "COACH", label: "Xe Khach" },
-];
-
 const LAYOUT_PRESET_OPTIONS: Array<{
   value: VehicleLayoutPreset;
   label: string;
 }> = [
-  { value: "SLEEPER_38", label: "Giuong nam 38 cho" },
-  { value: "LIMOUSINE", label: "Limousine" },
-  { value: "COACH", label: "Xe khach" },
-  { value: "CUSTOM_SIMPLE", label: "Tuy chinh don gian" },
-];
+    { value: "SLEEPER_38", label: "Giường nằm 38 chỗ" },
+    { value: "LIMOUSINE", label: "Limousine" },
+    { value: "COACH", label: "Xe khách" },
+    { value: "CUSTOM_SIMPLE", label: "Tùy chỉnh đơn giản" },
+  ];
 
 const SEAT_TYPE_OPTIONS = [
-  { value: "BED", label: "Giuong nam" },
-  { value: "SEAT", label: "Ghe ngoi" },
+  { value: "BED", label: "Giường nằm" },
+  { value: "SEAT", label: "Ghế ngồi" },
 ];
 
 const DEFAULT_LAYOUTS: Record<VehicleLayoutPreset, VehicleLayoutConfig> = {
@@ -123,7 +112,7 @@ const presetToVehicleType = (preset: VehicleLayoutPreset) => {
 
 const calcSeatCount = (config?: VehicleLayoutConfig) => {
   if (!config) return 0;
-  const normalSeats = Math.max(0, config.columns - config.aisleColumns.length);
+  const normalSeats = Math.max(0, config.columns - config.aisleColumns?.length);
   return (
     config.floorCount *
     ((config.rowsPerFloor - 1) * normalSeats + config.lastRowSeatCount)
@@ -162,6 +151,12 @@ const AddVehicleModal = ({
   const isCustom = layoutPreset === "CUSTOM_SIMPLE";
   const computedSeatCount = calcSeatCount(layoutConfig);
 
+  const { vehicleStatusOptions, vehicleTypeOptions, vehicleStatuses, loading: masterDataLoading } = useVehicleStatuses();
+
+  const getDefaultVehicleStatus = () => {
+    return vehicleStatuses[0]?.code ?? '';
+  };
+
   useEffect(() => {
     if (!open) return;
 
@@ -179,11 +174,11 @@ const AddVehicleModal = ({
       layoutPreset: layout.preset,
       layoutConfig: layout,
       vehicleType: "SLEEPER",
-      vehicleStatus: "ACTIVE",
+      vehicleStatus: getDefaultVehicleStatus(),
       schedule: "",
       description: "",
     });
-  }, [form, initialRecord, open]);
+  }, [form, initialRecord, open, vehicleStatuses]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -235,19 +230,19 @@ const AddVehicleModal = ({
             const lastRow = rowIndex + 1 === config.rowsPerFloor;
             const seatSlots = lastRow
               ? new Set(
-                  Array.from(
-                    {
-                      length: Math.min(config.lastRowSeatCount, config.columns),
-                    },
-                    (_, index) => index,
-                  ),
-                )
+                Array.from(
+                  {
+                    length: Math.min(config.lastRowSeatCount, config.columns),
+                  },
+                  (_, index) => index,
+                ),
+              )
               : new Set(
-                  Array.from(
-                    { length: config.columns },
-                    (_, index) => index,
-                  ).filter((index) => !config.aisleColumns.includes(index)),
-                );
+                Array.from(
+                  { length: config.columns },
+                  (_, index) => index,
+                ).filter((index) => !config.aisleColumns.includes(index)),
+              );
 
             return (
               <div
@@ -344,19 +339,19 @@ const AddVehicleModal = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleType"
-              label={formLabel("Loai xe")}
-              rules={[{ required: true, message: "Chon loai xe" }]}
+              label={formLabel("Loại xe")}
+              rules={[{ required: true, message: "Chọn loại xe" }]}
             >
-              <Select className="bm-select" options={VEHICLE_TYPE_OPTIONS} />
+              <Select className="bm-select" options={vehicleTypeOptions} disabled={masterDataLoading} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="vehicleStatus"
-              label={formLabel("Trang thai")}
-              rules={[{ required: true, message: "Chon trang thai" }]}
+              label={formLabel("Trạng thái")}
+              rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
-              <Select className="bm-select" options={VEHICLE_STATUS_OPTIONS} />
+              <Select className="bm-select" options={vehicleStatusOptions} disabled={masterDataLoading} />
             </Form.Item>
           </Col>
         </Row>

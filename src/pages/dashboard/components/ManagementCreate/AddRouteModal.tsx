@@ -7,7 +7,8 @@ import {
 import { numberFieldProps } from "@/common/contexts/format";
 import { Col, Form, Input, InputNumber, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
-import { routeStatusOptions, type ManagementModalMode } from "../../share";
+import { useRouteStatuses } from "@/common/hooks/useMasterData";
+import type { ManagementModalMode } from "../../share";
 
 export type RouteFormValues = {
   name: string;
@@ -41,10 +42,10 @@ const defaultValues: RouteFormValues = {
   tripsPerDay: 1,
   averageOccupancy: 0,
   estimatedRevenue: 0,
-  status: "ACTIVE",
   leadVehicle: "",
   demandLevel: "",
   note: "",
+  status: "",
 };
 
 const AddRouteModal = ({
@@ -56,6 +57,13 @@ const AddRouteModal = ({
 }: AddRouteModalProps) => {
   const [form] = Form.useForm<RouteFormValues>();
   const isEdit = mode === "edit";
+
+  const { routeStatusOptions, routeStatuses, loading: masterDataLoading } = useRouteStatuses();
+
+  const getDefaultStatus = () => {
+    const firstActiveStatus = routeStatuses.find(s => s.code !== 'INACTIVE');
+    return firstActiveStatus?.code ?? routeStatuses[0]?.code ?? '';
+  };
 
   useEffect(() => {
     if (open) {
@@ -78,12 +86,12 @@ const AddRouteModal = ({
       }
 
       form.resetFields();
-      form.setFieldsValue(defaultValues);
+      form.setFieldsValue({ ...defaultValues, status: getDefaultStatus() });
       return;
     }
 
     form.resetFields();
-  }, [form, initialValues, isEdit, open]);
+  }, [form, initialValues, isEdit, open, routeStatuses]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -190,6 +198,7 @@ const AddRouteModal = ({
                 options={routeStatusOptions.filter(
                   (item) => item.value !== "all",
                 )}
+                disabled={masterDataLoading}
               />
             </Form.Item>
           </Col>

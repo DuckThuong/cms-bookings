@@ -23,37 +23,22 @@ import { AddRouteModal } from "../../components/ManagementCreate";
 import type { RouteFormValues } from "../../components/ManagementCreate/AddRouteModal";
 import SummaryStrip from "../../components/Page2/SummaryStrip";
 import {
-  TRIP_ROUTE_STATUS_META,
-  routeStatusOptions,
   normalizeSearchText,
   toDisplayText,
   toDisplayNumber,
   getApiErrorMessage,
   toRouteCreatePayload,
   toRouteUpdatePayload,
-  type RouteStatusKey,
   type SummaryItem,
 } from "../../share";
+import { useRouteStatuses } from "@/common/hooks/useMasterData";
 import type { IRoad } from "@/api/dtos/route.dto";
+import type { MasterDataItem } from "@/api/dtos/master-data.dto";
 import "../Page2/style.scss";
 import "../management.scss";
 
-const getRoadSummary = (data: IRoad[]): SummaryItem[] => {
-  const occupancy =
-    data.length > 0
-      ? Math.round(data.reduce((sum, item) => sum + toDisplayNumber(item.averageOccupancy), 0) / data.length)
-      : 0;
-
-  return [
-    { key: "routes", label: "Tổng tuyến", color: "#3b82f6", value: data.length },
-    { key: "peak", label: "Nhu cầu cao", color: "#f97316", value: data.filter((item) => item.status === "peak").length },
-    { key: "tripsPerDay", label: "Chuyến/ngày", color: "#22c55e", value: data.reduce((sum, item) => sum + toDisplayNumber(item.tripsPerDay), 0) },
-    { key: "occupancy", label: "Lấp đầy TB", color: "#eab308", value: `${occupancy}%` },
-  ];
-};
-
-export const renderRouteStatus = (status: string) => {
-  const meta = TRIP_ROUTE_STATUS_META[status as RouteStatusKey];
+export const renderRouteStatus = (status: string, statusMeta: Record<string, { label: string; color: string; bg: string }>) => {
+  const meta = statusMeta[status];
   if (!meta) return status || "-";
   return (
     <span className="booking-status" style={{ background: meta.bg, color: meta.color }}>
@@ -61,6 +46,25 @@ export const renderRouteStatus = (status: string) => {
       {meta.label}
     </span>
   );
+};
+
+const getRoadSummary = (data: IRoad[], routeStatuses: MasterDataItem[]): SummaryItem[] => {
+  const occupancy =
+    data.length > 0
+      ? Math.round(data.reduce((sum, item) => sum + toDisplayNumber(item.averageOccupancy), 0) / data.length)
+      : 0;
+
+  return [
+    { key: "routes", label: "Tổng tuyến", color: "#3b82f6", value: data.length },
+    ...routeStatuses.slice(0, 2).map((s, i) => ({
+      key: s.code,
+      label: s.name,
+      color: s.rule || (i === 0 ? "#22c55e" : "#f59e0b"),
+      value: data.filter((item) => item.status === s.code).length,
+    })),
+    { key: "tripsPerDay", label: "Chuyến/ngày", color: "#22c55e", value: data.reduce((sum, item) => sum + toDisplayNumber(item.tripsPerDay), 0) },
+    { key: "occupancy", label: "Lấp đầy TB", color: "#eab308", value: `${occupancy}%` },
+  ];
 };
 
 const RoutesPage = () => {
@@ -73,6 +77,9 @@ const RoutesPage = () => {
   const [routeModalOpen, setRouteModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<IRoad | null>(null);
 
+  const { routeStatusOptions, routeStatusMeta, routeStatuses, loading: masterDataLoading } = useRouteStatuses();
+
+  console.log(routeStatusOptions);
   const invalidateRoads = () => {
     void queryClient.invalidateQueries({ queryKey: [ROAD_ENDPOINTS.list.path] });
   };
@@ -180,28 +187,34 @@ const RoutesPage = () => {
   };
 
   const columns: ColumnsType<IRoad> = [
-    { title: "Mã tuyến đường", key: "code", render: (_, record) => (
-      <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>
-        {toDisplayText(record.code, String(record.id))}
-      </span>
-    )},
+    {
+      title: "Mã tuyến đường", key: "code", render: (_, record) => (
+        <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>
+          {toDisplayText(record.code, String(record.id))}
+        </span>
+      )
+    },
     { title: "Tên tuyến đường", key: "name", render: (_, record) => toDisplayText(record.name) },
     { title: "Điểm đón khách", key: "pickUpPoint", render: (_, record) => toDisplayText(record.pickUpPoint) },
     { title: "Điểm trả khách", key: "dropOffPoint", render: (_, record) => toDisplayText(record.dropOffPoint) },
-    { title: "Thông số", key: "specs", render: (_, record) => (
-      <div>
-        <div className="cust-cell__name">{toDisplayNumber(record.length)} km</div>
-        <div className="cust-cell__phone">{toDisplayText(record.standardDuration)} tiêu chuẩn</div>
-      </div>
-    )},
-    { title: "Trạng thái", dataIndex: "status", key: "status", render: (value: string) => renderRouteStatus(toDisplayText(value, "")) },
-    { title: "", key: "actions", render: (_, record) => (
-      <div className="row-actions">
-        <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
-        <Button type="primary" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditModal(record); }} />
-        <Button type="primary" danger icon={<DeleteOutlined />} className="danger" onClick={(e) => { e.stopPropagation(); handleDeleteRoute(record); }} />
-      </div>
-    )},
+    {
+      title: "Thông số", key: "specs", render: (_, record) => (
+        <div>
+          <div className="cust-cell__name">{toDisplayNumber(record.length)} km</div>
+          <div className="cust-cell__phone">{toDisplayText(record.standardDuration)} tiêu chuẩn</div>
+        </div>
+      )
+    },
+    { title: "Trạng thái", dataIndex: "status", key: "status", render: (value: string) => renderRouteStatus(toDisplayText(value, ""), routeStatusMeta) },
+    {
+      title: "", key: "actions", render: (_, record) => (
+        <div className="row-actions">
+          <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
+          <Button type="primary" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditModal(record); }} />
+          <Button type="primary" danger icon={<DeleteOutlined />} className="danger" onClick={(e) => { e.stopPropagation(); handleDeleteRoute(record); }} />
+        </div>
+      )
+    },
   ];
 
   return (
@@ -219,12 +232,12 @@ const RoutesPage = () => {
         </div>
         <div className="bm-toolbar__right">
           <Input className="bm-search" placeholder="Tìm mã tuyến, tên tuyến, xe chủ lực..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select className="bm-select" value={status} onChange={setStatus} options={routeStatusOptions} />
+          <Select className="bm-select" value={status} onChange={setStatus} options={routeStatusOptions} disabled={masterDataLoading} />
           <Button className="btn-primary" icon={<PlusOutlined />} onClick={openCreateModal}>Thêm tuyến đường</Button>
         </div>
       </div>
 
-      <SummaryStrip items={getRoadSummary(filtered)} />
+      <SummaryStrip items={getRoadSummary(filtered, routeStatuses)} />
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">

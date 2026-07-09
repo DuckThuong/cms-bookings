@@ -6,7 +6,7 @@ import {
 import type { DriverResponseDto } from "@/api/dtos/driver.dto";
 import { Col, Form, Input, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
-import { driverLicenseOptions, driverStatusOptions } from "../../share";
+import { useDriverStatuses } from "@/common/hooks/useMasterData";
 
 export type DriverFormValues = {
   name: string;
@@ -43,6 +43,11 @@ const AddDriverModal = ({
 }: AddDriverModalProps) => {
   const [form] = Form.useForm<DriverFormValues>();
   const isEdit = Boolean(initialRecord);
+  const { driverStatusOptions, driverLicenseOptions, driverStatuses, loading } = useDriverStatuses();
+
+  const getDefaultStatus = () => {
+    return driverStatuses[0]?.code ?? '';
+  };
 
   useEffect(() => {
     if (!open) {
@@ -58,12 +63,12 @@ const AddDriverModal = ({
       name: "",
       phone: "",
       email: "",
-      status: "ACTIVE",
+      status: getDefaultStatus(),
       license: "B2",
       licenseNum: "",
       description: "",
     });
-  }, [form, initialRecord, open]);
+  }, [form, initialRecord, open, driverStatuses]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -137,7 +142,12 @@ const AddDriverModal = ({
               label={formLabel("Trạng thái")}
               rules={[{ required: true, message: "Chọn trạng thái" }]}
             >
-              <Select className="bm-select" options={driverStatusOptions} />
+              <Select
+                className="bm-select"
+                placeholder={loading ? "Đang tải..." : "Chọn trạng thái"}
+                options={driverStatusOptions}
+                disabled={loading}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -151,9 +161,9 @@ const AddDriverModal = ({
             >
               <Select
                 className="bm-select"
-                options={driverLicenseOptions.filter(
-                  (item) => item.value !== "all",
-                )}
+                placeholder={loading ? "Đang tải..." : "Chọn bằng lái"}
+                options={driverLicenseOptions}
+                disabled={loading}
               />
             </Form.Item>
           </Col>

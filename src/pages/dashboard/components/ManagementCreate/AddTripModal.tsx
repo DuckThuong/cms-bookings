@@ -29,6 +29,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useMemo } from "react";
 import type { ManagementModalMode } from "../../share";
+import { useRouteStatuses } from "@/common/hooks/useMasterData";
 import EllipsisSelect from "./EllipsisSelect";
 
 dayjs.extend(customParseFormat);
@@ -54,11 +55,6 @@ type AddTripModalProps = {
   onClose: () => void;
   onSuccess?: () => void;
 };
-
-const TRIP_ENTITY_STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Đang khai thác" },
-  { value: "INACTIVE", label: "Tạm dừng" },
-];
 
 const DATE_FORMATS = [
   "DD/MM/YYYY HH:mm",
@@ -103,13 +99,13 @@ const parseDurationToMinutes = (value?: string | null) => {
   return null;
 };
 
-const toFormValues = (trip: CmsTripItem): Partial<TripFormValues> => ({
+const toFormValues = (trip: CmsTripItem, defaultStatus?: string): Partial<TripFormValues> => ({
   code: trip.code,
   name: trip.name,
   roadId: trip.roadId,
   vehicleId: trip.vehicleId > 0 ? trip.vehicleId : undefined,
   driverId: trip.driverId > 0 ? trip.driverId : undefined,
-  status: trip.status || "ACTIVE",
+  status: trip.status || defaultStatus || "",
   departure: parseDateValue(trip.departure),
   arrival: parseDateValue(trip.arrival),
   seatPrice: trip.seatPrice || "",
@@ -150,6 +146,8 @@ const AddTripModal = ({
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const isEdit = mode === "edit";
+
+  const { routeStatusOptions: tripStatusOptions, routeStatuses, loading: masterDataLoading } = useRouteStatuses();
 
   const roadsQuery = useQuery({
     queryKey: ["cmsRoads", "trip-modal"],
@@ -274,13 +272,14 @@ const AddTripModal = ({
     }
 
     if (!isEdit) {
+      const defaultStatus = routeStatuses[0]?.code ?? '';
       form.setFieldsValue({
         code: "",
         name: "",
         roadId: undefined,
         vehicleId: undefined,
         driverId: undefined,
-        status: "ACTIVE",
+        status: defaultStatus,
         departure: null,
         arrival: null,
         seatPrice: "",
@@ -288,7 +287,7 @@ const AddTripModal = ({
         description: "",
       });
     }
-  }, [form, isEdit, open, tripDetailQuery.data]);
+  }, [form, isEdit, open, tripDetailQuery.data, routeStatuses]);
 
   useEffect(() => {
     if (!open) {
@@ -378,7 +377,8 @@ const AddTripModal = ({
               >
                 <Select
                   className="bm-select"
-                  options={TRIP_ENTITY_STATUS_OPTIONS}
+                  options={tripStatusOptions}
+                  disabled={masterDataLoading}
                 />
               </Form.Item>
             </Col>
