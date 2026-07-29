@@ -817,7 +817,7 @@
     }
 
     &-confirm-title {
-      color: white !important;
+      color: $text-primary !important;
     }
   }
 
@@ -887,7 +887,7 @@
 
   .ant-modal-confirm-content {
     margin-top: 8px !important;
-    color: rgba(241, 245, 249, 0.82) !important;
+    color: $text-primary !important;
     line-height: 1.65;
   }
 
@@ -903,6 +903,8 @@
     min-width: 104px;
     width: auto !important;
     flex: 0 0 auto !important;
+    border: 1px solid $text-primary !important;
+    color: $text-primary !important;
   }
 
   .ant-form {
@@ -1058,7 +1060,7 @@
 // Input overrides
 .bm-search.ant-input-affix-wrapper {
   background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid $border-color !important;
+  border: 1px solid $text-primary !important;
   border-radius: 8px !important;
   width: clamp(220px, 28ch, 360px) !important;
   min-width: 220px !important;
@@ -1087,7 +1089,7 @@
 // Date picker override
 .bm-date-picker.ant-picker {
   background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid $border-color !important;
+  border: 1px solid $text-primary !important;
   border-radius: 8px !important;
   width: fit-content !important;
   min-width: fit-content !important;

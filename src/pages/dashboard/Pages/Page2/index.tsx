@@ -160,7 +160,7 @@ const BookingManagementPage = () => {
           onAddBooking={() => setAddModalOpen(true)}
           vehicleLabel={vehicleLabel}
           totalCount={bookingData.length}
-          onDateChange={() => {}}
+          onDateChange={() => { }}
           STATUS_TABS={statusTabs}
         />
 

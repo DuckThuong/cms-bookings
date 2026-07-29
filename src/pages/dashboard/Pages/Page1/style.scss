@@ -237,7 +237,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $text-primary;
     gap: 10px;
     flex-wrap: wrap;
   }
@@ -275,8 +275,8 @@
 
   .ant-table-thead > tr > th {
     background: rgba(255,255,255,0.03) !important;
-    border-bottom: 1px solid $border-color !important;
-    color: $text-muted !important;
+    border-bottom: 1px solid $text-primary !important;
+    color: $text-primary !important;
     font-weight: 600 !important;
     font-size: 11px !important;
     text-transform: uppercase;
@@ -296,7 +296,7 @@
   }
 
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid $border-color !important;
+    border-bottom: 1px solid $text-primary !important;
     color: $text-secondary !important;
     padding: 10px 10px !important;
     background: transparent !important;
@@ -321,7 +321,7 @@
 
     .ant-pagination-item {
       background: transparent;
-      border-color: $border-color;
+      border-color: $text-primary;
 
       a { color: $text-secondary; }
 
@@ -335,7 +335,7 @@
     .ant-pagination-prev button,
     .ant-pagination-next button {
       background: transparent;
-      border-color: $border-color;
+      border-color: $text-primary;
       color: $text-secondary;
     }
   }
@@ -369,7 +369,7 @@
 // ── Tooltip Custom
 .custom-tooltip {
   background: $primary-navy-2;
-  border: 1px solid $border-color;
+  border: 1px solid $text-primary;
   border-radius: $radius-sm;
   padding: 10px 14px;
   box-shadow: $shadow-md;
@@ -406,7 +406,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid $text-primary;
   transition: $transition-fast;
 
   &:last-child { border-bottom: none; }
@@ -459,7 +459,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid $text-primary;
 
   &:last-child { border-bottom: none; }
 
@@ -523,7 +523,7 @@
 .quick-stat {
   text-align: center;
   padding: 16px;
-  border-right: 1px solid $border-color;
+  border-right: 1px solid $text-primary;
 
   &:last-child { border-right: none; }
 

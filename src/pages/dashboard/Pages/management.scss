@@ -80,7 +80,7 @@
 
 .mgmt-card {
   background: $primary-navy;
-  border: 1px solid $border-color;
+  border: 1px solid $text-primary;
   border-radius: $radius-md;
   overflow: hidden;
 
@@ -218,7 +218,7 @@
 
 .revenue-stat-card {
   background: $primary-navy;
-  border: 1px solid $border-color;
+  border: 1px solid $text-primary;
   border-radius: $radius-md;
   padding: 20px 22px;
   display: flex;
@@ -372,7 +372,7 @@
     rgba(0, 0, 0, 0.02),
     rgba(0, 0, 0, 0.005)
   );
-  border: 1px solid $border-color;
+  border: 1px solid $text-primary;
   border-radius: 14px;
   padding: 12px;
 
@@ -499,7 +499,7 @@
   .ant-select-selector {
     min-height: 42px;
     background: rgba(0, 0, 0, 0.02) !important;
-    border: 1px solid $border-color !important;
+    border: 1px solid $text-primary !important;
     border-radius: 12px !important;
     color: $text-primary !important;
     box-shadow: none !important;

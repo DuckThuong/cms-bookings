@@ -1,5 +1,5 @@
 @use "../../common" as *;
-
+@use "../../color" as *;
 .logo {
   display: flex;
   align-items: center;
@@ -10,7 +10,7 @@
   .logo-name {
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: $text-primary;
     letter-spacing: 1px;
 
     span {

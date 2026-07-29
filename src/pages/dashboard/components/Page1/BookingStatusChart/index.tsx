@@ -71,7 +71,7 @@ const BookingStatusChart = ({ data }: BookingStatusChartProps) => {
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: "#f1f5f9",
+              color: "#0f172a",
               lineHeight: 1,
             }}
           >
