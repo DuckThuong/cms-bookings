@@ -1,39 +1,40 @@
 @use "./color" as *;
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
 
-$night: #0a0e1a;
-$night-2: #151b2e;
-$navy: #0f1629;
+// Nền cơ bản: đảo từ các tông navy/đen sang trắng/xám rất nhạt
+$night: #ffffff;
+$night-2: #f5f6f9;
+$navy: #f8fafc;
 
-// CMS-specific primary colors
-$primary-dark: #0b1426;
-$primary-navy: #101d38;
-$primary-navy-2: #152045;
-$sidebar-bg: #0d1b35;
-$sidebar-hover: #1a2d52;
-$sidebar-active: #1e3460;
-$header-bg: #0f1e38;
+// CMS-specific primary colors (đã chuyển sang tone sáng)
+$primary-dark:     #ffffff;   // nền chính: trắng
+$primary-navy:     #f8fafc;   // nền phụ / card: xám rất nhạt
+$primary-navy-2:   #f1f5f9;   // nền phụ 2
+$sidebar-bg:       #ffffff;   // sidebar nền trắng
+$sidebar-hover:    #f1f5f9;   // hover: xám nhạt
+$sidebar-active:   #fff1e6;   // active: cam nhạt, đồng bộ accent
+$header-bg:        #ffffff;   // header nền trắng
 
 $amber: #f5a623;
 $amber-light: #fdc96a;
 $amber-pale: #fff8ec;
 
-// Accent
+// Accent (giữ nguyên, vẫn nổi bật trên nền sáng)
 $accent-orange: #f97316;
 $accent-orange-2: #fb923c;
-$accent-orange-light: rgba(249, 115, 22, 0.12);
-$accent-glow: rgba(249, 115, 22, 0.25);
+$accent-orange-light: rgba(249, 115, 22, 0.10);
+$accent-glow: rgba(249, 115, 22, 0.18);
 
 $muted: #6b7280;
-$muted-on-dark: rgba(255, 255, 255, 0.55);
+$muted-on-dark: rgba(0, 0, 0, 0.45);   // đổi tên ý nghĩa: giờ dùng trên nền sáng
 
-// Text
-$text-primary: #f1f5f9;
-$text-secondary: #94a3b8;
-$text-muted: #64748b;
-$text-white: #ffffff;
+// Text (đảo độ tương phản cho nền sáng)
+$text-primary: #0f172a;
+$text-secondary: #475569;
+$text-muted: #94a3b8;
+$text-white: #ffffff;   // vẫn giữ để dùng cho chữ trên nút/nền tối cục bộ (VD: nút accent)
 
-// Status
+// Status (giữ nguyên, vẫn rõ trên nền sáng)
 $status-success: #22c55e;
 $status-warning: #eab308;
 $status-error: #ef4444;
@@ -69,10 +70,10 @@ $color-gray-6: #bfbfbf;
 $color-white: #ffffff;
 $background-color: #f7f8f9;
 
-// Shadows
-$shadow-focus-blue: rgba(24, 144, 255, 0.2);
-$shadow-error-red: rgba(255, 77, 79, 0.2);
-$shadow-warning-orange: rgba(250, 173, 20, 0.2);
+// Shadows (giảm nhẹ vì nền sáng không cần bóng gắt như nền tối)
+$shadow-focus-blue: rgba(24, 144, 255, 0.15);
+$shadow-error-red: rgba(255, 77, 79, 0.15);
+$shadow-warning-orange: rgba(250, 173, 20, 0.15);
 
 
 @keyframes fadeUp {
@@ -302,7 +303,7 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
-// Scrollbar
+// Scrollbar (đổi màu thumb sang tối để còn thấy trên nền track sáng)
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -311,11 +312,11 @@ html, body, #root {
   background: $primary-navy;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.15);
   border-radius: 99px;
 
   &:hover {
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.25);
   }
 }
 

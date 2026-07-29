@@ -48,14 +48,14 @@ export const useUser = () => {
 };
 
 export const fieldStyle = {
-  background: "rgba(255,255,255,0.05)",
+  background: "rgba(5, 4, 4, 0.05)",
   border: "1px solid rgba(255,255,255,0.1)",
   borderRadius: 8,
-  color: "#f1f5f9",
+  color: "#000000",
 };
 
 export const formLabel = (text: string) => (
-  <span style={{ color: "#94a3b8", fontSize: 12 }}>{text}</span>
+  <span style={{ color: "#000000", fontSize: 12 }}>{text}</span>
 );
 
 type ModalFooterProps = {

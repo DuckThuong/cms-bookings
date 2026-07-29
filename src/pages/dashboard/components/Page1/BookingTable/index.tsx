@@ -152,7 +152,7 @@ const BookingTable = ({ items }: BookingTableProps) => {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              border: "1px solid #0f172a",
               borderRadius: 8,
               color: "#f1f5f9",
               minWidth: 0,
@@ -164,7 +164,7 @@ const BookingTable = ({ items }: BookingTableProps) => {
             icon={<FilterOutlined />}
             style={{
               background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              border: "1px solid #0f172a",
               color: "#94a3b8",
               borderRadius: 8,
             }}
