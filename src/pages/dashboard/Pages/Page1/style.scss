@@ -237,7 +237,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    border-bottom: 1px solid $text-primary;
+    border-bottom: 1px solid $border-color;
     gap: 10px;
     flex-wrap: wrap;
   }
@@ -275,7 +275,7 @@
 
   .ant-table-thead > tr > th {
     background: rgba(255,255,255,0.03) !important;
-    border-bottom: 1px solid $text-primary !important;
+    border-bottom: 1px solid $border-color !important;
     color: $text-primary !important;
     font-weight: 600 !important;
     font-size: 11px !important;
@@ -296,7 +296,7 @@
   }
 
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid $text-primary !important;
+    border-bottom: 1px solid $border-color !important;
     color: $text-secondary !important;
     padding: 10px 10px !important;
     background: transparent !important;

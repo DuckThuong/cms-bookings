@@ -1,5 +1,5 @@
 @use "../../../../common" as *;
-
+@use "../../../../color" as *;
 .auth-login {
   min-height: 100vh;
   background: #f4f5f7;
@@ -281,7 +281,7 @@
   padding: 15px;
   border-radius: 13px;
   background: $night;
-  border: none !important;
+  border: 1px solid $text-primary;
   cursor: pointer;
 
   @include fadeUpSecond(0.62s);
@@ -295,7 +295,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: $text-primary;
     gap: 10px;
     font-family: "Be Vietnam Pro", sans-serif;
     font-size: 15px;
