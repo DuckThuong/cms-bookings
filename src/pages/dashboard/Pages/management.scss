@@ -183,6 +183,11 @@
     color: $accent-orange;
     font-size: 12px;
     font-weight: 700;
+     max-width: 120px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
   }
 
   &__main {

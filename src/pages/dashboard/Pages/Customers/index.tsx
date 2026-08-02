@@ -1,12 +1,13 @@
 import { getCmsCustomers } from "@/api/configs/customer.config";
-import SummaryStrip from "../../components/Page2/SummaryStrip";
+import { statusMap, tierMap } from "@/common/constants/constants";
 import { useCustomerStatuses } from "@/common/hooks/useMasterData";
-import type { CustomerRecord } from "../../share";
-import { EyeOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Drawer, Empty, Input, Select, Spin, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMemo, useState } from "react";
+import SummaryStrip from "../../components/Page2/SummaryStrip";
+import type { CustomerRecord } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
 
@@ -34,7 +35,6 @@ const CustomersPage = () => {
 
   const { customerStatusOptions, customerStatusMeta, customerTierOptions, customerTiers, loading: masterDataLoading } = useCustomerStatuses();
 
-  // Convert customer tiers to label map
   const customerTierLabelMap = useMemo(() => {
     const map: Record<string, string> = {};
     for (const ct of customerTiers) {
@@ -53,7 +53,11 @@ const CustomersPage = () => {
       }),
   });
 
-  const customers = listQuery.data?.items ?? [];
+  const customers = (listQuery.data?.items ?? []).map((customer) => ({
+    ...customer,
+    status: statusMap[customer.status] ?? customer.status,
+    tier: tierMap[customer.tier] ?? customer.tier,
+  }));
 
   const summaryItems = useMemo(() => {
     const summary = listQuery.data?.summary;
@@ -74,32 +78,42 @@ const CustomersPage = () => {
   }, [listQuery.data?.summary]);
 
   const columns: ColumnsType<CustomerRecord> = [
-    { title: "Mã khách", dataIndex: "id", key: "id", render: (value: string) => (
-      <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{value}</span>
-    )},
-    { title: "Khách hàng", key: "name", render: (_, record) => (
-      <div className="cust-cell">
-        <div className="cust-cell__avatar">{record.name.charAt(0)}</div>
-        <div>
-          <div className="cust-cell__name">{record.name}</div>
-          <div className="cust-cell__phone">{record.phone}</div>
+    {
+      title: "Mã khách", dataIndex: "id", key: "id", render: (value: string) => (
+        <span style={{ color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{value}</span>
+      )
+    },
+    {
+      title: "Khách hàng", key: "name", render: (_, record) => (
+        <div className="cust-cell">
+          <div className="cust-cell__avatar">{record.name.charAt(0)}</div>
+          <div>
+            <div className="cust-cell__name">{record.name}</div>
+            <div className="cust-cell__phone">{record.phone}</div>
+          </div>
         </div>
-      </div>
-    )},
-    { title: "Hạng", dataIndex: "tier", key: "tier", render: (value: string) => (
-      <span className="seat-badge">{customerTierLabelMap[value] ?? value}</span>
-    )},
+      )
+    },
+    {
+      title: "Hạng", dataIndex: "tier", key: "tier", render: (value: string) => (
+        <span className="seat-badge">{tierMap[value] ?? value}</span>
+      )
+    },
     { title: "Tuyến ưa thích", dataIndex: "preferredRoute", key: "preferredRoute" },
     { title: "Số booking", dataIndex: "bookingCount", key: "bookingCount" },
-    { title: "Tổng chi tiêu", dataIndex: "totalSpent", key: "totalSpent", render: (value: number) => (
-      <span className="amount-cell">{formatMoney(value)}₫</span>
-    )},
+    {
+      title: "Tổng chi tiêu", dataIndex: "totalSpent", key: "totalSpent", render: (value: number) => (
+        <span className="amount-cell">{formatMoney(value)}₫</span>
+      )
+    },
     { title: "Trạng thái", dataIndex: "status", key: "status", render: (value: string) => renderCustomerStatus(value, customerStatusMeta) },
-    { title: "", key: "actions", render: (_, record) => (
-      <div className="row-actions">
-        <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
-      </div>
-    )},
+    {
+      title: "", key: "actions", render: (_, record) => (
+        <div className="row-actions">
+          <Button type="primary" icon={<EyeOutlined />} onClick={(e) => { e.stopPropagation(); setSelected(record); }} />
+        </div>
+      )
+    },
   ];
 
   return (
@@ -120,7 +134,6 @@ const CustomersPage = () => {
           <Select className="bm-select" value={tier} onChange={setTier} options={customerTierOptions} disabled={masterDataLoading} />
           <Select className="bm-select" value={status} onChange={setStatus} options={customerStatusOptions} disabled={masterDataLoading} />
           <Button className="btn-ghost" icon={<ReloadOutlined />} onClick={() => { setSearch(""); setTier("all"); setStatus("all"); void listQuery.refetch(); }} />
-          <Button className="btn-primary" icon={<PlusOutlined />}>Tạo phân nhóm</Button>
         </div>
       </div>
 
@@ -162,7 +175,9 @@ const CustomersPage = () => {
                 {selected.recentTrips.length > 0 ? (
                   selected.recentTrips.map((trip) => (
                     <div className="mgmt-activity__item" key={trip.id}>
-                      <div className="mgmt-activity__code">{trip.id}</div>
+                      <div className="mgmt-activity__code" title={trip.id}>
+                        {trip.id}
+                      </div>
                       <div className="mgmt-activity__main">
                         <div className="mgmt-activity__title">{trip.route}</div>
                         <div className="mgmt-activity__meta">{trip.date}</div>

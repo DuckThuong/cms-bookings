@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Drawer, Input, Modal, Select, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -15,24 +15,40 @@ import {
   PROVIDER_STATUS_META,
   getProviderSummary,
   providerStatusOptions,
-  providers,
   type ProviderRecord,
   type ProviderStatusKey,
 } from "../../share";
 import "../Page2/style.scss";
 import "../management.scss";
+import { useQuery } from "@tanstack/react-query";
+import { getAllCompanies } from "@/api/configs/customer.config";
 
 type ProviderFormValues = Omit<ProviderRecord, "key" | "id">;
 
 const makeProviderId = (nextIndex: number) => `NX-${String(1000 + nextIndex).padStart(4, "0")}`;
 
 const ProvidersPage = () => {
-  const [providerData, setProviderData] = useState<ProviderRecord[]>(providers);
+  const [providerData, setProviderData] = useState<ProviderRecord[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProviderStatusKey | "all">("all");
   const [selected, setSelected] = useState<ProviderRecord | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ProviderRecord | null>(null);
+
+  const listQuery = useQuery({
+    queryKey: ["cmsProviders", search, status],
+    queryFn: () =>
+      getAllCompanies({
+        search: search.trim() || undefined,
+        status: status === "all" ? undefined : status,
+      }),
+  });
+
+  useEffect(() => {
+    if (listQuery.data?.items) {
+      setProviderData(listQuery.data.items);
+    }
+  }, [listQuery.data?.items]);
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -47,6 +63,39 @@ const ProvidersPage = () => {
       return matchKeyword && matchStatus;
     });
   }, [providerData, search, status]);
+
+  const summaryItems = useMemo(() => {
+    if (listQuery.data?.summary) {
+      return [
+        {
+          key: "providers",
+          label: "Tổng nhà xe",
+          color: "#3b82f6",
+          value: listQuery.data.summary.totalProviders,
+        },
+        {
+          key: "active",
+          label: "Đang hoạt động",
+          color: "#22c55e",
+          value: listQuery.data.summary.activeCount,
+        },
+        {
+          key: "routes",
+          label: "Tổng tuyến",
+          color: "#f97316",
+          value: listQuery.data.summary.totalRoutes,
+        },
+        {
+          key: "vehicles",
+          label: "Tổng xe",
+          color: "#a855f7",
+          value: listQuery.data.summary.totalVehicles,
+        },
+      ];
+    }
+
+    return getProviderSummary(filtered);
+  }, [filtered, listQuery.data?.summary]);
 
   const resetFilters = () => {
     setSearch("");
@@ -243,7 +292,7 @@ const ProvidersPage = () => {
         </div>
       </div>
 
-      <SummaryStrip items={getProviderSummary(filtered)} />
+      <SummaryStrip items={summaryItems} />
 
       <div className="bm-content">
         <div className="bm-table-wrap bm-table">
@@ -251,6 +300,7 @@ const ProvidersPage = () => {
             rowKey="key"
             columns={columns}
             dataSource={filtered}
+            loading={listQuery.isLoading}
             pagination={{ pageSize: 6, showSizeChanger: false }}
             onRow={(record) => ({ onClick: () => setSelected(record) })}
           />

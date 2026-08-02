@@ -1,3 +1,4 @@
+import type { ProviderRecord } from "@/pages/dashboard/share";
 import type {
   CustomerRecord,
   CustomerTrip,
@@ -10,6 +11,11 @@ export interface CmsCustomerListQuery {
   status?: CustomerRecord["status"] | "all";
 }
 
+export interface CmsCompanyListQuery {
+  search?: string;
+  status?: ProviderRecord["status"] | "all";
+}
+
 export interface CmsCustomerSummary {
   totalCustomers: number;
   vipCount: number;
@@ -17,10 +23,23 @@ export interface CmsCustomerSummary {
   totalSpent: number;
 }
 
+export interface CmsProviderSummary {
+  totalProviders: number;
+  activeCount: number;
+  totalRoutes: number;
+  totalVehicles: number;
+}
+
 export interface CmsCustomerListResponse {
   items: CustomerRecord[];
   total: number;
   summary: CmsCustomerSummary;
+}
+
+export interface CmsProviderListResponse {
+  items: ProviderRecord[];
+  total: number;
+  summary: CmsProviderSummary;
 }
 
 export type CmsCustomerDetailResponse = CustomerRecord;

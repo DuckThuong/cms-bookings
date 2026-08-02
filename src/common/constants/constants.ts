@@ -45,3 +45,15 @@ export const TAG_COLORS: Record<string, string> = {
   green: "service-card__tag--green",
   red: "service-card__tag--red",
 };
+
+export const statusMap: Record<string, string> = {
+  active: "Đang hoạt động",
+  inactive: "Ngừng hoạt động",
+  blocked: "Đã khóa",
+};
+
+export const tierMap: Record<string, string> = {
+  "pho-thong": "Phổ thông",
+  "than-thiet": "Thân thiết",
+  "vip": "VIP",
+};

@@ -1,3 +1,4 @@
+import { formatMoney } from "@/common/contexts/format";
 
 interface SummaryStripProps {
   items: { key: string; label: string; color: string; value: number | string }[]
@@ -16,7 +17,7 @@ const SummaryStrip = ({ items }: SummaryStripProps) => (
           className="bm-summary-strip__value"
           style={{ color: item.color }}
         >
-          {item.value}
+          {formatMoney(item.value)}₫
         </span>
       </div>
     ))}
