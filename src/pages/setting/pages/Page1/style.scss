@@ -1,0 +1,442 @@
+@use "../../../../color.scss" as *;
+@use "../../../../common.scss" as *;
+// ─── Page wrapper ─────────────────────────────────────────
+.profile-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: "Be Vietnam Pro", sans-serif;
+  animation: fadeUp 0.4s ease;
+}
+
+// ─── Hero banner ─────────────────────────────────────────
+.ps-hero {
+  background: $night;
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeUp 0.4s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba($amber, 0.07);
+    pointer-events: none;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -50px;
+    right: 120px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba($amber, 0.04);
+    pointer-events: none;
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $amber, $amber-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 3px solid rgba($amber, 0.3);
+
+    i {
+      font-size: 24px;
+      color: $night;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__greeting {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $text-primary;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 6px;
+  }
+
+  &__desc {
+    font-size: 12.5px;
+    color: $text-primary;
+    line-height: 1.5;
+  }
+
+  &__badge {
+    &.ant-tag {
+      background: rgba($green, 0.15) !important;
+      border: 0.5px solid rgba($green, 0.3) !important;
+      color: $green !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      border-radius: 5px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      padding: 2px 9px !important;
+
+      i {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// ─── Stats summary row ────────────────────────────────────
+.ps-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  animation: fadeUp 0.4s 0.05s ease both;
+}
+
+.ps-stat {
+  background: #fff;
+  border: 0.5px solid $border;
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: darken($border, 10%);
+    box-shadow: 0 2px 8px rgba(0, 41, 58, 0.04);
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: $amber-pale;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+
+    i {
+      font-size: 18px;
+      color: $amber;
+    }
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 500;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+  }
+
+  &__value {
+    font-size: 26px;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1;
+  }
+
+  &__sub {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+}
+
+// ─── Settings sections ────────────────────────────────────
+.ps-section {
+  background: #fff;
+  border: 0.5px solid $border;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 41, 58, 0.04);
+  padding: 22px 24px;
+  animation: fadeUp 0.4s 0.1s ease both;
+
+  & + & {
+    margin-top: 16px;
+  }
+
+  &__title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    i {
+      color: $amber;
+      font-size: 15px;
+    }
+  }
+}
+
+// ─── Switch row (premium card style) ───────────────────────
+.ps-switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: #fff;
+  cursor: default;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  font-family: "Be Vietnam Pro", sans-serif;
+
+  &:hover {
+    border-color: darken($border, 12%);
+    background: #fafbfc;
+  }
+
+  &--on {
+    border-color: $amber;
+    background: $amber-pale;
+    box-shadow: 0 0 0 3px rgba($amber, 0.08);
+  }
+
+  & + & {
+    margin-top: 8px;
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: $night;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 16px;
+      color: $amber;
+    }
+  }
+
+  &--on &__icon {
+    background: rgba($amber, 0.2);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    line-height: 1.2;
+  }
+
+  &__desc {
+    font-size: 11.5px;
+    color: $muted;
+    line-height: 1.4;
+  }
+}
+
+// Switch antd override
+.ps-switch {
+  flex-shrink: 0;
+
+  &.ant-switch-checked {
+    background: $amber !important;
+  }
+}
+
+// ─── Preferred contact ────────────────────────────────────
+.ps-contact-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.ps-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+  font-family: "Be Vietnam Pro", sans-serif;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: darken($border, 10%);
+    color: $text-primary;
+  }
+
+  &--active {
+    border-color: $amber;
+    background: $amber-pale;
+    color: $text-primary;
+    font-weight: 600;
+    box-shadow: 0 0 0 3px rgba($amber, 0.08);
+  }
+
+  &__icon {
+    font-size: 14px;
+    color: inherit;
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+// ─── Form style overrides ─────────────────────────────────
+.ps-form {
+  .ant-form-item-label > label {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: $text-primary !important;
+  }
+
+  .ant-select {
+    border-radius: 10px !important;
+    height: 44px !important;
+    font-size: 13.5px !important;
+    border-color: $border !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+
+    &:hover {
+      border-color: darken($border, 12%) !important;
+    }
+
+    &:focus,
+    &.ant-select-focused {
+      border-color: $amber !important;
+      box-shadow: 0 0 0 3px rgba($amber, 0.08) !important;
+    }
+  }
+
+  .ant-form-item {
+    margin-bottom: 16px !important;
+  }
+}
+
+// ─── Actions bar ──────────────────────────────────────────
+.ps-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 24px;
+  border-top: 0.5px solid $border;
+  background: #fafbfc;
+  border-radius: 0 0 14px 14px;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+.ps-actions__reset {
+  &.ant-btn {
+    height: 44px !important;
+    border-radius: 10px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: $muted !important;
+    border-color: $border !important;
+    background: #fff !important;
+    transition: all 0.15s !important;
+
+    &:hover {
+      color: $text-primary !important;
+      border-color: darken($border, 12%) !important;
+    }
+
+    i {
+      font-size: 13px !important;
+    }
+  }
+}
+
+.ps-actions__save {
+  &.ant-btn-primary {
+    height: 44px !important;
+    padding: 0 24px !important;
+    border-radius: 10px !important;
+    background: $text-primary !important;
+    border-color: $text-primary !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    transition: opacity 0.15s !important;
+
+    &:hover {
+      opacity: 0.88 !important;
+    }
+
+    i {
+      font-size: 13px !important;
+    }
+  }
+}
+
+// ─── Responsive ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .ps-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .ps-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ps-section {
+    padding: 18px 20px;
+  }
+
+  .ps-actions {
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ps-stats {
+    grid-template-columns: 1fr;
+  }
+}

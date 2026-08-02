@@ -15,6 +15,7 @@ export const ROUTER_NAME = {
   CHAT: "chat",
   COMPANY_REGISTRATIONS: "company-registrations",
   REFUNDS: "refunds",
+  SETTINGS: "settings",
   NOT_FOUND: "*",
 };
 
@@ -33,5 +34,6 @@ export const ROUTER_PATH = {
   CHAT: `${ROUTER}/${ROUTER_NAME.CHAT}`,
   COMPANY_REGISTRATIONS: `${ROUTER}/${ROUTER_NAME.COMPANY_REGISTRATIONS}`,
   REFUNDS: `${ROUTER}/${ROUTER_NAME.REFUNDS}`,
+  SETTINGS: `${ROUTER}/${ROUTER_NAME.SETTINGS}`,
   NOT_FOUND: `${ROUTER}/${ROUTER_NAME.NOT_FOUND}`,
 };

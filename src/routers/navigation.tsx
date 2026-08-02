@@ -53,6 +53,7 @@ export const MENU_PATHS: Record<string, string> = {
   reports: ROUTER_PATH.REPORTS,
   refunds: ROUTER_PATH.REFUNDS,
   chat: ROUTER_PATH.CHAT,
+  settings: ROUTER_PATH.SETTINGS,
   "company-registrations": ROUTER_PATH.COMPANY_REGISTRATIONS,
 };
 
